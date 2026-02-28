@@ -1,0 +1,92 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,800;1,700&family=DM+Sans:wght@400;500;600;700&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: 'Poppins', sans-serif;
+}
+
+/* PAGE BACKGROUND */
+body {
+  @apply bg-bgLight text-textDark;
+}
+
+
+/* BUTTON */
+.btn-primary {
+  @apply bg-primary text-white px-6 py-3 rounded-xl font-semibold hover:bg-primaryHover transition shadow-sm hover:shadow-md;
+}
+
+
+/* CARD */
+.card {
+  @apply bg-white rounded-xl border border-borderLight shadow-sm hover:shadow-lg transition;
+}
+
+
+/* NAV LINK */
+.nav-link {
+  @apply text-textDark hover:text-primary transition font-medium;
+}
+
+
+
+
+/* 
+   Global Slide Animations
+*/
+
+@keyframes slideFromLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-80px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideFromRight {
+  from {
+    opacity: 0;
+    transform: translateX(80px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-left {
+  animation: slideFromLeft 0.8s ease-out forwards;
+}
+
+.animate-right {
+  animation: slideFromRight 0.8s ease-out forwards;
+}
+
+/* Initial state (hidden below) */
+.scroll-section {
+  opacity: 0;
+  transform: translateY(80px); /* start from bottom */
+  transition: all 0.8s ease;
+}
+
+/* When visible */
+.scroll-section.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+input:-webkit-autofill,
+textarea:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0px 1000px white inset !important;
+  box-shadow: 0 0 0px 1000px white inset !important;
+  -webkit-text-fill-color: #000 !important;
+}
+
+html{
+  scroll-behavior: smooth;
+}
