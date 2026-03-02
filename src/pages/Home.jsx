@@ -40,7 +40,7 @@ export default function Home() {
     <div>
       {/* HERO SECTION */}
       <section className="bg-bgLight">
-        <div className="grid md:grid-cols-1 gap-12 items-center">
+        <div className="flex flex-wrap justify-center">
           {/* LEFT SIDE → IMAGE WITH FLOATING FORM */}
           <div className="relative">
             {/* HERO IMAGE */}
@@ -48,40 +48,39 @@ export default function Home() {
               src={heroImage}
               loading="eager"
               alt="Home Services"
-              className="h-64 md:h-[110%] w-full shadow-sm"
+              className="w-full shadow-sm"
             />
 
             <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-black/20 to-transparent"></div>
 
-            {/* HERO TEXT */}
-            <div className="absolute top-[35%] lg:top-[15%] sm:mx-[4rem] transform -translate-y-1/2 text-white max-w-xl">
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold leading-tight mb-4">
-                Hire Verified
-                <span className="text-primary"> Domestic Professionals </span>
-                instantly
-              </h1>
+            <div className="absolute lg:w-1/2 md:w-full top-0 lg:px-[4rem] px-4 py-8">
+              {/* HERO TEXT */}
+              <div className="h-full">
+                <h1 className=" text-black text-3xl sm:text-4xl md:text-5xl font-bold leading-tight mb-4">
+                  Hire Verified
+                  <span className="text-primary"> Domestic Professionals </span>
+                  instantly
+                </h1>
 
-              <p className="text-sm sm:text-base opacity-90">
-                Verified nanny, househelp, cooks and drivers. Fast hiring.
-                Trusted professionals.
-              </p>
-            </div>
+                <p className="text-white text-sm sm:text-base opacity-90">
+                  Verified nanny, househelp, cooks and drivers. Fast hiring.
+                  Trusted professionals.
+                </p>
+              </div>
 
-            {/* FLOATING FORM → DESKTOP ONLY absolute md:top-[22rem] md:left-[8rem] top-[85%] left-1/2 -translate-x-1/2 w-[92%] md:w-[380px] */}
-            <div
-              style={{ width: "35%" }}
-              className="absolute lg:top-[12.5rem] lg:left-[21rem] top-[85%] left-1/2 -translate-x-1/2 lg:w-[450px] hidden md:hidden lg:block"
-            >
-              <HeroWizard />
+              {/* FLOATING FORM → DESKTOP ONLY absolute md:top-[22rem] md:left-[8rem] top-[85%] left-1/2 -translate-x-1/2 w-[92%] md:w-[380px] */}
+              <div className="pt-4 hidden md:hidden lg:block">
+                <HeroWizard />
+              </div>
             </div>
           </div>
 
-          <div className="md:flex justify-center hidden lg:hidden">
+          <div className="w-full md:flex justify-center hidden lg:hidden">
             <HeroWizard />
           </div>
 
           {/* MOBILE FORM → BELOW IMAGE */}
-          <div className="mx-3 lg:hidden md:hidden">
+          <div className="w-full mx-2 lg:hidden md:hidden">
             <HeroWizard />
           </div>
         </div>

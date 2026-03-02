@@ -30,7 +30,7 @@ export default function Navbar() {
   return (
     <>
       {/* TOP STRIP */}
-      <div className="bg-primary text-white text-sm hidden md:block">
+      <div className="bg-primary sticky top-0  z-50 text-white text-sm hidden md:block">
         <div className="max-w-7xl mx-auto flex justify-between items-center px-6 py-2">
           {/* LEFT SIDE */}
           <div className="flex items-center gap-6">
@@ -67,7 +67,7 @@ export default function Navbar() {
       </div>
 
       {/* MAIN NAVBAR */}
-      <nav className="bg-white sticky top-0 z-50 border-b border-borderLight">
+      <nav className="bg-white sticky md:top-[2.25rem] top-0 z-50 border-b border-borderLight">
         <div className="max-w-7xl mx-auto flex justify-between items-center h-20 px-4 sm:px-6">
           {/* LOGO */}
           <Link to="/" className="flex items-center h-full">

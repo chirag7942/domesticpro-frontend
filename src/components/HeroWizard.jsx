@@ -6,6 +6,8 @@ import houseHelpImg from "../assets/services/househelp.png";
 import patientCareImg from "../assets/services/patient-care.png";
 import driverImg from "../assets/services/driver.png";
 import multipleServicesImg from "../assets/services/multiple-services.png";
+import housemanager from "../assets/services/house-manager.png";
+import qrCode from "../assets/qrCode.jpeg";
 
 // househelp images
 import bathroom from "../assets/services/househelp/bathroom.png";
@@ -130,27 +132,19 @@ import {
   Smartphone,
 } from "lucide-react";
 
-// ══════════════════════════════════════════════════════════════════════════════
-// CONFIG
-// ══════════════════════════════════════════════════════════════════════════════
-
 const API_BASE = "http://localhost:5000";
 const CLOUDINARY_CLOUD_NAME = "dto7bji6b";
 const CLOUDINARY_UPLOAD_PRESET = "payment_screenshots";
 
 const PAYMENT_INFO = {
-  upiId: "helpinghands@upi",
-  accountName: "Helping Hands Home Services Pvt Ltd",
+  upiId: "domesticpro@upi",
+  accountName: "Domestic Pro Pvt Ltd",
   accountNumber: "1234 5678 9012 3456",
   ifsc: "HDFC0001234",
   bankName: "HDFC Bank",
   branch: "Connaught Place, New Delhi",
   whatsapp: "9876543210",
 };
-
-// ══════════════════════════════════════════════════════════════════════════════
-// STATIC DATA
-// ══════════════════════════════════════════════════════════════════════════════
 
 const SERVICES = [
   {
@@ -196,7 +190,7 @@ const SERVICES = [
   {
     id: "housemanager",
     label: "House Manager",
-    image: houseHelpImg,
+    image: housemanager,
     color: "#FBBF24",
     emoji: "📋",
     desc: "Full household mgmt",
@@ -433,16 +427,16 @@ const MULTI_SERVICES = [
     id: "housemanager",
     label: "House Manager",
     emoji: "📋",
-    image: multipleServicesImg,
+    image: housemanager,
   },
 ];
 
 const BUDGETS = [
-  { id: "5-10k", label: "₹5k – ₹10k", desc: "Basic services" },
-  { id: "10-15k", label: "₹10k – ₹15k", desc: "Standard quality" },
-  { id: "15-20k", label: "₹15k – ₹20k", desc: "Professional grade" },
-  { id: "20-30k", label: "₹20k – ₹30k", desc: "Premium services" },
-  { id: "30k+", label: "₹30k+", desc: "Luxury / live-in" },
+  { id: "5-10k", label: "₹5k – ₹10k" },
+  { id: "10-15k", label: "₹10k – ₹15k" },
+  { id: "15-20k", label: "₹15k – ₹20k" },
+  { id: "20-30k", label: "₹20k – ₹30k" },
+  { id: "30k+", label: "₹30k+" },
 ];
 
 const URGENCY_OPTIONS = [
@@ -514,8 +508,6 @@ const PLANS = {
   },
 };
 
-// ── Step flows ────────────────────────────────────────────────────────────────
-
 const SERVICE_FLOWS = {
   househelp: [
     "service",
@@ -524,6 +516,7 @@ const SERVICE_FLOWS = {
     "housesize",
     "pets",
     "budget",
+    "experience",
     "urgency",
     "contact",
     "plan",
@@ -536,6 +529,7 @@ const SERVICE_FLOWS = {
     "mealpref",
     "mealtime",
     "cuisine",
+    "experience",
     "budget",
     "urgency",
     "contact",
@@ -549,6 +543,7 @@ const SERVICE_FLOWS = {
     "childage",
     "childduties",
     "budget",
+    "experience",
     "urgency",
     "contact",
     "plan",
@@ -561,6 +556,7 @@ const SERVICE_FLOWS = {
     "patientage",
     "patientgender",
     "careneeded",
+    "experience",
     "budget",
     "urgency",
     "contact",
@@ -585,6 +581,7 @@ const SERVICE_FLOWS = {
     "format",
     "managerduties",
     "hometype",
+    "experience",
     "budget",
     "urgency",
     "contact",
@@ -642,8 +639,6 @@ const PROG_META = {
   payment: { label: "Payment", icon: Wallet },
 };
 
-// ── Initial form state ────────────────────────────────────────────────────────
-
 const INIT = {
   FirstName: "",
   LastName: "",
@@ -681,10 +676,6 @@ const INIT = {
   ScreenshotUrl: "",
 };
 
-// ══════════════════════════════════════════════════════════════════════════════
-// API HELPERS
-// ══════════════════════════════════════════════════════════════════════════════
-
 const uploadToCloudinary = async (file) => {
   const fd = new FormData();
   fd.append("file", file);
@@ -706,10 +697,6 @@ const submitToBackend = async (formData) => {
   });
   return res.json();
 };
-
-// ══════════════════════════════════════════════════════════════════════════════
-// COMPONENT
-// ══════════════════════════════════════════════════════════════════════════════
 
 export default function HeroWizard({
   asModal = false,
@@ -750,8 +737,6 @@ export default function HeroWizard({
     progKeys.length <= 1
       ? 0
       : Math.round((Math.max(0, progIdx) / (progKeys.length - 1)) * 100);
-
-  // ── State helpers ──────────────────────────────────────────────────────────
   const setF = (k, v) => setForm((f) => ({ ...f, [k]: v }));
   const toggleArr = (k, v) =>
     setForm((f) => ({
@@ -790,7 +775,6 @@ export default function HeroWizard({
     });
   };
 
-  // ── Validation ─────────────────────────────────────────────────────────────
   const isValid = () => {
     switch (curKey) {
       case "service":
@@ -846,7 +830,6 @@ export default function HeroWizard({
     }
   };
 
-  // Steps that show a Continue / Submit button
   const CONT_KEYS = new Set([
     "tasks",
     "mealtime",
@@ -871,8 +854,6 @@ export default function HeroWizard({
   ]);
   const showContinue = CONT_KEYS.has(curKey);
 
-  // ── Plan submit ────────────────────────────────────────────────────────────
-  // Priority → navigate to payment; PBT → submit now and go to done
   const handlePlanSubmit = async (planType) => {
     if (!planType || planSubmitting) return;
     setF("PlanType", planType);
@@ -901,7 +882,6 @@ export default function HeroWizard({
     setStepIdx(steps.indexOf("done"));
   };
 
-  // ── Screenshot helpers ─────────────────────────────────────────────────────
   const handleFileSelect = (file) => {
     if (!file || !file.type.startsWith("image/")) return;
     setScreenshotFile(file);
@@ -924,7 +904,6 @@ export default function HeroWizard({
     setScreenshotUploading(false);
   };
 
-  // ── Payment submit — single /submit call with all data + screenshot URL ────
   const handlePaymentSubmit = async () => {
     if (paymentSubmitting) return;
     setPaymentSubmitting(true);
@@ -946,16 +925,12 @@ export default function HeroWizard({
     goNext();
   };
 
-  // ══════════════════════════════════════════════════════════════════════════
-  // SUB-COMPONENTS
-  // ══════════════════════════════════════════════════════════════════════════
-
-  const SvcCard = ({ svc, selected, onClick }) => (
+  const SvcCard = ({ svc, selected, onClick, className = "" }) => (
     <button
       type="button"
       aria-pressed={selected}
       onClick={onClick}
-      className="hw2-svc-card"
+      className={`hw2-svc-card ${className}`}
       style={{
         borderColor: selected ? svc.color : "#E5E2DE",
         boxShadow: selected
@@ -1128,10 +1103,6 @@ export default function HeroWizard({
     </div>
   );
 
-  // ══════════════════════════════════════════════════════════════════════════
-  // STEP RENDERER
-  // ══════════════════════════════════════════════════════════════════════════
-
   const renderStep = () => {
     // ── Service ─────────────────────────────────────────────────────────────
     if (curKey === "service")
@@ -1141,23 +1112,29 @@ export default function HeroWizard({
             q="What type of house help do you need?"
             hint="Tap to select — we'll guide you from there"
           />
-          <div className="grid grid-cols-3 gap-2.5 place-content-center sm:gap-3">
-            {SERVICES.map((svc) => (
-              <SvcCard
-                key={svc.id}
-                svc={svc}
-                selected={form.ServiceType === svc.id}
-                onClick={() => {
-                  setForm({
-                    ...INIT,
-                    ServiceType: svc.id,
-                    ServiceLabel: svc.label,
-                  });
-                  setDir(1);
-                  setTimeout(() => setStepIdx(1), 200);
-                }}
-              />
-            ))}
+          <div className="grid grid-cols-3 gap-2.5 sm:gap-3">
+            {SERVICES.map((svc, index) => {
+              const isLastSingle =
+                SERVICES.length % 3 === 1 && index === SERVICES.length - 1;
+
+              return (
+                <SvcCard
+                  key={svc.id}
+                  svc={svc}
+                  selected={form.ServiceType === svc.id}
+                  onClick={() => {
+                    setForm({
+                      ...INIT,
+                      ServiceType: svc.id,
+                      ServiceLabel: svc.label,
+                    });
+                    setDir(1);
+                    setTimeout(() => setStepIdx(1), 200);
+                  }}
+                  className={isLastSingle ? "col-start-2" : ""}
+                />
+              );
+            })}
           </div>
         </div>
       );
@@ -2079,140 +2056,7 @@ export default function HeroWizard({
               </div>
               <div className="hw2-pay-qr-row">
                 <div className="hw2-pay-qr-box">
-                  <svg
-                    width="90"
-                    height="90"
-                    viewBox="0 0 100 100"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <rect
-                      x="5"
-                      y="5"
-                      width="30"
-                      height="30"
-                      rx="4"
-                      fill="none"
-                      stroke="#1a1a2e"
-                      strokeWidth="3"
-                    />
-                    <rect
-                      x="65"
-                      y="5"
-                      width="30"
-                      height="30"
-                      rx="4"
-                      fill="none"
-                      stroke="#1a1a2e"
-                      strokeWidth="3"
-                    />
-                    <rect
-                      x="5"
-                      y="65"
-                      width="30"
-                      height="30"
-                      rx="4"
-                      fill="none"
-                      stroke="#1a1a2e"
-                      strokeWidth="3"
-                    />
-                    <rect
-                      x="11"
-                      y="11"
-                      width="18"
-                      height="18"
-                      rx="2"
-                      fill="#1a1a2e"
-                    />
-                    <rect
-                      x="71"
-                      y="11"
-                      width="18"
-                      height="18"
-                      rx="2"
-                      fill="#1a1a2e"
-                    />
-                    <rect
-                      x="11"
-                      y="71"
-                      width="18"
-                      height="18"
-                      rx="2"
-                      fill="#1a1a2e"
-                    />
-                    <rect
-                      x="40"
-                      y="40"
-                      width="8"
-                      height="8"
-                      rx="1"
-                      fill="#EC5F36"
-                    />
-                    <rect
-                      x="52"
-                      y="40"
-                      width="8"
-                      height="8"
-                      rx="1"
-                      fill="#1a1a2e"
-                    />
-                    <rect
-                      x="40"
-                      y="52"
-                      width="8"
-                      height="8"
-                      rx="1"
-                      fill="#1a1a2e"
-                    />
-                    <rect
-                      x="52"
-                      y="52"
-                      width="8"
-                      height="8"
-                      rx="1"
-                      fill="#EC5F36"
-                    />
-                    <rect
-                      x="65"
-                      y="52"
-                      width="8"
-                      height="8"
-                      rx="1"
-                      fill="#1a1a2e"
-                    />
-                    <rect
-                      x="77"
-                      y="52"
-                      width="8"
-                      height="8"
-                      rx="1"
-                      fill="#1a1a2e"
-                    />
-                    <rect
-                      x="65"
-                      y="64"
-                      width="8"
-                      height="8"
-                      rx="1"
-                      fill="#EC5F36"
-                    />
-                    <rect
-                      x="77"
-                      y="64"
-                      width="8"
-                      height="8"
-                      rx="1"
-                      fill="#1a1a2e"
-                    />
-                    <rect
-                      x="65"
-                      y="77"
-                      width="20"
-                      height="8"
-                      rx="1"
-                      fill="#1a1a2e"
-                    />
-                  </svg>
+                  <img src={qrCode} alt="QR Code" width={90} height={90} />
                   <p className="hw2-pay-qr-hint">Scan with any UPI app</p>
                 </div>
                 <div className="hw2-pay-upi-details">
@@ -2743,186 +2587,11 @@ export default function HeroWizard({
       </div>
     );
   };
-
-  // ══════════════════════════════════════════════════════════════════════════
-  // CSS
-  // ══════════════════════════════════════════════════════════════════════════
-  const CSS = `
-    @import url('https://fonts.googleapis.com/css2?family=Fraunces:wght@700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-    .hw2-root *   { box-sizing: border-box; }
-    .hw2-root     { font-family: 'Plus Jakarta Sans', sans-serif; }
-    .hw2-display  { font-family: 'Fraunces', serif; }
-    .hw2-q    { font-size: 15px; font-weight: 800; color: #1a1a2e; line-height: 1.3; margin-bottom: 2px; font-family: 'Plus Jakarta Sans', sans-serif; }
-    .hw2-hint { font-size: 12px; color: #9ca3af; font-weight: 500; }
-    .hw2-warn { font-size: 11.5px; color: #EC5F36; font-weight: 600; }
-    .hw2-flabel  { display: block; font-size: 12px; font-weight: 700; color: #374151; margin-bottom: 5px; }
-    .hw2-finput  { width: 100%; padding: 9px 13px; border-radius: 10px; border: 2px solid #E5E2DE; background: #fff; font-size: 13px; color: #1a1a2e; font-family: 'Plus Jakarta Sans', sans-serif; outline: none; transition: border-color .2s, box-shadow .2s; }
-    .hw2-finput:focus { border-color: #EC5F36; box-shadow: 0 0 0 3px rgba(236,95,54,0.10); }
-    .hw2-finput::placeholder { color: #d1c9c5; }
-    .hw2-textarea { width: 100%; padding: 10px 13px; border-radius: 10px; border: 2px solid #E5E2DE; background: #fff; font-size: 13px; color: #1a1a2e; font-family: 'Plus Jakarta Sans', sans-serif; resize: none; outline: none; transition: border-color .2s, box-shadow .2s; }
-    .hw2-textarea:focus { border-color: #EC5F36; box-shadow: 0 0 0 3px rgba(236,95,54,0.10); }
-    .hw2-age-input-wrap { display: flex; flex-direction: column; gap: 8px; }
-    .hw2-age-input { font-size: 15px; padding: 12px 15px; font-weight: 600; }
-    .hw2-age-hint  { font-size: 11.5px; color: #9ca3af; font-weight: 500; padding-left: 2px; }
-
-    /* SERVICE CARD */
-    .hw2-svc-card { position: relative; overflow: hidden; display: flex; flex-direction: column; padding: 0; border-radius: 14px; border: 2px solid; cursor: pointer; height: 6.8rem; background: #f3ede9; transition: border-color .22s, box-shadow .22s, transform .18s; }
-    .hw2-svc-card:hover { transform: translateY(-2px); }
-    .hw2-svc-img  { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .45s; }
-    .hw2-svc-card:hover .hw2-svc-img { transform: scale(1.07); }
-    .hw2-svc-overlay { position: absolute; inset: 0; background: linear-gradient(to top,rgba(20,20,35,0.82) 0%,rgba(20,20,35,0.18) 52%,transparent 100%); pointer-events: none; }
-    .hw2-svc-tint    { position: absolute; inset: 0; pointer-events: none; transition: background .2s; }
-    .hw2-svc-label   { position: absolute; bottom: 8px; left: 0; right: 0; text-align: center; color: #fff; font-size: 11px; font-weight: 800; line-height: 1.25; text-shadow: 0 1px 5px rgba(0,0,0,.7); padding: 0 5px; pointer-events: none; }
-    .hw2-svc-check   { position: absolute; top: 7px; right: 7px; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 7px rgba(0,0,0,0.30); }
-
-    /* GENDER CARD */
-    .hw2-gender-card { position: relative; overflow: hidden; display: flex; padding: 0; border-radius: 14px; border: 2px solid; cursor: pointer; height: 7.5rem; background: #f3ede9; transition: border-color .22s, box-shadow .22s, transform .18s; }
-    .hw2-gender-card:hover { transform: translateY(-2px); }
-    .hw2-gender-img  { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .45s; }
-    .hw2-gender-card:hover .hw2-gender-img { transform: scale(1.06); }
-    .hw2-gender-overlay { position: absolute; inset: 0; background: linear-gradient(to top,rgba(20,20,35,0.80) 0%,rgba(20,20,35,0.14) 50%,transparent 100%); pointer-events: none; }
-    .hw2-gender-tint  { position: absolute; inset: 0; background: rgba(236,95,54,0.22); pointer-events: none; }
-    .hw2-gender-label { position: absolute; bottom: 9px; left: 0; right: 0; text-align: center; color: #fff; font-size: 13px; font-weight: 800; text-shadow: 0 1px 5px rgba(0,0,0,.7); pointer-events: none; }
-    .hw2-gender-check { position: absolute; top: 7px; right: 7px; width: 20px; height: 20px; border-radius: 50%; background: #EC5F36; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(236,95,54,.50); }
-
-    /* PILL */
-    .hw2-pill { width: 100%; height:5rem; display: flex; align-items: center; gap: 11px; padding: 11px 13px; border-radius: 12px; border: 2px solid; cursor: pointer; text-align: left; font-family: 'Plus Jakarta Sans', sans-serif; transition: all .2s; }
-    .hw2-pill-ico   { width: 34px; height: 34px; border-radius: 9px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background .2s; }
-    .hw2-pill-txt   { display: flex; flex-direction: column; flex: 1; min-width: 0; }
-    .hw2-pill-label { font-size: 13px; font-weight: 700; line-height: 1.2; }
-    .hw2-pill-desc  { font-size: 11px; font-weight: 500; margin-top: 1px; }
-
-    /* STEPPER */
-    .hw2-stepper    { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; border-radius: 12px; border: 2px solid #E5E2DE; background: #fff; }
-    .hw2-step-label { font-size: 13px; font-weight: 700; color: #1a1a2e; }
-    .hw2-step-ctrl  { display: flex; align-items: center; gap: 12px; }
-    .hw2-step-btn   { width: 30px; height: 30px; border-radius: 8px; border: 2px solid #E5E2DE; background: #FFF2EE; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #EC5F36; transition: all .18s; }
-    .hw2-step-btn:hover:not(:disabled) { background: #EC5F36; color: #fff; border-color: #EC5F36; }
-    .hw2-step-btn:disabled { opacity: .35; cursor: not-allowed; }
-    .hw2-step-val   { font-size: 18px; font-weight: 800; color: #1a1a2e; min-width: 24px; text-align: center; }
-
-    /* EXPERIENCE */
-    .hw2-exp-card  { display: flex; align-items: center; width: 100%; padding: 12px 14px; border-radius: 12px; border: 2px solid; cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif; gap: 10px; transition: all .2s; text-align: left; }
-    .hw2-exp-card:hover { transform: translateX(2px); }
-    .hw2-exp-label { font-size: 13px; font-weight: 700; }
-    .hw2-exp-desc  { font-size: 11px; font-weight: 500; margin-top: 1px; }
-
-    /* BUDGET */
-    .hw2-budget-row   { display: flex; align-items: center; width: 100%; padding: 11px 14px; border-radius: 12px; border: 2px solid; cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif; gap: 10px; transition: all .2s; text-align: left; }
-    .hw2-budget-row:hover { transform: translateX(2px); }
-    .hw2-budget-label { font-size: 13.5px; font-weight: 800; flex: 1; }
-    .hw2-budget-desc  { font-size: 11.5px; font-weight: 500; }
-
-    /* PHONE */
-    .hw2-phone-wrap { display: flex; align-items: center; border: 2px solid #E5E2DE; border-radius: 10px; overflow: hidden; background: #fff; transition: border-color .2s, box-shadow .2s; }
-    .hw2-phone-wrap:focus-within { border-color: #EC5F36; box-shadow: 0 0 0 3px rgba(236,95,54,0.10); }
-    .hw2-phone-pre  { padding: 0 12px; height: 46px; display: flex; align-items: center; font-size: 13px; font-weight: 700; color: #6b7280; background: #FFF2EE; border-right: 2px solid #E5E2DE; flex-shrink: 0; }
-    .hw2-phone-inp  { flex: 1; padding: 0 12px; height: 46px; font-size: 14px; color: #1a1a2e; outline: none; border: none; background: transparent; font-family: 'Plus Jakarta Sans', sans-serif; }
-    .hw2-phone-inp::placeholder { color: #d1c9c5; font-size: 12.5px; }
-
-    /* SUMMARY */
-    .hw2-summary  { background: #FFF8F5; border: 1.5px solid #F0E8E4; border-radius: 12px; padding: 12px 14px; }
-    .hw2-sum-head { font-size: 10.5px; font-weight: 800; color: #9ca3af; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 8px; }
-    .hw2-sum-row  { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; font-size: 11.5px; padding: 3px 0; border-bottom: 1px solid #F0E8E4; }
-    .hw2-sum-row:last-child { border-bottom: none; }
-    .hw2-sum-key  { color: #9ca3af; font-weight: 500; white-space: nowrap; }
-    .hw2-sum-val  { font-weight: 700; color: #1a1a2e; text-align: right; }
-
-    /* SVC BADGE */
-    .hw2-svc-badge { font-size: 11px; font-weight: 700; background: #FFF2EE; color: #EC5F36; border: 1.5px solid #F5D8CF; border-radius: 20px; padding: 3px 10px; white-space: nowrap; }
-
-    /* BUTTONS */
-    .hw2-back { display: flex; align-items: center; gap: 5px; background: none; border: none; cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13px; font-weight: 700; color: #9ca3af; padding: 7px 3px; border-radius: 8px; transition: color .2s; }
-    .hw2-back:hover { color: #EC5F36; }
-    .hw2-btn  { display: flex; align-items: center; gap: 7px; padding: 10px 20px; background: linear-gradient(135deg,#EC5F36,#D84E28); color: #fff; border: none; border-radius: 11px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13.5px; font-weight: 800; cursor: pointer; box-shadow: 0 4px 16px rgba(236,95,54,.30); transition: all .2s; }
-    .hw2-btn:hover:not(:disabled) { box-shadow: 0 8px 24px rgba(236,95,54,.40); transform: translateY(-1px); }
-    .hw2-btn:disabled { opacity: .35; cursor: not-allowed; box-shadow: none; transform: none; }
-    @keyframes hw2-spin { to { transform: rotate(360deg); } }
-    .hw2-spin { width: 12px; height: 12px; border: 2px solid rgba(255,255,255,.35); border-top-color: #fff; border-radius: 50%; animation: hw2-spin .7s linear infinite; display: inline-block; }
-
-    /* PLAN CARDS */
-    .hw2-plan-card        { position: relative; border: 2px solid; border-radius: 16px; padding: 14px 15px 12px; cursor: pointer; transition: all .22s; }
-    .hw2-plan-card:hover  { transform: translateY(-1.5px); }
-    .hw2-plan-header      { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 8px; gap: 8px; }
-    .hw2-plan-badge       { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 20px; font-size: 11.5px; font-weight: 800; color: #fff; margin-bottom: 3px; }
-    .hw2-plan-subtitle    { font-size: 11px; color: #9ca3af; font-weight: 500; padding-left: 2px; }
-    .hw2-plan-price-block { text-align: right; flex-shrink: 0; }
-    .hw2-plan-amount      { font-size: 22px; font-weight: 800; font-family: 'Fraunces', serif; display: block; line-height: 1; }
-    .hw2-plan-gst         { font-size: 10px; color: #9ca3af; font-weight: 500; display: block; margin-bottom: 4px; }
-    .hw2-plan-total-inline{ font-size: 10.5px; font-weight: 800; border: 1.5px solid; border-radius: 7px; padding: 2px 7px; display: inline-block; }
-    .hw2-plan-perks       { list-style: none; padding: 0; margin: 0 0 8px; display: flex; flex-direction: column; gap: 5px; }
-    .hw2-plan-perks li    { display: flex; align-items: flex-start; gap: 7px; font-size: 12px; color: #374151; font-weight: 500; line-height: 1.4; }
-    .hw2-plan-bonus       { font-size: 11.5px; font-weight: 600; border: 1.5px solid; border-radius: 9px; padding: 6px 10px; margin-bottom: 8px; line-height: 1.4; }
-    .hw2-plan-meta-row    { display: flex; flex-direction: column; gap: 4px; padding-top: 8px; border-top: 1px solid rgba(0,0,0,0.06); }
-    .hw2-plan-meta-item   { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; }
-    .hw2-plan-selected-badge { position: absolute; top: -9px; right: 14px; display: inline-flex; align-items: center; gap: 4px; color: #fff; font-size: 10px; font-weight: 800; padding: 3px 10px; border-radius: 20px; }
-    .hw2-pbt-note { background: #EFF6FF; border: 1.5px solid #BFDBFE; border-radius: 10px; padding: 10px 13px; font-size: 12px; color: #1E40AF; font-weight: 500; line-height: 1.6; }
-
-    /* PAYMENT PAGE */
-    .hw2-pay-page-header   { text-align: center; margin-bottom: 14px; }
-    .hw2-pay-amount-badge  { display: inline-flex; align-items: center; gap: 6px; background: #FFF2EE; border: 1.5px solid #F5D8CF; border-radius: 24px; padding: 5px 14px; margin-bottom: 6px; }
-    .hw2-pay-amount-badge span:nth-child(2) { font-size: 18px; font-weight: 800; color: #EC5F36; font-family: 'Fraunces', serif; }
-    .hw2-pay-gst-small     { font-size: 10px; color: #9ca3af; font-weight: 500; }
-    .hw2-pay-page-title    { font-size: 14px; font-weight: 800; color: #1a1a2e; }
-    .hw2-pay-page-sub      { font-size: 11.5px; color: #9ca3af; font-weight: 500; margin-top: 2px; }
-    .hw2-pay-methods       { display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px; }
-    .hw2-pay-method-card   { background: #fff; border: 1.5px solid #E5E2DE; border-radius: 14px; padding: 12px 13px; }
-    .hw2-pay-method-head   { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 800; color: #1a1a2e; margin-bottom: 10px; }
-    .hw2-pay-qr-row        { display: flex; gap: 12px; align-items: flex-start; }
-    .hw2-pay-qr-box        { display: flex; flex-direction: column; align-items: center; gap: 5px; background: #FAFAFA; border: 1px solid #E5E2DE; border-radius: 10px; padding: 8px; flex-shrink: 0; }
-    .hw2-pay-qr-hint       { font-size: 9px; font-weight: 700; color: #9ca3af; }
-    .hw2-pay-upi-details   { flex: 1; display: flex; flex-direction: column; gap: 4px; }
-    .hw2-pay-upi-label     { font-size: 9.5px; font-weight: 700; color: #9ca3af; text-transform: uppercase; letter-spacing: .06em; }
-    .hw2-pay-upi-row       { display: flex; align-items: center; gap: 5px; }
-    .hw2-pay-upi-id        { font-size: 13px; font-weight: 800; color: #EC5F36; }
-    .hw2-pay-upi-apps      { font-size: 10px; color: #9ca3af; font-weight: 500; line-height: 1.4; }
-    .hw2-pay-amount-chip   { background: #FFF2EE; border: 1px solid #F5D8CF; border-radius: 7px; padding: 4px 9px; font-size: 11px; color: #EC5F36; font-weight: 600; width: fit-content; margin-top: 2px; }
-    .hw2-pay-or            { text-align: center; font-size: 11px; font-weight: 700; color: #9ca3af; position: relative; }
-    .hw2-pay-or::before, .hw2-pay-or::after { content: ""; position: absolute; top: 50%; width: calc(50% - 28px); height: 1px; background: #E5E2DE; }
-    .hw2-pay-or::before { left: 0; } .hw2-pay-or::after { right: 0; }
-    .hw2-pay-or span { background: #fff; padding: 0 10px; position: relative; z-index: 1; }
-    .hw2-bank-grid         { display: flex; flex-direction: column; gap: 8px; margin-bottom: 8px; }
-    .hw2-bank-item         { display: flex; flex-direction: column; gap: 1px; }
-    .hw2-bank-item-label   { font-size: 9px; font-weight: 700; color: #9ca3af; text-transform: uppercase; letter-spacing: .06em; }
-    .hw2-bank-item-row     { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
-    .hw2-bank-item-val     { font-size: 11.5px; font-weight: 700; color: #1a1a2e; flex: 1; line-height: 1.3; }
-    .hw2-bank-amount-tag   { background: #EFF6FF; border: 1px solid #BFDBFE; border-radius: 8px; padding: 5px 10px; font-size: 11px; font-weight: 600; color: #1E40AF; }
-    .hw2-copy-btn          { background: none; border: none; cursor: pointer; padding: 3px; border-radius: 4px; transition: background .15s; flex-shrink: 0; display: flex; align-items: center; }
-    .hw2-copy-btn:hover    { background: #F0E8E4; }
-    .hw2-screenshot-section { margin-bottom: 10px; }
-    .hw2-screenshot-title   { display: flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 800; color: #1a1a2e; margin-bottom: 3px; }
-    .hw2-screenshot-sub     { font-size: 11px; color: #9ca3af; font-weight: 500; margin-bottom: 8px; }
-    .hw2-dropzone { border: 2px dashed; border-radius: 14px; padding: 16px; transition: border-color .2s, background .2s; cursor: pointer; }
-    .hw2-dropzone-idle  { display: flex; flex-direction: column; align-items: center; gap: 6px; }
-    .hw2-dropzone-ico   { width: 44px; height: 44px; border-radius: 12px; background: #FFF2EE; display: flex; align-items: center; justify-content: center; }
-    .hw2-dropzone-main  { font-size: 12.5px; font-weight: 700; color: #374151; }
-    .hw2-dropzone-hint  { font-size: 10.5px; color: #9ca3af; font-weight: 500; }
-    .hw2-preview-wrap   { display: flex; flex-direction: column; align-items: center; gap: 8px; }
-    .hw2-preview-img    { max-height: 100px; max-width: 100%; border-radius: 10px; object-fit: contain; border: 1.5px solid #E5E2DE; }
-    .hw2-preview-actions { display: flex; align-items: center; gap: 8px; }
-    .hw2-preview-change { font-size: 11.5px; font-weight: 700; color: #9ca3af; background: none; border: 1.5px solid #E5E2DE; border-radius: 8px; padding: 4px 10px; cursor: pointer; transition: all .18s; }
-    .hw2-preview-change:hover { border-color: #EC5F36; color: #EC5F36; }
-    .hw2-upload-btn { display: flex; align-items: center; gap: 5px; font-size: 11.5px; font-weight: 800; color: #fff; background: linear-gradient(135deg,#EC5F36,#D84E28); border: none; border-radius: 8px; padding: 5px 12px; cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif; transition: all .18s; box-shadow: 0 3px 10px rgba(236,95,54,.28); }
-    .hw2-upload-btn:disabled { opacity: .4; cursor: not-allowed; }
-    .hw2-upload-success { display: flex; align-items: flex-start; gap: 7px; background: #F0FDF4; border: 1.5px solid #86EFAC; border-radius: 10px; padding: 8px 11px; font-size: 11.5px; color: #166534; font-weight: 500; margin-top: 8px; line-height: 1.45; }
-    .hw2-pay-whatsapp-note { background: #FFFBEB; border: 1.5px solid #FDE68A; border-radius: 10px; padding: 9px 12px; font-size: 11px; color: #92400E; font-weight: 500; line-height: 1.55; }
-    .hw2-skip-hint { font-size: 10.5px; color: #9ca3af; font-weight: 500; text-align: center; margin-top: 7px; line-height: 1.5; }
-    .hw2-payment-step-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 10.5px; font-weight: 800; color: #EC5F36; background: #FFF2EE; border: 1.5px solid #F5D8CF; border-radius: 20px; padding: 4px 11px; }
-    .hw2-done-plan-badge { display: inline-flex; align-items: center; gap: 5px; padding: 5px 14px; border-radius: 20px; font-size: 12px; font-weight: 800; border: 1.5px solid; margin-top: 8px; }
-    .hw2-body::-webkit-scrollbar       { width: 3px; }
-    .hw2-body::-webkit-scrollbar-track { background: transparent; }
-    .hw2-body::-webkit-scrollbar-thumb { background: #F0E8E4; border-radius: 4px; }
-  `;
-
-  // ══════════════════════════════════════════════════════════════════════════
-  // SHELL
-  // ══════════════════════════════════════════════════════════════════════════
   const Shell = (
     <>
-      <style>{CSS}</style>
       <div
-        className="hw2-root flex flex-col bg-white rounded-3xl shadow-xl p-5 sm:p-6 w-full max-w-xl"
-        style={{ border: "1.5px solid #F0EBE8", height: "35rem" }}
+        className="hw2-root flex flex-col bg-white rounded-3xl p-5 sm:p-6 w-full max-w-xl"
+        style={{ height: "35rem" }}
       >
         {renderProgress()}
         {renderPaymentHeader()}
