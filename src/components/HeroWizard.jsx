@@ -55,7 +55,7 @@ import mobility from "../assets/services/patient-care/support.png";
 // driver
 import manual from "../assets/services/driver/manual.png";
 import automatic from "../assets/services/driver/automatic.png";
-import suv from "../assets/services/driver/suv.png";
+import suv from "../assets/services/driver/SUV.png";
 import sedan from "../assets/services/driver/sedan.png";
 
 // housemanager
