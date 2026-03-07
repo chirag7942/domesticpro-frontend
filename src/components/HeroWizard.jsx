@@ -213,16 +213,17 @@ const SERVICE_FORMATS = [
     icon: Home,
   },
   {
-    id: "liveout",
-    label: "Live-Out",
-    desc: "Arrives daily for a set number of hours. Goes home in the evening.",
-    icon: Clock,
-  },
-  {
     id: "substitute",
     label: "Substitute",
     desc: "Short-term replacement cover for your existing staff member.",
     icon: Users,
+  },
+  {
+    id: "liveout",
+    label: "Live-Out",
+    desc: "Arrives daily for set hours. Goes home in the evening.",
+    icon: Clock,
+    comingSoon: true,
   },
 ];
 
@@ -352,11 +353,17 @@ const VEHICLE_TYPES = [
   { id: "sedan", label: "Sedan", emoji: "🏎️", image: sedan },
 ];
 
-const EXPERIENCE_LEVELS = [
-  { id: "1-3", label: "1–3 years", desc: "Good for standard tasks", star: 1 },
-  { id: "3-5", label: "3–5 years", desc: "Experienced professional", star: 2 },
-  { id: "5+", label: "5+ years", desc: "Expert & highly trained", star: 3 },
-];
+// const EXPERIENCE_LEVELS = [
+//   {
+//     id: "0-1",
+//     label: "0–1 years",
+//     desc: "Flexible for your standards",
+//     star: 0,
+//   },
+//   { id: "1-3", label: "1–3 years", desc: "Good for standard tasks", star: 1 },
+//   { id: "3-5", label: "3–5 years", desc: "Experienced professional", star: 2 },
+//   { id: "5+", label: "5+ years", desc: "Expert & highly trained", star: 3 },
+// ];
 
 const MANAGER_DUTIES = [
   { id: "help", label: "Oversee help", emoji: "👥", image: oversees },
@@ -432,11 +439,28 @@ const MULTI_SERVICES = [
 ];
 
 const BUDGETS = [
-  { id: "5-10k", label: "₹5k – ₹10k" },
-  { id: "10-15k", label: "₹10k – ₹15k" },
-  { id: "15-20k", label: "₹15k – ₹20k" },
-  { id: "20-30k", label: "₹20k – ₹30k" },
-  { id: "30k+", label: "₹30k+" },
+  {
+    id: "25k+",
+    label: "₹25,000+",
+    desc: "Highly trained & experienced helpers",
+  },
+  { id: "18-25k", label: "₹18k – ₹25k", desc: "Trained helpers available" },
+  { id: "15-17k", label: "₹15k – ₹17k", desc: "Untrained helpers" },
+  {
+    id: "10-15k",
+    label: "₹10k – ₹15k",
+    desc: "Limited availability in this range",
+  },
+];
+
+const SUBSTITUTE_BUDGETS = [
+  {
+    id: "sub-5k",
+    label: "₹5,000 / month",
+    desc: "Standard substitute placement — fixed rate",
+    badge: "Fixed Rate",
+    highlight: true,
+  },
 ];
 
 const URGENCY_OPTIONS = [
@@ -487,7 +511,7 @@ const PLANS = {
     bonus: "First replacement FREE within 15 days",
   },
   pbt: {
-    id: "pbt",
+    id: "Pay Before Profile Sharing ",
     name: "Pay Before Profile Sharing",
     subtitle: "No upfront payment needed",
     amount: 4999,
@@ -516,7 +540,6 @@ const SERVICE_FLOWS = {
     "housesize",
     "pets",
     "budget",
-    "experience",
     "urgency",
     "contact",
     "plan",
@@ -529,7 +552,6 @@ const SERVICE_FLOWS = {
     "mealpref",
     "mealtime",
     "cuisine",
-    "experience",
     "budget",
     "urgency",
     "contact",
@@ -543,7 +565,6 @@ const SERVICE_FLOWS = {
     "childage",
     "childduties",
     "budget",
-    "experience",
     "urgency",
     "contact",
     "plan",
@@ -556,7 +577,6 @@ const SERVICE_FLOWS = {
     "patientage",
     "patientgender",
     "careneeded",
-    "experience",
     "budget",
     "urgency",
     "contact",
@@ -568,7 +588,6 @@ const SERVICE_FLOWS = {
     "service",
     "format",
     "vehicletype",
-    "experience",
     "budget",
     "urgency",
     "contact",
@@ -581,7 +600,6 @@ const SERVICE_FLOWS = {
     "format",
     "managerduties",
     "hometype",
-    "experience",
     "budget",
     "urgency",
     "contact",
@@ -619,7 +637,6 @@ const PROG_META = {
   tasks: { label: "Tasks", icon: Layers },
   housesize: { label: "Home", icon: Home },
   pets: { label: "Pets", icon: PawPrint },
-  experience: { label: "Exp", icon: Star },
   mealpref: { label: "Diet", icon: Utensils },
   mealtime: { label: "Meals", icon: Coffee },
   cuisine: { label: "Cuisine", icon: ChefHat },
@@ -655,7 +672,6 @@ const INIT = {
   HouseSize: "",
   PeopleAtHome: 3,
   PetsAtHome: "",
-  ExperienceRequired: "",
   HomeType: "",
   MealPref: "",
   MealsNeeded: [],
@@ -785,8 +801,6 @@ export default function HeroWizard({
         return !!form.HouseSize;
       case "pets":
         return !!form.PetsAtHome;
-      case "experience":
-        return !!form.ExperienceRequired;
       case "mealpref":
         return !!form.MealPref;
       case "mealtime":
@@ -841,7 +855,6 @@ export default function HeroWizard({
     "multiservices",
     "contact",
     "housesize",
-    "experience",
     "mealpref",
     "urgency",
     "budget",
@@ -869,7 +882,7 @@ export default function HeroWizard({
     const updatedForm = {
       ...form,
       PlanType: planType,
-      PaymentStatus: "Not Required",
+      PaymentStatus: "Pending Payment",
       ScreenshotUrl: "",
     };
     try {
@@ -1148,19 +1161,120 @@ export default function HeroWizard({
             hint="How would you like the service provided?"
           />
           <div className="flex flex-col gap-2">
-            {SERVICE_FORMATS.map((opt) => (
-              <Pill
-                key={opt.id}
-                icon={opt.icon}
-                label={opt.label}
-                desc={opt.desc}
-                selected={form.ServiceFormat === opt.id}
-                onClick={() => {
-                  setF("ServiceFormat", opt.id);
-                  after();
-                }}
-              />
-            ))}
+            {SERVICE_FORMATS.map((opt) => {
+              const isCS = !!opt.comingSoon;
+              return (
+                <button
+                  key={opt.id}
+                  type="button"
+                  aria-pressed={form.ServiceFormat === opt.id}
+                  disabled={isCS}
+                  onClick={() => {
+                    if (isCS) return;
+                    setF("ServiceFormat", opt.id);
+                    after();
+                  }}
+                  className="hw2-pill"
+                  style={{
+                    background: isCS
+                      ? "#F9F9F9"
+                      : form.ServiceFormat === opt.id
+                        ? "#EC5F36"
+                        : "#fff",
+                    borderColor: isCS
+                      ? "#E5E2DE"
+                      : form.ServiceFormat === opt.id
+                        ? "#EC5F36"
+                        : "#E5E2DE",
+                    boxShadow:
+                      !isCS && form.ServiceFormat === opt.id
+                        ? "0 6px 18px rgba(236,95,54,0.33)"
+                        : "0 1px 4px rgba(0,0,0,0.04)",
+                    opacity: isCS ? 0.6 : 1,
+                    cursor: isCS ? "not-allowed" : "pointer",
+                    position: "relative",
+                  }}
+                >
+                  <div
+                    className="hw2-pill-ico"
+                    style={{
+                      background: isCS
+                        ? "#F0F0F0"
+                        : form.ServiceFormat === opt.id
+                          ? "rgba(255,255,255,0.22)"
+                          : "#FFF2EE",
+                    }}
+                  >
+                    <opt.icon
+                      size={16}
+                      color={
+                        isCS
+                          ? "#bbb"
+                          : form.ServiceFormat === opt.id
+                            ? "#fff"
+                            : "#EC5F36"
+                      }
+                      strokeWidth={1.8}
+                    />
+                  </div>
+                  <div className="hw2-pill-txt">
+                    <div
+                      style={{ display: "flex", alignItems: "center", gap: 7 }}
+                    >
+                      <span
+                        className="hw2-pill-label"
+                        style={{
+                          color: isCS
+                            ? "#aaa"
+                            : form.ServiceFormat === opt.id
+                              ? "#fff"
+                              : "#1a1a2e",
+                        }}
+                      >
+                        {opt.label}
+                      </span>
+                      {isCS && (
+                        <span
+                          style={{
+                            fontSize: "9px",
+                            fontWeight: 800,
+                            background:
+                              "linear-gradient(135deg,#6366f1,#8b5cf6)",
+                            color: "#fff",
+                            borderRadius: "20px",
+                            padding: "2px 8px",
+                            letterSpacing: "0.04em",
+                            textTransform: "uppercase",
+                          }}
+                        >
+                          Coming Soon
+                        </span>
+                      )}
+                    </div>
+                    <span
+                      className="hw2-pill-desc"
+                      style={{
+                        color: isCS
+                          ? "#bbb"
+                          : form.ServiceFormat === opt.id
+                            ? "rgba(255,255,255,0.78)"
+                            : "#888",
+                      }}
+                    >
+                      {opt.desc}
+                    </span>
+                  </div>
+                  {!isCS && form.ServiceFormat === opt.id && (
+                    <Check
+                      size={14}
+                      strokeWidth={2.5}
+                      color="#fff"
+                      className="ml-auto flex-shrink-0"
+                    />
+                  )}
+                </button>
+              );
+            })}
           </div>
         </div>
       );
@@ -1250,84 +1364,84 @@ export default function HeroWizard({
       );
 
     // ── Experience ───────────────────────────────────────────────────────────
-    if (curKey === "experience")
-      return (
-        <div>
-          <QHead
-            q="Experience level required?"
-            hint="More experience means higher monthly cost"
-          />
-          <div className="flex flex-col gap-2">
-            {EXPERIENCE_LEVELS.map((e) => (
-              <button
-                key={e.id}
-                type="button"
-                onClick={() => {
-                  setF("ExperienceRequired", e.id);
-                  after();
-                }}
-                className="hw2-exp-card"
-                style={{
-                  background:
-                    form.ExperienceRequired === e.id ? "#EC5F36" : "#fff",
-                  borderColor:
-                    form.ExperienceRequired === e.id ? "#EC5F36" : "#E5E2DE",
-                  boxShadow:
-                    form.ExperienceRequired === e.id
-                      ? "0 6px 20px rgba(236,95,54,0.28)"
-                      : "0 1px 4px rgba(0,0,0,0.04)",
-                }}
-              >
-                <div className="flex flex-col flex-1">
-                  <span
-                    className="hw2-exp-label"
-                    style={{
-                      color:
-                        form.ExperienceRequired === e.id ? "#fff" : "#1a1a2e",
-                    }}
-                  >
-                    {e.label}
-                  </span>
-                  <span
-                    className="hw2-exp-desc"
-                    style={{
-                      color:
-                        form.ExperienceRequired === e.id
-                          ? "rgba(255,255,255,0.8)"
-                          : "#888",
-                    }}
-                  >
-                    {e.desc}
-                  </span>
-                </div>
-                <div className="flex gap-0.5">
-                  {Array.from({ length: 3 }).map((_, i) => (
-                    <Star
-                      key={i}
-                      size={14}
-                      strokeWidth={1.5}
-                      fill={
-                        i < e.star
-                          ? form.ExperienceRequired === e.id
-                            ? "#fff"
-                            : "#EC5F36"
-                          : "none"
-                      }
-                      color={
-                        i < e.star
-                          ? form.ExperienceRequired === e.id
-                            ? "#fff"
-                            : "#EC5F36"
-                          : "#ccc"
-                      }
-                    />
-                  ))}
-                </div>
-              </button>
-            ))}
-          </div>
-        </div>
-      );
+    // if (curKey === "experience")
+    //   return (
+    //     <div>
+    //       <QHead
+    //         q="Experience level required?"
+    //         hint="More experience means higher monthly cost"
+    //       />
+    //       <div className="flex flex-col gap-2">
+    //         {EXPERIENCE_LEVELS.map((e) => (
+    //           <button
+    //             key={e.id}
+    //             type="button"
+    //             onClick={() => {
+    //               setF("ExperienceRequired", e.id);
+    //               after();
+    //             }}
+    //             className="hw2-exp-card"
+    //             style={{
+    //               background:
+    //                 form.ExperienceRequired === e.id ? "#EC5F36" : "#fff",
+    //               borderColor:
+    //                 form.ExperienceRequired === e.id ? "#EC5F36" : "#E5E2DE",
+    //               boxShadow:
+    //                 form.ExperienceRequired === e.id
+    //                   ? "0 6px 20px rgba(236,95,54,0.28)"
+    //                   : "0 1px 4px rgba(0,0,0,0.04)",
+    //             }}
+    //           >
+    //             <div className="flex flex-col flex-1">
+    //               <span
+    //                 className="hw2-exp-label"
+    //                 style={{
+    //                   color:
+    //                     form.ExperienceRequired === e.id ? "#fff" : "#1a1a2e",
+    //                 }}
+    //               >
+    //                 {e.label}
+    //               </span>
+    //               <span
+    //                 className="hw2-exp-desc"
+    //                 style={{
+    //                   color:
+    //                     form.ExperienceRequired === e.id
+    //                       ? "rgba(255,255,255,0.8)"
+    //                       : "#888",
+    //                 }}
+    //               >
+    //                 {e.desc}
+    //               </span>
+    //             </div>
+    //             <div className="flex gap-0.5">
+    //               {Array.from({ length: 3 }).map((_, i) => (
+    //                 <Star
+    //                   key={i}
+    //                   size={14}
+    //                   strokeWidth={1.5}
+    //                   fill={
+    //                     i < e.star
+    //                       ? form.ExperienceRequired === e.id
+    //                         ? "#fff"
+    //                         : "#EC5F36"
+    //                       : "none"
+    //                   }
+    //                   color={
+    //                     i < e.star
+    //                       ? form.ExperienceRequired === e.id
+    //                         ? "#fff"
+    //                         : "#EC5F36"
+    //                       : "#ccc"
+    //                   }
+    //                 />
+    //               ))}
+    //             </div>
+    //           </button>
+    //         ))}
+    //       </div>
+    //     </div>
+    //   );
 
     // ── Meal pref ────────────────────────────────────────────────────────────
     if (curKey === "mealpref")
@@ -1648,7 +1762,107 @@ export default function HeroWizard({
       );
 
     // ── Budget ───────────────────────────────────────────────────────────────
-    if (curKey === "budget")
+    if (curKey === "budget") {
+      const isSubstitute = form.ServiceFormat === "substitute";
+
+      if (isSubstitute) {
+        return (
+          <div>
+            <QHead
+              q="Substitute Service Pricing"
+              hint="Fixed monthly rate — no hidden charges"
+            />
+            <div className="flex flex-col gap-3">
+              {SUBSTITUTE_BUDGETS.map((b) => (
+                <button
+                  key={b.id}
+                  type="button"
+                  onClick={() => {
+                    setF("Budget", b.id);
+                    after();
+                  }}
+                  className="hw2-sub-budget-card"
+                  style={{
+                    background:
+                      form.Budget === b.id
+                        ? "linear-gradient(135deg,#EC5F36,#D84E28)"
+                        : "#fff",
+                    borderColor: form.Budget === b.id ? "#EC5F36" : "#E5E2DE",
+                    boxShadow:
+                      form.Budget === b.id
+                        ? "0 8px 28px rgba(236,95,54,0.32)"
+                        : "0 1px 6px rgba(0,0,0,0.05)",
+                  }}
+                >
+                  <div className="hw2-sub-budget-inner">
+                    <div className="hw2-sub-budget-left">
+                      <span
+                        className="hw2-sub-budget-badge"
+                        style={{
+                          background:
+                            form.Budget === b.id
+                              ? "rgba(255,255,255,0.22)"
+                              : "#FFF2EE",
+                          color: form.Budget === b.id ? "#fff" : "#EC5F36",
+                        }}
+                      >
+                        {b.badge}
+                      </span>
+                      <span
+                        className="hw2-sub-budget-label"
+                        style={{
+                          color: form.Budget === b.id ? "#fff" : "#1a1a2e",
+                        }}
+                      >
+                        {b.label}
+                      </span>
+                      <span
+                        className="hw2-sub-budget-desc"
+                        style={{
+                          color:
+                            form.Budget === b.id
+                              ? "rgba(255,255,255,0.78)"
+                              : "#9ca3af",
+                        }}
+                      >
+                        {b.desc}
+                      </span>
+                    </div>
+                    {form.Budget === b.id && (
+                      <Check size={20} strokeWidth={2.5} color="#fff" />
+                    )}
+                  </div>
+                </button>
+              ))}
+
+              {/* Info card */}
+              <div className="hw2-sub-info-card">
+                <div className="hw2-sub-info-row">
+                  <span className="hw2-sub-info-icon">📋</span>
+                  <div>
+                    <p className="hw2-sub-info-title">What's included</p>
+                    <p className="hw2-sub-info-body">
+                      Trained replacement staff, profile matching, and
+                      coordination — all at a single flat fee of ₹5,000/month.
+                    </p>
+                  </div>
+                </div>
+                <div className="hw2-sub-info-row" style={{ marginTop: 8 }}>
+                  <span className="hw2-sub-info-icon">⏱️</span>
+                  <div>
+                    <p className="hw2-sub-info-title">Minimum duration</p>
+                    <p className="hw2-sub-info-body">
+                      30 days minimum — ideal for covering extended leaves,
+                      emergencies, or vacations. No upper limit on duration.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      }
+
       return (
         <div>
           <QHead
@@ -1702,6 +1916,7 @@ export default function HeroWizard({
           </div>
         </div>
       );
+    }
 
     // ── Contact ──────────────────────────────────────────────────────────────
     if (curKey === "contact") {
@@ -1857,10 +2072,10 @@ export default function HeroWizard({
                 k: "Manager Duties",
                 v: form.ManagerDuties.length + " selected",
               },
-              form.ExperienceRequired && {
-                k: "Experience",
-                v: form.ExperienceRequired + " yrs",
-              },
+              // form.ExperienceRequired && {
+              //   k: "Experience",
+              //   v: form.ExperienceRequired + " yrs",
+              // },
               form.Budget && {
                 k: "Budget",
                 v: BUDGETS.find((b) => b.id === form.Budget)?.label,

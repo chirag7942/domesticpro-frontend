@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
@@ -20,25 +20,45 @@ import ScrollToTop from "./components/ScrollToTop";
 import Japa from "./pages/products/Japa";
 import OnDemand from "./pages/products/OnDemand";
 import AllRounder from "./pages/products/AllRounder";
+import NotFound from "./pages/NotFound"; // 👈 import
 import { useEffect, useState } from "react";
 import Loader from "./components/Loader";
 
-export default function App() {
+// Separating layout so we can check the route
+function Layout() {
+  const location = useLocation();
+  const is404 = ![
+    "/",
+    "/about",
+    "/refer",
+    "/pricing",
+    "/on-demand",
+    "/all-rounder",
+    "/contact",
+    "/baby-caretaker",
+    "/cooking-help",
+    "/drivers",
+    "/japa",
+    "/live-in-support",
+    "/terms&condition",
+    "/refund-policy",
+    "/privacy-policy",
+    "/patient-care",
+  ].includes(location.pathname);
+
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // simulate initial app load
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 1200);
-
+    const timer = setTimeout(() => setLoading(false), 1200);
     return () => clearTimeout(timer);
   }, []);
+
   return (
-    <BrowserRouter>
+    <>
       <ScrollToTop />
-      <Navbar />
-      {loading ? (
+      {/* Hide Navbar & Footer on 404 */}
+      {!is404 && <Navbar />}
+      {!is404 && loading ? (
         <Loader />
       ) : (
         <Routes>
@@ -58,10 +78,18 @@ export default function App() {
           <Route path="/refund-policy" element={<RefundPolicy />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/patient-care" element={<PatientCare />} />
+          <Route path="*" element={<NotFound />} /> {/* 👈 catch-all */}
         </Routes>
       )}
+      {!is404 && <Footer />}
+    </>
+  );
+}
 
-      <Footer />
+export default function App() {
+  return (
+    <BrowserRouter>
+      <Layout />
     </BrowserRouter>
   );
 }
