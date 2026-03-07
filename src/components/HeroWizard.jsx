@@ -132,7 +132,7 @@ import {
   Smartphone,
 } from "lucide-react";
 
-const API_BASE = "http://localhost:5000";
+const API_BASE = import.meta.env.VITE_REACT_APP_API;
 const CLOUDINARY_CLOUD_NAME = "dto7bji6b";
 const CLOUDINARY_UPLOAD_PRESET = "payment_screenshots";
 
