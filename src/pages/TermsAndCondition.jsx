@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { ShieldCheck, HeadphonesIcon } from "lucide-react";
-import heroImage from "../assets/term&Condition.png";
 import { useNavigate } from "react-router-dom";
 
 const navItems = [
@@ -148,7 +147,7 @@ export default function TermsAndCondition() {
           <div
             className="absolute inset-0 bg-cover bg-center"
             style={{
-              backgroundImage: `url(${heroImage})`,
+              backgroundImage: `url(https://res.cloudinary.com/dhtzknkdr/image/upload/v1773031911/term_Condition_ak3ux1.png)`,
             }}
           ></div>
 

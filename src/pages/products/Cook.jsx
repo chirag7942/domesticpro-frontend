@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import cookHero from "../../assets/cook.jpg";
 import HeroWizard from "../../components/HeroWizard";
 
 const Cook = () => {
@@ -94,7 +93,7 @@ const Cook = () => {
           {/* RIGHT IMAGE */}
           <div className="flex justify-center md:justify-end animate-right">
             <img
-              src={cookHero} // Assuming you have imported your cook image as logoImg
+              src="https://res.cloudinary.com/dhtzknkdr/image/upload/v1773031895/cook_zy7sri.jpg" // Assuming you have imported your cook image as logoImg
               alt="Professional Home Cook"
               className="rounded-2xl shadow-xl w-full h-[350px] md:h-[400px]  max-w-md object-cover"
             />

@@ -1,80 +1,5 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import babyCareImg from "../assets/services/baby-caretaker.png";
-import cookImg from "../assets/services/cook.png";
-import houseHelpImg from "../assets/services/househelp.png";
-import patientCareImg from "../assets/services/patient-care.png";
-import driverImg from "../assets/services/driver.png";
-import multipleServicesImg from "../assets/services/multiple-services.png";
-import housemanager from "../assets/services/house-manager.png";
-import qrCode from "../assets/qrCode.jpeg";
-
-// househelp images
-import bathroom from "../assets/services/househelp/bathroom.png";
-import cleaning from "../assets/services/househelp/cleaning.png";
-import dusting from "../assets/services/househelp/dusting.png";
-import groceries from "../assets/services/househelp/grocery.png";
-import laundry from "../assets/services/househelp/laundry.png";
-import utensils from "../assets/services/househelp/utensils.png";
-import oneBHK from "../assets/services/househelp/1BHK.png";
-import twoBHK from "../assets/services/househelp/2BHK.png";
-import threeBHK from "../assets/services/househelp/3BHK.png";
-import fourBHK from "../assets/services/househelp/4BHK.png";
-import villa from "../assets/services/househelp/villa.png";
-import pets from "../assets/services/househelp/pets.png";
-import no_pets from "../assets/services/househelp/no-pets.png";
-
-// cook
-import veg from "../assets/services/cook/veg.png";
-import nonveg from "../assets/services/cook/non-veg.png";
-import all_meals from "../assets/services/cook/all-meals.png";
-import breakfast from "../assets/services/cook/breakfast.png";
-import dinner from "../assets/services/cook/dinner.png";
-import lunch from "../assets/services/cook/lunch.png";
-import fullCook from "../assets/services/cook/full-cook.png";
-import northindian from "../assets/services/cook/north-indian.png";
-import southindian from "../assets/services/cook/south-indian.png";
-import chinese from "../assets/services/cook/chinese.png";
-import diet from "../assets/services/cook/diet.png";
-import continental from "../assets/services/cook/continental.png";
-
-// baby care
-import feeding from "../assets/services/babysitter/feeding.png";
-import bathing from "../assets/services/babysitter/bathing.png";
-import homework from "../assets/services/babysitter/homework.png";
-import playtime from "../assets/services/babysitter/playtime.png";
-import sleeping from "../assets/services/babysitter/sleeping.png";
-
-// Patient Care
-import basic from "../assets/services/patient-care/caregiver.png";
-import hygiene from "../assets/services/patient-care/hygiene.png";
-import medicine from "../assets/services/patient-care/medicine.png";
-import full_help from "../assets/services/patient-care/full-help.png";
-import mobility from "../assets/services/patient-care/support.png";
-
-// driver
-import manual from "../assets/services/driver/manual.png";
-import automatic from "../assets/services/driver/automatic.png";
-import suv from "../assets/services/driver/SUV.png";
-import sedan from "../assets/services/driver/sedan.png";
-
-// housemanager
-import oversees from "../assets/services/housemanager/oversees.png";
-import vendor from "../assets/services/housemanager/vendor.png";
-import guest from "../assets/services/housemanager/guest.png";
-import cookingOversight from "../assets/services/housemanager/cookingOversight.png";
-import householdPurchase from "../assets/services/housemanager/householdPurchases.png";
-import maintenance from "../assets/services/housemanager/maintenence.png";
-import grocery from "../assets/services/housemanager/grocery.png";
-import apartment from "../assets/services/housemanager/apartment.png";
-import individual from "../assets/services/housemanager/individual.png";
-import villa1 from "../assets/services/housemanager/villa.png";
-
-// gender
-import maleImg from "../assets/male.png";
-import femaleImg from "../assets/female.png";
-
-import other from "../assets/services/other.png";
 
 import CitySelect from "./CitySelect";
 
@@ -133,8 +58,8 @@ import {
 } from "lucide-react";
 
 const API_BASE = import.meta.env.VITE_REACT_APP_API;
-const CLOUDINARY_CLOUD_NAME = "dto7bji6b";
-const CLOUDINARY_UPLOAD_PRESET = "payment_screenshots";
+const CLOUDINARY_CLOUD_NAME = "dhtzknkdr"; // "dto7bji6b";
+const CLOUDINARY_UPLOAD_PRESET = "domestic-pro-img"; //"payment_screenshots";
 
 const PAYMENT_INFO = {
   upiId: "domesticpro@upi",
@@ -150,7 +75,8 @@ const SERVICES = [
   {
     id: "househelp",
     label: "House Help",
-    image: houseHelpImg,
+    image:
+      "https://res.cloudinary.com/dhtzknkdr/image/upload/v1773034357/househelp_wsuqby.png",
     color: "#4F9EF8",
     emoji: "🏠",
     desc: "Daily cleaning & chores",
@@ -158,7 +84,8 @@ const SERVICES = [
   {
     id: "cook",
     label: "Cook",
-    image: cookImg,
+    image:
+      "https://res.cloudinary.com/dhtzknkdr/image/upload/v1773034353/cook_aa2ex7.png",
     color: "#F87C4F",
     emoji: "👨‍🍳",
     desc: "Meals & kitchen care",
@@ -166,7 +93,8 @@ const SERVICES = [
   {
     id: "babysitter",
     label: "Babysitter",
-    image: babyCareImg,
+    image:
+      "https://res.cloudinary.com/dhtzknkdr/image/upload/v1773034351/baby-caretaker_qtcpvn.png",
     color: "#A78BFA",
     emoji: "👶",
     desc: "Child care & safety",
@@ -174,7 +102,8 @@ const SERVICES = [
   {
     id: "elderlycare",
     label: "Elderly Care",
-    image: patientCareImg,
+    image:
+      "https://res.cloudinary.com/dhtzknkdr/image/upload/v1773034355/elderly-household_mt1b8o.png",
     color: "#F87FAC",
     emoji: "🧓",
     desc: "Senior care & support",
@@ -182,7 +111,8 @@ const SERVICES = [
   {
     id: "driver",
     label: "Driver",
-    image: driverImg,
+    image:
+      "https://res.cloudinary.com/dhtzknkdr/image/upload/v1773034355/driver_efye54.png",
     color: "#34D399",
     emoji: "🚗",
     desc: "Reliable transport",
@@ -190,7 +120,8 @@ const SERVICES = [
   {
     id: "housemanager",
     label: "House Manager",
-    image: housemanager,
+    image:
+      "https://res.cloudinary.com/dhtzknkdr/image/upload/v1773034359/house-manager_by4krx.png",
     color: "#FBBF24",
     emoji: "📋",
     desc: "Full household mgmt",
@@ -198,7 +129,8 @@ const SERVICES = [
   {
     id: "multiple",
     label: "Multiple Services",
-    image: multipleServicesImg,
+    image:
+      "https://res.cloudinary.com/dhtzknkdr/image/upload/v1773034365/multiple-services_ja2pbu.png",
     color: "#EC5F36",
     emoji: "✨",
     desc: "Combine services",
@@ -228,129 +160,287 @@ const SERVICE_FORMATS = [
 ];
 
 const GENDER_OPTIONS_DATA = [
-  { id: "male", label: "Male", image: maleImg },
-  { id: "female", label: "Female", image: femaleImg },
+  {
+    id: "male",
+    label: "Male",
+    image:
+      "https://res.cloudinary.com/dhtzknkdr/image/upload/v1773031904/male_wubsvs.png",
+  },
+  {
+    id: "female",
+    label: "Female",
+    image:
+      "https://res.cloudinary.com/dhtzknkdr/image/upload/v1773031900/female_zo7iwn.png",
+  },
 ];
 
 const TASKS = [
-  { id: "cleaning", label: "Cleaning", icon: Brush, image: cleaning },
-  { id: "utensils", label: "Utensils", icon: UtensilsCrossed, image: utensils },
-  { id: "laundry", label: "Laundry", icon: Shirt, image: laundry },
-  { id: "dusting", label: "Dusting", icon: Wind, image: dusting },
-  { id: "bathroom", label: "Bathroom", icon: Droplets, image: bathroom },
-  { id: "groceries", label: "Groceries", icon: ShoppingCart, image: groceries },
-  { id: "other", label: "Other", icon: MoreHorizontal, image: other },
+  {
+    id: "cleaning",
+    label: "Cleaning",
+    image:
+      "https://res.cloudinary.com/dhtzknkdr/image/upload/v1773037121/cleaning_fszds1.png",
+  },
+  {
+    id: "utensils",
+    label: "Utensils",
+    image:
+      "https://res.cloudinary.com/dhtzknkdr/image/upload/v1773037127/utensils_fyurgi.png",
+  },
+  {
+    id: "laundry",
+    label: "Laundry",
+    image:
+      "https://res.cloudinary.com/dhtzknkdr/image/upload/v1773037122/laundry_qowye6.png",
+  },
+  {
+    id: "dusting",
+    label: "Dusting",
+    image:
+      "https://res.cloudinary.com/dhtzknkdr/image/upload/v1773037119/dusting_hw9vbr.png",
+  },
+  {
+    id: "bathroom",
+    label: "Bathroom",
+    image:
+      "https://res.cloudinary.com/dhtzknkdr/image/upload/v1773037119/bathroom_phzorr.png",
+  },
+  {
+    id: "groceries",
+    label: "Groceries",
+    image:
+      "https://res.cloudinary.com/dhtzknkdr/image/upload/v1773037120/grocery_teclqd.png",
+  },
+  {
+    id: "other",
+    label: "Other",
+    image:
+      "https://res.cloudinary.com/dhtzknkdr/image/upload/v1773034370/other_s1pon0.png",
+  },
 ];
 
 const HOUSE_SIZES = [
   {
     id: "1bhk",
     label: "1 BHK",
-    icon: HomeIcon,
     desc: "~400–600 sq ft",
-    image: oneBHK,
+    image:
+      "https://res.cloudinary.com/dhtzknkdr/image/upload/v1773037116/1BHK_bgzp6k.png",
   },
   {
     id: "2bhk",
     label: "2 BHK",
-    icon: HomeIcon,
     desc: "~700–1000 sq ft",
-    image: twoBHK,
+    image:
+      "https://res.cloudinary.com/dhtzknkdr/image/upload/v1773037121/2BHK_sin2om.png",
   },
   {
     id: "3bhk",
     label: "3 BHK",
-    icon: HomeIcon,
     desc: "~1100–1500 sq ft",
-    image: threeBHK,
+    image:
+      "https://res.cloudinary.com/dhtzknkdr/image/upload/v1773037117/3BHK_jc54bv.png",
   },
   {
     id: "4bhk",
     label: "4 BHK",
-    icon: HomeIcon,
     desc: "~1600–2500 sq ft",
-    image: fourBHK,
+    image:
+      "https://res.cloudinary.com/dhtzknkdr/image/upload/v1773037118/4BHK_vnuyup.png",
   },
   {
     id: "villa",
     label: "Villa",
-    icon: TreePine,
     desc: "2500+ sq ft",
-    image: villa,
+    image:
+      "https://res.cloudinary.com/dhtzknkdr/image/upload/v1773037129/villa_jextfy.png",
   },
 ];
 
 const MEAL_PREFS = [
-  { id: "veg", label: "Veg", emoji: "🥦", image: veg },
-  { id: "nonveg", label: "Non-Veg", emoji: "🍗", image: nonveg },
-  { id: "both", label: "Both", emoji: "🍱", image: fullCook },
+  {
+    id: "veg",
+    label: "Veg",
+    image:
+      "https://res.cloudinary.com/dhtzknkdr/image/upload/v1773037727/veg_jz5fdj.png",
+  },
+  {
+    id: "nonveg",
+    label: "Non-Veg",
+    image:
+      "https://res.cloudinary.com/dhtzknkdr/image/upload/v1773037724/non-veg_e3ji5g.png",
+  },
+  {
+    id: "both",
+    label: "Both",
+    image:
+      "https://res.cloudinary.com/dhtzknkdr/image/upload/v1773037719/full-cook_yomiur.png",
+  },
 ];
 
 const MEALS_NEEDED = [
   {
     id: "breakfast",
     label: "Breakfast",
-    emoji: "☕",
-    icon: Coffee,
-    image: breakfast,
+    image:
+      "https://res.cloudinary.com/dhtzknkdr/image/upload/v1773037713/breakfast_uufihz.png",
   },
-  { id: "lunch", label: "Lunch", emoji: "🍛", icon: Utensils, image: lunch },
-  { id: "dinner", label: "Dinner", emoji: "🌙", icon: Utensils, image: dinner },
+  {
+    id: "lunch",
+    label: "Lunch",
+    image:
+      "https://res.cloudinary.com/dhtzknkdr/image/upload/v1773037720/lunch_duetlf.png",
+  },
+  {
+    id: "dinner",
+    label: "Dinner",
+    image:
+      "https://res.cloudinary.com/dhtzknkdr/image/upload/v1773037718/dinner_omjj6q.png",
+  },
   {
     id: "all",
     label: "All Meals",
-    emoji: "🍽️",
-    icon: Utensils,
-    image: all_meals,
+    image:
+      "https://res.cloudinary.com/dhtzknkdr/image/upload/v1773037713/all-meals_zcgzng.png",
   },
 ];
 
 const CUISINES = [
-  { id: "northindian", label: "North Indian", emoji: "🫓", image: northindian },
-  { id: "southindian", label: "South Indian", emoji: "🥘", image: southindian },
-  { id: "chinese", label: "Chinese", emoji: "🍜", image: chinese },
-  { id: "continental", label: "Continental", emoji: "🍝", image: continental },
-  { id: "diet", label: "Diet Food", emoji: "🥗", image: diet },
-  { id: "other", label: "Other", emoji: "🍴", image: other },
+  {
+    id: "northindian",
+    label: "North Indian",
+    image:
+      "https://res.cloudinary.com/dhtzknkdr/image/upload/v1773037726/north-indian_uxc5tl.png",
+  },
+  {
+    id: "southindian",
+    label: "South Indian",
+    image:
+      "https://res.cloudinary.com/dhtzknkdr/image/upload/v1773037726/south-indian_udys5o.png",
+  },
+  {
+    id: "chinese",
+    label: "Chinese",
+    image:
+      "https://res.cloudinary.com/dhtzknkdr/image/upload/v1773037716/chinese_dmrbhy.png",
+  },
+  {
+    id: "continental",
+    label: "Continental",
+    image:
+      "https://res.cloudinary.com/dhtzknkdr/image/upload/v1773037716/continental_wboery.png",
+  },
+  {
+    id: "diet",
+    label: "Diet Food",
+    image:
+      "https://res.cloudinary.com/dhtzknkdr/image/upload/v1773037715/diet_pxaiek.png",
+  },
+  {
+    id: "other",
+    label: "Other",
+    image:
+      "https://res.cloudinary.com/dhtzknkdr/image/upload/v1773034370/other_s1pon0.png",
+  },
 ];
 
 const CHILD_DUTIES = [
-  { id: "feeding", label: "Feeding", emoji: "🍼", image: feeding },
-  { id: "bathing", label: "Bathing", emoji: "🛁", image: bathing },
-  { id: "homework", label: "Homework", emoji: "📚", image: homework },
-  { id: "playtime", label: "Playtime", emoji: "🎮", image: playtime },
-  { id: "sleep", label: "Putting to Sleep", emoji: "😴", image: sleeping },
-  { id: "other", label: "Other", emoji: "➕", image: other },
+  {
+    id: "feeding",
+    label: "Feeding",
+    image:
+      "https://res.cloudinary.com/dhtzknkdr/image/upload/v1773038057/feeding_kvsvwk.png",
+  },
+  {
+    id: "bathing",
+    label: "Bathing",
+    image:
+      "https://res.cloudinary.com/dhtzknkdr/image/upload/v1773038057/bathing_bykrvq.png",
+  },
+  {
+    id: "homework",
+    label: "Homework",
+    image:
+      "https://res.cloudinary.com/dhtzknkdr/image/upload/v1773038059/homework_g3jbdz.png",
+  },
+  {
+    id: "playtime",
+    label: "Playtime",
+    image:
+      "https://res.cloudinary.com/dhtzknkdr/image/upload/v1773038058/playtime_udha2d.png",
+  },
+  {
+    id: "sleep",
+    label: "Putting to Sleep",
+    image:
+      "https://res.cloudinary.com/dhtzknkdr/image/upload/v1773038061/sleeping_uk5vqm.png",
+  },
+  {
+    id: "other",
+    label: "Other",
+    image:
+      "https://res.cloudinary.com/dhtzknkdr/image/upload/v1773034370/other_s1pon0.png",
+  },
 ];
 
 const CARE_NEEDED = [
-  { id: "basic", label: "Basic Support", icon: HandHeart, image: basic },
+  {
+    id: "basic",
+    label: "Basic Support",
+    image:
+      "https://res.cloudinary.com/dhtzknkdr/image/upload/v1773038308/caregiver_rhozy2.png",
+  },
   {
     id: "hygiene",
     label: "Personal Hygiene",
-    icon: ShieldCheck,
-    image: hygiene,
+    image:
+      "https://res.cloudinary.com/dhtzknkdr/image/upload/v1773038311/hygiene_de4gcu.png",
   },
   {
     id: "mobility",
     label: "Mobility Support",
-    icon: PersonStanding,
-    image: mobility,
+    image:
+      "https://res.cloudinary.com/dhtzknkdr/image/upload/v1773038315/support_erb1uy.png",
   },
   {
     id: "medicine",
     label: "Medicine Reminders",
-    icon: Stethoscope,
-    image: medicine,
+    image:
+      "https://res.cloudinary.com/dhtzknkdr/image/upload/v1773038312/medicine_kjlkd0.png",
   },
-  { id: "full", label: "Full Care", icon: Activity, image: full_help },
+  {
+    id: "full",
+    label: "Full Care",
+    image:
+      "https://res.cloudinary.com/dhtzknkdr/image/upload/v1773038310/full-help_jrxrax.png",
+  },
 ];
 
 const VEHICLE_TYPES = [
-  { id: "manual", label: "Manual", emoji: "🚗", image: manual },
-  { id: "automatic", label: "Automatic", emoji: "🚙", image: automatic },
-  { id: "suv", label: "SUV", emoji: "🚐", image: suv },
-  { id: "sedan", label: "Sedan", emoji: "🏎️", image: sedan },
+  {
+    id: "manual",
+    label: "Manual",
+    image:
+      "https://res.cloudinary.com/dhtzknkdr/image/upload/v1773038638/manual_f78sol.png",
+  },
+  {
+    id: "automatic",
+    label: "Automatic",
+    image:
+      "https://res.cloudinary.com/dhtzknkdr/image/upload/v1773038636/automatic_dmyqva.png",
+  },
+  {
+    id: "suv",
+    label: "SUV",
+    image:
+      "https://res.cloudinary.com/dhtzknkdr/image/upload/v1773038641/SUV_hzrcgr.png",
+  },
+  {
+    id: "sedan",
+    label: "Sedan",
+    image:
+      "https://res.cloudinary.com/dhtzknkdr/image/upload/v1773038639/sedan_q1xmlm.png",
+  },
 ];
 
 // const EXPERIENCE_LEVELS = [
@@ -366,75 +456,110 @@ const VEHICLE_TYPES = [
 // ];
 
 const MANAGER_DUTIES = [
-  { id: "help", label: "Oversee help", emoji: "👥", image: oversees },
+  {
+    id: "help",
+    label: "Oversee help",
+    image:
+      "https://res.cloudinary.com/dhtzknkdr/image/upload/v1773038455/oversees_xfxlru.png",
+  },
   {
     id: "purchase",
     label: "Household Purchases",
-    emoji: "🛒",
-    image: householdPurchase,
+    image:
+      "https://res.cloudinary.com/dhtzknkdr/image/upload/v1773038449/householdPurchases_lc4bgs.png",
   },
   {
     id: "grocery",
     label: "Groceries & Inventory",
-    emoji: "📦",
-    image: grocery,
+    image:
+      "https://res.cloudinary.com/dhtzknkdr/image/upload/v1773038425/grocery_yv1iqg.png",
   },
   {
     id: "maintain",
     label: "Supervise Maintenance",
-    emoji: "🔧",
-    image: maintenance,
+    image:
+      "https://res.cloudinary.com/dhtzknkdr/image/upload/v1773038453/maintenence_kbyfbt.png",
   },
-  { id: "guests", label: "Guest Management", emoji: "🤝", image: guest },
+  {
+    id: "guests",
+    label: "Guest Management",
+    image:
+      "https://res.cloudinary.com/dhtzknkdr/image/upload/v1773038428/guest_tm7kc8.png",
+  },
   {
     id: "cooking",
     label: "Cooking Oversight",
-    emoji: "👨‍🍳",
-    image: cookingOversight,
+    image:
+      "https://res.cloudinary.com/dhtzknkdr/image/upload/v1773038424/cookingOversight_bonbic.png",
   },
-  { id: "vendor", label: "Vendor Coordination", emoji: "📋", image: vendor },
+  {
+    id: "vendor",
+    label: "Vendor Coordination",
+    image:
+      "https://res.cloudinary.com/dhtzknkdr/image/upload/v1773038457/vendor_pyxn9t.png",
+  },
 ];
 
 const HOME_TYPES = [
   {
     id: "apartment",
     label: "Apartment",
-    emoji: "🏢",
     desc: "Flat / unit in building",
-    image: apartment,
+    image:
+      "https://res.cloudinary.com/dhtzknkdr/image/upload/v1773038422/apartment_ys8rbw.png",
   },
   {
     id: "independent",
     label: "Independent House",
-    emoji: "🏡",
     desc: "Standalone bungalow",
-    image: individual,
+    image:
+      "https://res.cloudinary.com/dhtzknkdr/image/upload/v1773038451/individual_k0ko1y.png",
   },
   {
     id: "villa",
     label: "Villa",
-    emoji: "🏘️",
     desc: "Gated community villa",
-    image: villa1,
+    image:
+      "https://res.cloudinary.com/dhtzknkdr/image/upload/v1773038464/villa_z0apwp.png",
   },
 ];
 
 const MULTI_SERVICES = [
-  { id: "househelp", label: "House Help", emoji: "🏠", image: houseHelpImg },
-  { id: "cook", label: "Cook", emoji: "👨‍🍳", image: cookImg },
-  { id: "babysitter", label: "Babysitter", emoji: "👶", image: babyCareImg },
+  {
+    id: "househelp",
+    label: "House Help",
+    image:
+      "https://res.cloudinary.com/dhtzknkdr/image/upload/v1773034357/househelp_wsuqby.png",
+  },
+  {
+    id: "cook",
+    label: "Cook",
+    image:
+      "https://res.cloudinary.com/dhtzknkdr/image/upload/v1773034353/cook_aa2ex7.png",
+  },
+  {
+    id: "babysitter",
+    label: "Babysitter",
+    image:
+      "https://res.cloudinary.com/dhtzknkdr/image/upload/v1773034351/baby-caretaker_qtcpvn.png",
+  },
   {
     id: "elderlycare",
     label: "Elderly Care",
-    emoji: "🧓",
-    image: patientCareImg,
+    image:
+      "https://res.cloudinary.com/dhtzknkdr/image/upload/v1773034355/elderly-household_mt1b8o.png",
   },
-  { id: "driver", label: "Driver", emoji: "🚗", image: driverImg },
+  {
+    id: "driver",
+    label: "Driver",
+    image:
+      "https://res.cloudinary.com/dhtzknkdr/image/upload/v1773034355/driver_efye54.png",
+  },
   {
     id: "housemanager",
     label: "House Manager",
-    emoji: "📋",
-    image: housemanager,
+    image:
+      "https://res.cloudinary.com/dhtzknkdr/image/upload/v1773034359/house-manager_by4krx.png",
   },
 ];
 
@@ -1345,8 +1470,18 @@ export default function HeroWizard({
           />
           <div className="grid grid-cols-2 gap-3 mt-1">
             {[
-              { id: "yes", label: "Yes, we have pets", image: pets },
-              { id: "no", label: "No pets", image: no_pets },
+              {
+                id: "yes",
+                label: "Yes, we have pets",
+                image:
+                  "https://res.cloudinary.com/dhtzknkdr/image/upload/v1773037128/pets_rdppq7.png",
+              },
+              {
+                id: "no",
+                label: "No pets",
+                image:
+                  "https://res.cloudinary.com/dhtzknkdr/image/upload/v1773037125/no-pets_ih18ap.png",
+              },
             ].map((o) => (
               <ImgChip
                 key={o.id}
@@ -2271,7 +2406,12 @@ export default function HeroWizard({
               </div>
               <div className="hw2-pay-qr-row">
                 <div className="hw2-pay-qr-box">
-                  <img src={qrCode} alt="QR Code" width={90} height={90} />
+                  <img
+                    src="https://res.cloudinary.com/dhtzknkdr/image/upload/v1773031910/qrCode_btlxci.jpg"
+                    alt="QR Code"
+                    width={90}
+                    height={90}
+                  />
                   <p className="hw2-pay-qr-hint">Scan with any UPI app</p>
                 </div>
                 <div className="hw2-pay-upi-details">

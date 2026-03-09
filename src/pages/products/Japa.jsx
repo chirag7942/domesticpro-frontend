@@ -1,8 +1,5 @@
 import React, { useState, useEffect } from "react";
-
-import houseKeeperImg from "../../assets/japa.png";
 import HeroWizard from "../../components/HeroWizard";
-import CommonModal from "../../components/CommonModal";
 
 const Japa = () => {
   const [modalType, setModalType] = useState(null);
@@ -108,7 +105,7 @@ const Japa = () => {
           {/* RIGHT IMAGE */}
           <div className="flex justify-center md:justify-end animate-right">
             <img
-              src={houseKeeperImg}
+              src="https://res.cloudinary.com/dhtzknkdr/image/upload/v1773031901/japa_w7jbfc.jpg"
               alt="Domestic Pro Japa "
               className="rounded-2xl shadow-xl w-full h-[350px] md:h-[450px]  max-w-md object-cover"
             />

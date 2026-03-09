@@ -1,8 +1,6 @@
 // import ServiceCard from "../components/ServiceCard";
 // import HeroForm from "../components/HeroForm";
 import HeroWizard from "../components/HeroWizard";
-
-import heroImage from "../assets/hero.png";
 import TestimonialCarousel from "../components/TestimonialCarousel";
 import { useEffect, useState } from "react";
 import PricingSection from "../components/PricingSection";
@@ -45,7 +43,7 @@ export default function Home() {
           <div className="relative">
             {/* HERO IMAGE */}
             <img
-              src={heroImage}
+              src="https://res.cloudinary.com/dhtzknkdr/image/upload/v1773031900/hero_wfmtrh.png"
               loading="eager"
               alt="Home Services"
               className="w-full shadow-sm"

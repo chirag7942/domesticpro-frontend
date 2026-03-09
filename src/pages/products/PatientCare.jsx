@@ -1,6 +1,4 @@
 import React, { useState, useEffect } from "react";
-
-import patientCareImg from "../../assets/patientcare.webp";
 import HeroWizard from "../../components/HeroWizard";
 
 const PatientCare = () => {
@@ -88,7 +86,7 @@ const PatientCare = () => {
 
           <div className="flex justify-center md:justify-end animate-right">
             <img
-              src={patientCareImg}
+              src="https://res.cloudinary.com/dhtzknkdr/image/upload/v1773031910/patientcare_b3oqgg.webp"
               alt="Patient Care Service"
               className="rounded-2xl h-[350px] md:h-[520px] shadow-xl w-full max-w-md object-cover"
             />

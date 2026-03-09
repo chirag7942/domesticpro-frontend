@@ -1,7 +1,4 @@
 import React, { useState, useEffect } from "react";
-
-import houseKeeperImg from "../../assets/nanny.webp";
-import CommonModal from "../../components/CommonModal";
 import HeroWizard from "../../components/HeroWizard";
 
 const Nanny = () => {
@@ -122,7 +119,7 @@ const Nanny = () => {
           {/* RIGHT IMAGE */}
           <div className="flex justify-center md:justify-end animate-right">
             <img
-              src={houseKeeperImg}
+              src="https://res.cloudinary.com/dhtzknkdr/image/upload/v1773031909/nanny_cvkz9g.png"
               alt="Domestic Pro Baby Caretaker"
               className="rounded-2xl shadow-xl w-full h-[350px] md:h-[480px]   "
             />

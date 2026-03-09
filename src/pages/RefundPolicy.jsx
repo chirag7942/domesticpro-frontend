@@ -1,8 +1,6 @@
 import React from "react";
 import { useEffect, useState } from "react";
-import heroImage from "../assets/refundPolicy.png";
 import HeroWizard from "../components/HeroWizard";
-
 import { HeadphonesIcon } from "lucide-react";
 
 const RefundPolicy = () => {
@@ -39,7 +37,7 @@ const RefundPolicy = () => {
         <div
           className="absolute inset-0 bg-cover bg-center"
           style={{
-            backgroundImage: `url(${heroImage})`,
+            backgroundImage: `url(https://res.cloudinary.com/dhtzknkdr/image/upload/v1773031916/refundPolicy_rmzl2s.png)`,
           }}
         ></div>
 

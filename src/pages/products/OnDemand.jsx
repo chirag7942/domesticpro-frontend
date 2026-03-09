@@ -1,6 +1,4 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import ondemandImage from "../../assets/on-demand.png";
 import HeroWizard from "../../components/HeroWizard";
 
 export default function OnDemand() {
@@ -112,7 +110,7 @@ export default function OnDemand() {
           {/* RIGHT IMAGE */}
           <div className="flex justify-center md:justify-end animate-right">
             <img
-              src={ondemandImage}
+              src="https://res.cloudinary.com/dhtzknkdr/image/upload/v1773031906/on-demand_y2yjkd.png"
               alt="Domestic Pro Housekeeper"
               className="rounded-2xl h-[350px] md:h-[400px] shadow-xl w-full  max-w-md object-cover"
             />

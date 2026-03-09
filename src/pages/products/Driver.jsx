@@ -1,6 +1,4 @@
 import React, { useState, useEffect } from "react";
-
-import houseKeeperImg from "../../assets/driver.jpg";
 import HeroWizard from "../../components/HeroWizard";
 
 const Driver = () => {
@@ -117,8 +115,8 @@ const Driver = () => {
           {/* RIGHT IMAGE */}
           <div className="flex justify-center md:justify-end animate-right">
             <img
-              src={houseKeeperImg}
-              alt="Domestic Pro Housekeeper"
+              src="https://res.cloudinary.com/dhtzknkdr/image/upload/v1773031900/driver_yvlvk2.png"
+              alt="Domestic Pro Driver"
               className="rounded-2xl h-[350px] md:h-[400px] shadow-xl w-full  max-w-md object-cover"
             />
           </div>

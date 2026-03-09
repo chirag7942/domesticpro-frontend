@@ -1,8 +1,4 @@
 import { useEffect } from "react";
-import heroImage from "../assets/about-hero.jpg";
-import whoImage from "../assets/who-we-are.png";
-import missionImage from "../assets/mission.jpg";
-import visionImage from "../assets/vision.avif";
 
 export default function AboutUs() {
   useEffect(() => {
@@ -41,7 +37,7 @@ export default function AboutUs() {
         <div
           className="absolute inset-0 bg-cover bg-center"
           style={{
-            backgroundImage: `url(${heroImage})`,
+            backgroundImage: `url(https://res.cloudinary.com/dhtzknkdr/image/upload/v1773031893/about-hero_zhrrxa.webp)`,
           }}
         ></div>
 
@@ -53,7 +49,7 @@ export default function AboutUs() {
           <p className="text-white text-sm md:text-base tracking-wider mb-4"></p>
 
           <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
-            Welcome to DomesticPro
+            Welcome to Domestic Pro
           </h1>
 
           <p className="text-white/90 text-lg md:text-xl leading-relaxed">
@@ -71,7 +67,7 @@ export default function AboutUs() {
           {/* Left Image */}
           <div className="relative">
             <img
-              src={whoImage}
+              src="https://res.cloudinary.com/dhtzknkdr/image/upload/v1773031915/who-we-are_eqmnrq.avif"
               alt="DomesticPro Team"
               className="rounded-2xl shadow-xl w-full object-cover"
             />
@@ -252,7 +248,7 @@ export default function AboutUs() {
               <div className="relative z-20 w-64 h-64 md:w-80 md:h-80 flex-shrink-0 -mb-10 md:mb-0 md:-mr-16">
                 <div className="relative w-full h-full rounded-full border-[12px] border-white shadow-xl overflow-hidden bg-white">
                   <img
-                    src={missionImage}
+                    src="https://res.cloudinary.com/dhtzknkdr/image/upload/v1773031902/mission_vds4rn.jpg"
                     alt="Mission"
                     className="w-full h-full object-cover grayscale"
                   />
@@ -285,7 +281,7 @@ export default function AboutUs() {
               <div className="relative z-20 w-64 h-64 md:w-80 md:h-80 flex-shrink-0 -mb-10 md:mb-0 md:-ml-16">
                 <div className="w-full h-full rounded-full border-[12px] border-white shadow-xl overflow-hidden">
                   <img
-                    src={visionImage}
+                    src="https://res.cloudinary.com/dhtzknkdr/image/upload/v1773031912/vision_tmoi0n.avif"
                     alt="Vision"
                     className="w-full h-full object-cover grayscale sepia-[.2] hue-rotate-[60deg] saturate-200"
                   />

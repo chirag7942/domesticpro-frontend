@@ -1,6 +1,4 @@
 import React, { useState, useEffect } from "react";
-
-import houseKeeperImg from "../../assets/house-keeper.jpg";
 import HeroWizard from "../../components/HeroWizard";
 
 const HouseHelp = () => {
@@ -106,7 +104,7 @@ const HouseHelp = () => {
           {/* RIGHT IMAGE */}
           <div className="flex justify-center md:justify-end animate-right">
             <img
-              src={houseKeeperImg}
+              src="https://res.cloudinary.com/dhtzknkdr/image/upload/v1773031902/house-keeper_cwr1ph.png"
               alt="Domestic Pro Housekeeper"
               className="rounded-2xl shadow-xl w-full max-w-md object-cover"
             />

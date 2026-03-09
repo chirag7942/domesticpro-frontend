@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { HeadphonesIcon, ShieldCheck } from "lucide-react";
-import heroImage from "../assets/privacyPolicy.png";
 import { useNavigate } from "react-router-dom";
 
 const navItems = [
@@ -149,7 +148,7 @@ export default function PrivacyPolicy() {
           <div
             className="absolute inset-0 bg-cover bg-center"
             style={{
-              backgroundImage: `url(${heroImage})`,
+              backgroundImage: `url(https://res.cloudinary.com/dhtzknkdr/image/upload/v1773031913/privacyPolicy_sk0vhw.png)`,
             }}
           ></div>
 
