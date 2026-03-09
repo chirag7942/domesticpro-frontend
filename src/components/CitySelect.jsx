@@ -1,7 +1,7 @@
 // CitySelect.jsx — Searchable Indian city dropdown with portal (fixes overflow clipping)
 import { useState, useRef, useEffect, useMemo } from "react";
 import { createPortal } from "react-dom";
-import { City } from "country-state-city";
+import INDIAN_CITIES from "./indianCities";          // ← replaces country-state-city
 import { ChevronDown, Search, X, MapPin } from "lucide-react";
 
 const CSS = `
@@ -64,7 +64,7 @@ const CSS = `
   }
 
   .cs-list {
-    min-width: fit-content
+    min-width: fit-content;
     max-height: 200px; overflow-y: auto;
     scrollbar-width: thin; scrollbar-color: #F0E8E4 transparent;
   }
@@ -103,14 +103,10 @@ export default function CitySelect({
   const triggerRef = useRef(null);
   const searchRef = useRef(null);
 
-  const allCities = useMemo(
-    () =>
-      City.getCitiesOfCountry("IN")
-        .map((c) => c.name)
-        .filter((name, idx, arr) => arr.indexOf(name) === idx)
-        .sort((a, b) => a.localeCompare(b)),
-    [],
-  );
+  // ── ONLY CHANGE FROM ORIGINAL: removed City.getCitiesOfCountry("IN") ────
+  // INDIAN_CITIES is already sorted alphabetically and deduplicated
+  const allCities = INDIAN_CITIES;
+  // ─────────────────────────────────────────────────────────────────────────
 
   // Position the portal dropdown directly under the trigger button
   const updatePosition = () => {
@@ -118,9 +114,8 @@ export default function CitySelect({
     const rect = triggerRef.current.getBoundingClientRect();
     const spaceBelow = window.innerHeight - rect.bottom;
     const spaceAbove = rect.top;
-    const dropdownHeight = 280; // approximate max height
+    const dropdownHeight = 280;
 
-    // Open upward if not enough space below
     const openUpward = spaceBelow < dropdownHeight && spaceAbove > spaceBelow;
 
     setDropdownStyle({
@@ -273,7 +268,6 @@ export default function CitySelect({
           />
         </button>
 
-        {/* Render dropdown via portal to escape overflow:hidden/auto parents */}
         {createPortal(dropdown, document.body)}
       </div>
     </>
