@@ -1,17 +1,44 @@
+const CSS = `
+  @keyframes dp-spin {
+    to { transform: rotate(360deg); }
+  }
+  .dp-spinner {
+    animation: dp-spin 0.85s linear infinite;
+  }
+`;
+
 export default function Loader() {
   return (
-    <div className="fixed inset-0 flex items-center justify-center backdrop-blur-md bg-white/30 z-50">
-      <div className="relative flex items-center justify-center">
-        {/* Rotating Ring */}
-        <div className="absolute w-16 h-16 border-2 border-black border-t-primary rounded-full animate-spin"></div>
+    <>
+      <style>{CSS}</style>
 
-        {/* Logo */}
-        <img
-          src="https://res.cloudinary.com/dhtzknkdr/image/upload/v1773031901/logoOnly_qsridn.png"
-          alt="Logo"
-          className="w-10 h-8 object-contain"
-        />
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/70 backdrop-blur-sm">
+        <div className="flex flex-col items-center gap-5">
+
+          {/* spinner + logo */}
+          <div className="relative w-16 h-16 flex items-center justify-center">
+            {/* outer ring */}
+            <div
+              className="dp-spinner absolute inset-0 rounded-full"
+              style={{
+                border: "2.5px solid #F1E3DE",
+                borderTopColor: "#EC5F36",
+              }}
+            />
+            {/* logo in centre */}
+            <img
+              src="https://res.cloudinary.com/dhtzknkdr/image/upload/v1773031901/logoOnly_qsridn.png"
+              alt="Domestic Pro"
+              className="w-9 h-9 object-contain"
+            />
+          </div>
+
+          {/* label */}
+          <p className="text-xs font-bold text-textLight tracking-widest uppercase">
+            Loading…
+          </p>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
