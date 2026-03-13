@@ -206,7 +206,7 @@ export default function PrivacyPolicy() {
               <section id="introduction" data-section="introduction">
                 <SectionHeader number="1" emoji="📋" title="Introduction" />
                 <div className="space-y-3">
-                  <Para>Domestic Pro ("Company", "we", "us", "our"), operated by Logibyte Technologies, is committed to protecting the privacy and security of your personal information. This Privacy Policy describes how we collect, use, disclose, and safeguard your information when you visit our website or engage with our services.</Para>
+                  <Para>Domestic Pro ("Company", "we", "us", "our"), operated by DOMESTIC PRO INDIA LLP, is committed to protecting the privacy and security of your personal information. This Privacy Policy describes how we collect, use, disclose, and safeguard your information when you visit our website or engage with our services.</Para>
                   <Para>By accessing our platform or engaging our services, you consent to the practices described in this Privacy Policy. If you do not agree with the terms of this policy, please refrain from using our services.</Para>
                 </div>
                 <InfoBox emoji="📌" text="This policy applies to all clients, visitors, and domestic help professionals who interact with Domestic Pro's platform or services." />
