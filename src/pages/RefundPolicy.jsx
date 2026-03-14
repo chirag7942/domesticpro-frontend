@@ -180,7 +180,7 @@ export default function RefundPolicy() {
             <section id="introduction" data-section="introduction">
               <SectionHeader number="1" emoji="📋" title="Introduction" />
               <div className="space-y-4">
-                <div><SubHeading text="1.1 Applicability" /><Para>This policy applies to all clients availing any domestic help services provided by Domestic Pro (operated by Logibyte Technologies), regardless of service duration or category.</Para></div>
+                <div><SubHeading text="1.1 Applicability" /><Para>This policy applies to all clients availing any domestic help services provided by Domestic Pro (operated by DOMESTIC PRO INDIA LLP), regardless of service duration or category.</Para></div>
                 <div><SubHeading text="1.2 Focus on Service Continuity" /><Para>Our primary focus is to ensure smooth and uninterrupted domestic help services. Instead of refunds, Domestic Pro provides a Replacement Guarantee that allows clients to receive a suitable replacement maid if the initially deployed staff resigns or is found unsuitable.</Para></div>
                 <div>
                   <SubHeading text="1.3 No Refund Policy" />

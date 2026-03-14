@@ -527,7 +527,7 @@ export default function HeroWizard({
     }
 
     if (curKey === "contact") {
-      const phoneOk = form.Phone.length === 10 && /^[6-9]/.test(form.Phone);
+      const phoneOk = form.Phone.length === 10 && /^[1-9]/.test(form.Phone);
       return (
         <div>
           <QHead q="Almost there! 🎉" hint="Share your details — our team will call you within 2 hours" />
@@ -845,7 +845,7 @@ export default function HeroWizard({
   };
 
   const Shell = (
-    <div className="hw2-root flex flex-col bg-white rounded-3xl p-5 sm:p-6 w-full max-w-xl" style={{ height: "35rem" }}>
+    <div className="hw2-root flex flex-col bg-white rounded-2xl p-3 sm:p-4 w-full max-w-lg" style={{ height: "35rem" }}>
       {renderProgress()}
       {renderPaymentHeader()}
       <div ref={bodyRef} className="hw2-body overflow-y-auto" style={{ flex: 1 }}>
