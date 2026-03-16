@@ -2,25 +2,20 @@ import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import CitySelect from "./CitySelect";
 
-// ── Only the icons ACTUALLY used in JSX ──────────────────────────────────────
 import { Check, ArrowLeft, X, CheckCircle2, Minus, Plus, Sparkles, Zap, Briefcase, Clock, CreditCard, Copy, Timer, Bolt, Upload, ImageIcon, CheckCircle, Send, Wallet, Building2, Smartphone } from "lucide-react";
 
-// ── All static data lives in wizardData.js (keeps this file lean) ────────────
-import { SERVICES, SERVICE_FORMATS, GENDER_OPTIONS_DATA, TASKS, HOUSE_SIZES, PETS_OPTIONS, MEAL_PREFS, MEALS_NEEDED, CUISINES, CHILD_DUTIES, CARE_NEEDED, VEHICLE_TYPES, MANAGER_DUTIES, HOME_TYPES, MULTI_SERVICES, BUDGETS, SUBSTITUTE_BUDGETS, URGENCY_OPTIONS, PLANS, PAYMENT_INFO, SERVICE_FLOWS, DEFAULT_FLOW, PROG_META, INIT, } from "./wizardData";
+import { SERVICES, SERVICE_FORMATS, GENDER_OPTIONS_DATA, TASKS, HOUSE_SIZES, PETS_OPTIONS, MEAL_PREFS, MEALS_NEEDED, CUISINES, CHILD_DUTIES, CARE_NEEDED, VEHICLE_TYPES, MANAGER_DUTIES, HOME_TYPES, MULTI_SERVICES, BUDGETS, SUBSTITUTE_BUDGETS, URGENCY_OPTIONS, PLANS, PAYMENT_INFO, SERVICE_FLOWS, DEFAULT_FLOW, PROG_META, INIT } from "./wizardData";
 
 const API_BASE = import.meta.env.VITE_REACT_APP_API;
-const CLOUDINARY_CLOUD_NAME = "dto7bji6b";
-const CLOUDINARY_UPLOAD_PRESET = "payment_screenshots";
+const CLOUDINARY_CLOUD_NAME = "dhtzknkdr";
+const CLOUDINARY_UPLOAD_PRESET = "domestic-pro-img";
 
 const uploadToCloudinary = async (file) => {
   const fd = new FormData();
   fd.append("file", file);
   fd.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
   fd.append("folder", "payment_screenshots");
-  const res = await fetch(
-    `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
-    { method: "POST", body: fd },
-  );
+  const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, { method: "POST", body: fd });
   if (!res.ok) throw new Error("Cloudinary upload failed");
   return res.json();
 };
@@ -34,18 +29,12 @@ const submitToBackend = async (formData) => {
   return res.json();
 };
 
-export default function HeroWizard({
-  asModal = false,
-  isOpen = true,
-  onClose,
-  onSubmit,
-}) {
+export default function HeroWizard({ asModal = false, isOpen = true, onClose, onSubmit }) {
   const [stepIdx, setStepIdx] = useState(0);
   const [dir, setDir] = useState(1);
   const [form, setForm] = useState({ ...INIT });
   const [planSubmitting, setPlanSubmitting] = useState(false);
   const [copied, setCopied] = useState("");
-
   const [screenshotFile, setScreenshotFile] = useState(null);
   const [screenshotPreview, setScreenshotPreview] = useState(null);
   const [screenshotUploading, setScreenshotUploading] = useState(false);
@@ -60,24 +49,16 @@ export default function HeroWizard({
     if (bodyRef.current) bodyRef.current.scrollTop = 0;
   }, [stepIdx, form.ServiceType]);
 
-  const steps = form.ServiceType ? SERVICE_FLOWS[form.ServiceType] : DEFAULT_FLOW;
+  const steps = form.ServiceType ? (SERVICE_FLOWS[form.ServiceType] || DEFAULT_FLOW) : DEFAULT_FLOW;
   const curKey = steps[stepIdx] ?? "service";
   const isDone = curKey === "done";
 
   const progKeys = steps.filter((k) => k !== "done" && k !== "payment");
   const progIdx = isDone ? progKeys.length : progKeys.indexOf(curKey);
-  const progPct =
-    progKeys.length <= 1
-      ? 0
-      : Math.round((Math.max(0, progIdx) / (progKeys.length - 1)) * 100);
+  const progPct = progKeys.length <= 1 ? 0 : Math.round((Math.max(0, progIdx) / (progKeys.length - 1)) * 100);
 
   const setF = (k, v) => setForm((f) => ({ ...f, [k]: v }));
-  const toggleArr = (k, v) =>
-    setForm((f) => ({
-      ...f,
-      [k]: f[k].includes(v) ? f[k].filter((x) => x !== v) : [...f[k], v],
-    }));
-
+  const toggleArr = (k, v) => setForm((f) => ({ ...f, [k]: f[k].includes(v) ? f[k].filter((x) => x !== v) : [...f[k], v] }));
   const goNext = () => { setDir(1); setStepIdx((i) => Math.min(i + 1, steps.length - 1)); };
   const goBack = () => { setDir(-1); setStepIdx((i) => Math.max(i - 1, 0)); };
   const after = (ms = 220) => setTimeout(goNext, ms);
@@ -91,10 +72,7 @@ export default function HeroWizard({
   };
 
   const copyToClipboard = (text, key) => {
-    navigator.clipboard.writeText(text).then(() => {
-      setCopied(key);
-      setTimeout(() => setCopied(""), 2000);
-    });
+    navigator.clipboard.writeText(text).then(() => { setCopied(key); setTimeout(() => setCopied(""), 2000); });
   };
 
   const isValid = () => {
@@ -117,19 +95,14 @@ export default function HeroWizard({
       case "multiservices": return form.MultiServices.length > 0;
       case "urgency": return !!form.Urgency;
       case "budget": return !!form.Budget;
-      case "contact":
-        return form.FirstName.trim() !== "" && form.Phone.length === 10 && /^[6-9]/.test(form.Phone);
+      case "contact": return form.FirstName.trim() !== "" && form.LastName.trim() !== "" && form.Phone.length === 10 && /^[6-9]/.test(form.Phone) && form.Street.trim() !== "" && form.City.trim() !== "";
       case "plan": return !!form.PlanType;
       case "payment": return true;
       default: return true;
     }
   };
 
-  const CONT_KEYS = new Set([
-    "tasks", "mealtime", "cuisine", "childduties", "careneeded", "vehicletype",
-    "managerduties", "multiservices", "contact", "housesize", "mealpref", "urgency",
-    "budget", "patientage", "childage", "patientgender", "hometype", "plan", "payment",
-  ]);
+  const CONT_KEYS = new Set(["tasks", "mealtime", "cuisine", "childduties", "careneeded", "vehicletype", "managerduties", "multiservices", "contact", "housesize", "mealpref", "urgency", "budget", "patientage", "childage", "patientgender", "hometype", "plan", "payment"]);
   const showContinue = CONT_KEYS.has(curKey);
 
   const handlePlanSubmit = async (planType) => {
@@ -165,10 +138,7 @@ export default function HeroWizard({
     try {
       const data = await uploadToCloudinary(screenshotFile);
       setScreenshotUrl(data.secure_url);
-    } catch (err) {
-      console.error("Upload error:", err);
-      alert("Upload failed. Please try again.");
-    }
+    } catch (err) { console.error("Upload error:", err); alert("Upload failed. Please try again."); }
     setScreenshotUploading(false);
   };
 
@@ -178,7 +148,7 @@ export default function HeroWizard({
     try {
       const updatedForm = {
         ...form,
-        PlanType: form.PlanType || "priority",
+        PlanType: "priority",
         PaymentStatus: screenshotUrl ? "Screenshot Received — Pending Verification" : "Pending Payment",
         ScreenshotUrl: screenshotUrl || "",
       };
@@ -189,10 +159,8 @@ export default function HeroWizard({
     goNext();
   };
 
-  // ── Reusable sub-components ─────────────────────────────────────────────────
   const SvcCard = ({ svc, selected, onClick, className = "" }) => (
-    <button type="button" aria-pressed={selected} onClick={onClick}
-      className={`hw2-svc-card ${className}`}
+    <button type="button" aria-pressed={selected} onClick={onClick} className={`hw2-svc-card ${className}`}
       style={{ borderColor: selected ? svc.color : "#E5E2DE", boxShadow: selected ? `0 8px 24px ${svc.color}40` : "0 2px 8px rgba(0,0,0,0.05)" }}>
       <img src={svc.image} alt={svc.label} loading="lazy" className="hw2-svc-img" />
       <div className="hw2-svc-overlay" />
@@ -259,7 +227,6 @@ export default function HeroWizard({
     </div>
   );
 
-  // ── Step renderer ───────────────────────────────────────────────────────────
   const renderStep = () => {
     if (curKey === "service")
       return (
@@ -482,7 +449,7 @@ export default function HeroWizard({
       );
 
     if (curKey === "budget") {
-      const isSubstitute = form.ServiceFormat === "substitute";
+      const isSubstitute = form.ServiceFormat === "Substitute";
       if (isSubstitute)
         return (
           <div>
@@ -508,7 +475,6 @@ export default function HeroWizard({
             </div>
           </div>
         );
-
       return (
         <div>
           <QHead q="What's your monthly budget?" hint="We'll match staff within your budget" />
@@ -527,13 +493,13 @@ export default function HeroWizard({
     }
 
     if (curKey === "contact") {
-      const phoneOk = form.Phone.length === 10 && /^[1-9]/.test(form.Phone);
+      const phoneOk = form.Phone.length === 10 && /^[6-9]/.test(form.Phone);
       return (
         <div>
           <QHead q="Almost there! 🎉" hint="Share your details — our team will call you within 2 hours" />
           <div className="grid grid-cols-2 gap-2.5 mb-3">
             <div><label className="hw2-flabel">First Name *</label><input className="hw2-finput" type="text" placeholder="Rahul" value={form.FirstName} onChange={(e) => setF("FirstName", e.target.value)} /></div>
-            <div><label className="hw2-flabel">Last Name</label><input className="hw2-finput" type="text" placeholder="Sharma" value={form.LastName} onChange={(e) => setF("LastName", e.target.value)} /></div>
+            <div><label className="hw2-flabel">Last Name *</label><input className="hw2-finput" type="text" placeholder="Sharma" value={form.LastName} onChange={(e) => setF("LastName", e.target.value)} /></div>
           </div>
           <div className="mb-3">
             <label className="hw2-flabel">Phone Number * <span className="text-xs font-normal text-gray-400">(we'll call on this)</span></label>
@@ -758,7 +724,6 @@ export default function HeroWizard({
     return null;
   };
 
-  // ── Progress bar ────────────────────────────────────────────────────────────
   const renderProgress = () => {
     if (isDone || curKey === "payment") return null;
     return (
@@ -796,7 +761,6 @@ export default function HeroWizard({
     );
   };
 
-  // ── Footer ──────────────────────────────────────────────────────────────────
   const renderFooter = () => {
     if (isDone) return null;
     const showBack = stepIdx > 0 && curKey !== "payment";
@@ -810,11 +774,9 @@ export default function HeroWizard({
         {showBack ? <button type="button" className="hw2-back" onClick={goBack}><ArrowLeft size={14} strokeWidth={2.5} /> Back</button> : <div />}
         {showContinue && (
           <button type="button" className="hw2-btn" disabled={!isValid() || busy}
-            onClick={isContact ? goNext : isPlan ? () => handlePlanSubmit(form.PlanType) : isPayment ? handlePaymentSubmit : goNext}>
+            onClick={isPlan ? () => handlePlanSubmit(form.PlanType) : isPayment ? handlePaymentSubmit : goNext}>
             {busy ? (
               <><span className="hw2-spin" /> {isPlan ? "Processing…" : isPayment ? "Submitting…" : "Please wait…"}</>
-            ) : isContact ? (
-              <>Next <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg></>
             ) : isPlan ? (
               form.PlanType === "priority" ? <><Bolt size={14} strokeWidth={2.5} /> Continue to Payment</> :
                 form.PlanType === "pbt" ? <><Check size={14} strokeWidth={2.5} /> Confirm &amp; Submit</> :
@@ -830,7 +792,6 @@ export default function HeroWizard({
     );
   };
 
-  // ── Payment header ──────────────────────────────────────────────────────────
   const renderPaymentHeader = () => {
     if (curKey !== "payment") return null;
     return (
@@ -845,7 +806,7 @@ export default function HeroWizard({
   };
 
   const Shell = (
-    <div className="hw2-root flex flex-col bg-white rounded-2xl p-3 sm:p-4 w-full max-w-lg" style={{ height: "35rem" }}>
+    <div className="hw2-root flex flex-col bg-white rounded-3xl p-5 sm:p-6 w-full max-w-xl" style={{ height: "35rem" }}>
       {renderProgress()}
       {renderPaymentHeader()}
       <div ref={bodyRef} className="hw2-body overflow-y-auto" style={{ flex: 1 }}>

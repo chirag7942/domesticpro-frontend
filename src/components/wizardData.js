@@ -1,9 +1,3 @@
-// ─────────────────────────────────────────────────────────────────────────────
-// wizardData.js — All static wizard data extracted from HeroWizard
-// Moving this out of the component file lets Vite chunk it separately
-// and keeps HeroWizard.jsx focused on logic only
-// ─────────────────────────────────────────────────────────────────────────────
-
 import {
   Home,
   Users,
@@ -29,7 +23,6 @@ import {
   Sparkles,
 } from "lucide-react";
 
-// ── Cloudinary base (keeps URLs short in this file) ──────────────────────────
 const CDN = "https://res.cloudinary.com/dhtzknkdr/image/upload";
 
 export const SERVICES = [
@@ -483,7 +476,7 @@ export const URGENCY_OPTIONS = [
 
 export const PLANS = {
   priority: {
-    id: "Priority Pay",
+    id: "priority",
     name: "Priority Pay",
     subtitle: "Pay Now — Guaranteed Fastest Placement",
     amount: 2999,
@@ -505,7 +498,7 @@ export const PLANS = {
     bonus: "First replacement FREE within 15 days",
   },
   pbt: {
-    id: "Pay Before Profile Sharing ",
+    id: "pbt",
     name: "Pay Before Profile Sharing",
     subtitle: "No upfront payment needed",
     amount: 4999,
@@ -536,8 +529,9 @@ export const PAYMENT_INFO = {
   whatsapp: "9876543210",
 };
 
+// ── Keys match SERVICES ids exactly ──────────────────────────────────────────
 export const SERVICE_FLOWS = {
-  househelp: [
+  "House Help": [
     "service",
     "format",
     "tasks",
@@ -550,7 +544,7 @@ export const SERVICE_FLOWS = {
     "payment",
     "done",
   ],
-  cook: [
+  Cook: [
     "service",
     "format",
     "mealpref",
@@ -563,7 +557,7 @@ export const SERVICE_FLOWS = {
     "payment",
     "done",
   ],
-  babysitter: [
+  Babysitter: [
     "service",
     "format",
     "childage",
@@ -575,7 +569,7 @@ export const SERVICE_FLOWS = {
     "payment",
     "done",
   ],
-  elderlycare: [
+  "Elderly Care": [
     "service",
     "format",
     "patientage",
@@ -588,7 +582,7 @@ export const SERVICE_FLOWS = {
     "payment",
     "done",
   ],
-  driver: [
+  Driver: [
     "service",
     "format",
     "vehicletype",
@@ -599,7 +593,7 @@ export const SERVICE_FLOWS = {
     "payment",
     "done",
   ],
-  housemanager: [
+  "House Manager": [
     "service",
     "format",
     "managerduties",
@@ -611,7 +605,7 @@ export const SERVICE_FLOWS = {
     "payment",
     "done",
   ],
-  multiple: [
+  "Multiple Services": [
     "service",
     "format",
     "multiservices",
