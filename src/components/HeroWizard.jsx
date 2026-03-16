@@ -7,8 +7,8 @@ import { Check, ArrowLeft, X, CheckCircle2, Minus, Plus, Sparkles, Zap, Briefcas
 import { SERVICES, SERVICE_FORMATS, GENDER_OPTIONS_DATA, TASKS, HOUSE_SIZES, PETS_OPTIONS, MEAL_PREFS, MEALS_NEEDED, CUISINES, CHILD_DUTIES, CARE_NEEDED, VEHICLE_TYPES, MANAGER_DUTIES, HOME_TYPES, MULTI_SERVICES, BUDGETS, SUBSTITUTE_BUDGETS, URGENCY_OPTIONS, PLANS, PAYMENT_INFO, SERVICE_FLOWS, DEFAULT_FLOW, PROG_META, INIT } from "./wizardData";
 
 const API_BASE = import.meta.env.VITE_REACT_APP_API;
-const CLOUDINARY_CLOUD_NAME = "dhtzknkdr";
-const CLOUDINARY_UPLOAD_PRESET = "domestic-pro-img";
+const CLOUDINARY_CLOUD_NAME = "dto7bji6b";
+const CLOUDINARY_UPLOAD_PRESET = "payment_screenshots";
 
 const uploadToCloudinary = async (file) => {
   const fd = new FormData();
