@@ -1,7 +1,10 @@
 import { useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  faShieldHalved, faStar, faHandshake, faHeart, faHouse, faBaby, faBed, faUserNurse, faUtensils, faCircleCheck, faClock, faArrowsRotate, faCheck, faUmbrellaBeach, faSun, faMountain, faCar, faGlobe, faEnvelope, faPhone, faLeaf
+  faShieldHalved, faStar, faHandshake, faHeart, faHouse, faBaby, faBed, faUserNurse, faUtensils, faCircleCheck, faClock, faArrowsRotate, faCheck, faUmbrellaBeach, faSun, faMountain, faCar, faGlobe, faEnvelope, faPhone, faLeaf,
+  faAward,
+  faHandHoldingHand,
+  faHandHoldingHeart
 } from "@fortawesome/free-solid-svg-icons";
 
 export default function AboutUs() {
@@ -45,9 +48,9 @@ export default function AboutUs() {
 
   const CORE_VALUES = [
     { icon: faShieldHalved, title: "Trust & Safety", desc: "Security comes first with police-verified and background-checked maids." },
-    { icon: faStar, title: "Professional Excellence", desc: "Delivering trained and skilled domestic helpers for all needs." },
+    { icon: faAward, title: "Professional Excellence", desc: "Delivering trained and skilled domestic helpers for all needs." },
     { icon: faHandshake, title: "Customer-Centricity", desc: "Every service is tailored to your family's lifestyle and requirements." },
-    { icon: faHeart, title: "Compassion & Care", desc: "Beyond work, we bring kindness, respect, and empathy to your home." },
+    { icon: faHandHoldingHeart, title: "Compassion & Care", desc: "Beyond work, we bring kindness, respect, and empathy to your home." },
   ];
 
   const SERVICES = [
@@ -142,7 +145,7 @@ export default function AboutUs() {
               <div key={title} className="group bg-bgLight rounded-2xl p-8 border border-borderLight hover:border-primary hover:shadow-[0_8px_32px_rgba(236,95,54,0.10)] transition-all duration-300 text-center">
                 {/* large circle icon — matches Maidvy's card style */}
                 <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6 group-hover:bg-primary transition-colors duration-300">
-                  <FontAwesomeIcon icon={icon} className="text-primary group-hover:text-white transition-colors duration-300" style={{ fontSize: 28 }} />
+                  <FontAwesomeIcon icon={icon} className="text-primary group-hover:text-white transition-colors duration-300" style={{ fontSize: "3rem" }} />
                 </div>
                 <h3 className="text-lg font-bold text-textDark mb-3">{title}</h3>
                 <p className="text-sm text-textLight leading-relaxed">{desc}</p>
@@ -164,8 +167,8 @@ export default function AboutUs() {
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {SERVICES.map(({ icon, title, desc }) => (
               <div key={title} className="group bg-white rounded-2xl p-8 border border-borderLight hover:border-primary hover:shadow-[0_8px_32px_rgba(236,95,54,0.10)] transition-all duration-300">
-                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-5 group-hover:bg-primary/20 transition-colors duration-300">
-                  <FontAwesomeIcon icon={icon} className="text-primary" style={{ fontSize: 26 }} />
+                <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mb-5 group-hover:bg-primary/20 transition-colors duration-300">
+                  <FontAwesomeIcon icon={icon} className="text-primary" style={{ fontSize: "3rem" }} />
                 </div>
                 <h3 className="text-lg font-bold text-textDark mb-2">{title}</h3>
                 <p className="text-sm text-textLight leading-relaxed">{desc}</p>
@@ -287,7 +290,7 @@ export default function AboutUs() {
             {WHY_US.map(({ icon, title, desc }) => (
               <div key={title} className="bg-white rounded-2xl p-10 border border-borderLight text-center hover:border-primary hover:shadow-[0_8px_32px_rgba(236,95,54,0.10)] transition-all duration-300 group">
                 <div className="w-20 h-20 rounded-full bg-primary flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
-                  <FontAwesomeIcon icon={icon} style={{ fontSize: 28, color: "#fff" }} />
+                  <FontAwesomeIcon icon={icon} style={{ fontSize: "3rem", color: "#fff" }} />
                 </div>
                 <h3 className="text-lg font-bold text-textDark mb-3">{title}</h3>
                 <p className="text-sm text-textLight leading-relaxed">{desc}</p>
@@ -337,10 +340,10 @@ export default function AboutUs() {
       </section>
 
       {/* ── COMMITMENT — dark section like Maidvy ── */}
-      <section className="py-24 bg-[#2d2d2d]">
+      <section className="py-24 bg-textDark">
         <div className="max-w-4xl mx-auto px-6 text-center scroll-section">
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">Our Commitment to You</h2>
-          <p className="text-white/80 text-lg font-medium mb-8">
+          <h2 className="text-4xl md:text-5xl font-bold text-primary mb-6">Our Commitment to You</h2>
+          <p className="text-bgLight text-lg font-medium mb-8">
             At Domestic Pro, we treat every home with respect, care, and responsibility.
           </p>
           <p className="text-white/70 text-base leading-relaxed mb-6">
@@ -373,25 +376,6 @@ export default function AboutUs() {
           </a>
         </div>
       </section>
-
-      {/* ── CONTACT INFO STRIP — dark bar below CTA ── */}
-      <section className="bg-[#2d2d2d] border-t border-white/10 px-6 py-6">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
-          <a href="tel:+919315669704" className="flex items-center justify-center gap-3 text-white/80 hover:text-white transition-colors duration-200 text-sm">
-            <FontAwesomeIcon icon={faPhone} className="text-primary" />
-            Call Us: +91-93156 69704
-          </a>
-          <a href="mailto:support@domesticpro.in" className="flex items-center justify-center gap-3 text-white/80 hover:text-white transition-colors duration-200 text-sm">
-            <FontAwesomeIcon icon={faEnvelope} className="text-primary" />
-            Email: support@domesticpro.in
-          </a>
-          <a href="https://domesticpro.in" className="flex items-center justify-center gap-3 text-white/80 hover:text-white transition-colors duration-200 text-sm">
-            <FontAwesomeIcon icon={faGlobe} className="text-primary" />
-            Website: www.domesticpro.in
-          </a>
-        </div>
-      </section>
-
     </div>
   );
 }

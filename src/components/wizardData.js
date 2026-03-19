@@ -474,46 +474,139 @@ export const URGENCY_OPTIONS = [
   },
 ];
 
+// ── PLANS ─────────────────────────────────────────────────────────────────────
 export const PLANS = {
   priority: {
     id: "priority",
     name: "Priority Pay",
-    subtitle: "Pay Now — Guaranteed Fastest Placement",
-    amount: 2999,
-    gst: Math.round(2999 * 0.18),
+    tag: "Fast-Track Hiring",
+    subtitle: "Pay Before Trial",
+    amount: 3000,
+    gst: Math.round(3000 * 0.18),
     color: "#EC5F36",
-    bgColor: "#FFF7F4",
+    accentLight: "#FFF7F4",
     borderColor: "#F5D8CF",
     badgeBg: "linear-gradient(135deg,#EC5F36,#D84E28)",
-    timeline: "Profiles shared within 24 hours",
-    paymentNote: "Payment required before placement",
-    emoji: "⚡",
+    timeline: "5 verified profiles within 24 hours",
+    paymentNote: "Pay now to activate priority handling",
+    recommended: true,
     inclusions: [
-      "Same-Day Maid Shortlisting (Priority Handling)",
-      "5 verified profiles within 24 hours",
-      "Priority maid shortlisting & coordination",
-      "Profile finalization assistance",
-      "15-day free look period",
+      {
+        icon: "bolt",
+        label: "Priority Handling",
+        desc: "Your requirement is fast-tracked over regular requests.",
+      },
+      {
+        icon: "id-card",
+        label: "5 Verified Profiles within 24 Hours",
+        desc: "Carefully shortlisted candidates based on your requirement.",
+      },
+      {
+        icon: "user-check",
+        label: "Pre-Screened & Relevant Matches",
+        desc: "Profiles shared only after basic verification, experience check, and suitability.",
+      },
+      {
+        icon: "headset",
+        label: "End-to-End Coordination",
+        desc: "Scheduling calls, interviews, and trial setup managed by our team.",
+      },
+      {
+        icon: "handshake",
+        label: "Profile Finalization Support",
+        desc: "Guidance in selecting the most suitable candidate.",
+      },
+      {
+        icon: "rotate",
+        label: "15-Day Free Look Period",
+        desc: "One free replacement within 15 days if required.",
+      },
+      {
+        icon: "gauge-high",
+        label: "Quick Turnaround Time",
+        desc: "Faster closures compared to standard plans.",
+      },
     ],
-    bonus: "First replacement FREE within 15 days",
+    bonus: "One free replacement within 15 days if required.",
   },
-  pbt: {
-    id: "pbt",
-    name: "Pay Before Profile Sharing",
-    subtitle: "No upfront payment needed",
-    amount: 4999,
-    gst: Math.round(4999 * 0.18),
+  commitment: {
+    id: "commitment",
+    name: "Commitment Plan",
+    tag: "Standard Hiring",
+    subtitle: "Commitment-Based Start",
+    amount: 1500,
+    gst: Math.round(1500 * 0.18),
     color: "#3B82F6",
-    bgColor: "#EFF6FF",
+    accentLight: "#EFF6FF",
     borderColor: "#BFDBFE",
     badgeBg: "linear-gradient(135deg,#3B82F6,#2563EB)",
-    timeline: "Profiles shared within 3–5 working days",
-    paymentNote: "Pay only before the helper trial is completed",
-    emoji: "🗓️",
+    timeline: "Profiles shared within 3 working days",
+    paymentNote: "Commitment fee ensures serious intent",
+    recommended: false,
     inclusions: [
-      "Maid shortlisting & coordination",
-      "Profile finalization assistance",
-      "15-day free look period",
+      {
+        icon: "credit-card",
+        label: "Commitment Fee (Upfront)",
+        desc: "A nominal fee is charged before sharing profiles to ensure serious intent and dedicated service from our end.",
+      },
+      {
+        icon: "address-card",
+        label: "Curated Profile Sharing",
+        desc: "Relevant and suitable profiles shared based on your requirement.",
+      },
+      {
+        icon: "filter",
+        label: "Basic Screening & Matching",
+        desc: "Candidates filtered for experience and role suitability.",
+      },
+      {
+        icon: "headset",
+        label: "End-to-End Coordination",
+        desc: "Interview scheduling, trials, and communication handled by our team.",
+      },
+      {
+        icon: "bullseye",
+        label: "Finalization Support",
+        desc: "Guidance to help you select the right candidate.",
+      },
+      {
+        icon: "clock",
+        label: "Standard Timeline",
+        desc: "Profiles shared within 3 working days.",
+      },
+    ],
+    bonus: null,
+  },
+  noPay: {
+    id: "noPay",
+    name: "Continue Without Pay",
+    tag: "Basic Access",
+    subtitle: "No upfront payment",
+    amount: 0,
+    gst: 0,
+    color: "#9CA3AF",
+    accentLight: "#F9FAFB",
+    borderColor: "#E5E7EB",
+    badgeBg: "linear-gradient(135deg,#9CA3AF,#6B7280)",
+    timeline: "Profiles shared only after availability",
+    paymentNote: "No priority assigned to this request",
+    recommended: false,
+    inclusions: [
+      {
+        icon: "clock",
+        label: "Delayed Profile Sharing",
+        desc: "Profiles are shared only after priority requests are fulfilled.",
+      },
+      {
+        icon: "users",
+        label: "Limited Matches",
+        desc: "Fewer and less relevant profiles may be shared based on availability.",
+      },
+      {
+        icon: "ban",
+        label: "No Replacement Support",
+        desc: "No free replacements or dedicated assistance included.",
+      },
     ],
     bonus: null,
   },
@@ -529,7 +622,6 @@ export const PAYMENT_INFO = {
   whatsapp: "9876543210",
 };
 
-// ── Keys match SERVICES ids exactly ──────────────────────────────────────────
 export const SERVICE_FLOWS = {
   "House Help": [
     "service",

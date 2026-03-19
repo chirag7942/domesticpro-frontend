@@ -83,40 +83,39 @@ export default function Home() {
       {/* ── HERO ── */}
       <section className="bg-bgLight">
         <div className="flex flex-wrap justify-center">
-          {/* image + overlay + text */}
+
           <div className="relative w-full">
             <img
               src="https://res.cloudinary.com/dhtzknkdr/image/upload/v1773031900/hero_wfmtrh.png"
               loading="eager"
               alt="Home Services"
-              className="w-full shadow-sm"
+              className="w-full shadow-sm block"
             />
             <div className="absolute inset-0 bg-gradient-to-r from-black/55 via-black/25 to-transparent" />
 
-            <div className="absolute lg:w-1/2 md:w-full top-0 lg:px-[4rem] px-4 py-8">
-              <h1 className="text-white text-3xl sm:text-4xl md:text-5xl font-bold leading-tight mb-4">
+            <div className="absolute inset-y-0 left-0 lg:w-[68%] md:w-full lg:px-[4rem] px-4 py-6 flex flex-col overflow-hidden">
+
+              <h1 className="text-white text-3xl sm:text-4xl md:text-5xl font-bold leading-tight mb-3">
                 Hire Verified
                 <span className="text-primary"> Domestic Professionals </span>
                 instantly
               </h1>
-              <p className="text-white text-sm sm:text-base opacity-90">
+              <p className="text-white text-sm sm:text-base opacity-90 mb-0">
                 Verified nanny, househelp, cooks and drivers. Fast hiring. Trusted professionals.
               </p>
-
-              {/* desktop wizard */}
-              <div className="pt-4 hidden lg:block">
+              <div className="pt-3 hidden lg:flex flex-col flex-1 min-h-0 max-w-[32rem]">
                 <HeroWizard />
               </div>
             </div>
           </div>
 
-          {/* tablet wizard */}
+          {/* tablet wizard — shown below the image on md screens */}
           <div className="w-full md:flex justify-center hidden lg:hidden">
             <HeroWizard />
           </div>
 
           {/* mobile wizard */}
-          <div className="w-full mx-2 lg:hidden md:hidden">
+          <div className="w-full h-[32rem] mx-2 lg:hidden md:hidden">
             <HeroWizard />
           </div>
         </div>
@@ -135,7 +134,6 @@ export default function Home() {
             </p>
           </div>
 
-          {/* features grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
             {WHY_CARDS.map(({ icon: Icon, title, desc }) => (
               <div key={title}
@@ -149,7 +147,6 @@ export default function Home() {
             ))}
           </div>
 
-          {/* trust bar */}
           <div className="mt-14 bg-bgLight border border-borderLight rounded-2xl p-8 flex flex-col md:flex-row justify-between items-center gap-6 text-center md:text-left">
             <div>
               <h3 className="text-lg font-bold text-textDark mb-1">

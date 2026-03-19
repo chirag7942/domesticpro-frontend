@@ -2,13 +2,45 @@ import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import CitySelect from "./CitySelect";
 
+// lucide-react (used everywhere except plan cards)
 import { Check, ArrowLeft, X, CheckCircle2, Minus, Plus, Sparkles, Zap, Briefcase, Clock, CreditCard, Copy, Timer, Bolt, Upload, ImageIcon, CheckCircle, Send, Wallet, Building2, Smartphone } from "lucide-react";
+
+// Font Awesome — React component
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faBolt, faIdCard, faUserCheck, faHeadset, faHandshake, faRotate,
+  faGaugeHigh, faCreditCard, faAddressCard, faFilter, faBullseye,
+  faClock, faGift, faCheck, faCircleCheck, faPhone,
+  faUsers, faBan,
+} from "@fortawesome/free-solid-svg-icons";
 
 import { SERVICES, SERVICE_FORMATS, GENDER_OPTIONS_DATA, TASKS, HOUSE_SIZES, PETS_OPTIONS, MEAL_PREFS, MEALS_NEEDED, CUISINES, CHILD_DUTIES, CARE_NEEDED, VEHICLE_TYPES, MANAGER_DUTIES, HOME_TYPES, MULTI_SERVICES, BUDGETS, SUBSTITUTE_BUDGETS, URGENCY_OPTIONS, PLANS, PAYMENT_INFO, SERVICE_FLOWS, DEFAULT_FLOW, PROG_META, INIT } from "./wizardData";
 
 const API_BASE = import.meta.env.VITE_REACT_APP_API;
 const CLOUDINARY_CLOUD_NAME = "dto7bji6b";
 const CLOUDINARY_UPLOAD_PRESET = "payment_screenshots";
+
+// Map icon string keys (stored in wizardData) → FA icon objects
+const FA_ICON_MAP = {
+  "bolt": faBolt,
+  "id-card": faIdCard,
+  "user-check": faUserCheck,
+  "headset": faHeadset,
+  "handshake": faHandshake,
+  "rotate": faRotate,
+  "gauge-high": faGaugeHigh,
+  "credit-card": faCreditCard,
+  "address-card": faAddressCard,
+  "filter": faFilter,
+  "bullseye": faBullseye,
+  "clock": faClock,
+  "gift": faGift,
+  "check": faCheck,
+  "circle-check": faCircleCheck,
+  "phone": faPhone,
+  "users": faUsers,
+  "ban": faBan,
+};
 
 const uploadToCloudinary = async (file) => {
   const fd = new FormData();
@@ -95,7 +127,10 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
       case "multiservices": return form.MultiServices.length > 0;
       case "urgency": return !!form.Urgency;
       case "budget": return !!form.Budget;
-      case "contact": return form.FirstName.trim() !== "" && form.LastName.trim() !== "" && form.Phone.length === 10 && /^[6-9]/.test(form.Phone) && form.Street.trim() !== "" && form.City.trim() !== "";
+      case "contact":
+        return form.FirstName.trim() !== "" && form.LastName.trim() !== "" &&
+          form.Phone.length === 10 && /^[6-9]/.test(form.Phone) &&
+          form.Street.trim() !== "" && form.City.trim() !== "";
       case "plan": return !!form.PlanType;
       case "payment": return true;
       default: return true;
@@ -108,19 +143,36 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
   const handlePlanSubmit = async (planType) => {
     if (!planType || planSubmitting) return;
     setF("PlanType", planType);
+
     if (planType === "priority") {
       setF("PaymentStatus", "Pending Payment");
       goNext();
       return;
     }
-    setPlanSubmitting(true);
-    const updatedForm = { ...form, PlanType: planType, PaymentStatus: "Pending Payment", ScreenshotUrl: "" };
-    try {
-      const result = await submitToBackend(updatedForm);
-      onSubmit?.(updatedForm, result);
-    } catch (err) { console.error("Backend error:", err); }
-    setPlanSubmitting(false);
-    setStepIdx(steps.indexOf("done"));
+
+    // commitment → submit directly, skip payment screen
+    if (planType === "commitment") {
+      setPlanSubmitting(true);
+      const updatedForm = { ...form, PlanType: "commitment", PaymentStatus: "Commitment Fee Pending", ScreenshotUrl: "" };
+      try {
+        const result = await submitToBackend(updatedForm);
+        onSubmit?.(updatedForm, result);
+      } catch (err) { console.error("Backend error:", err); }
+      setPlanSubmitting(false);
+      setStepIdx(steps.indexOf("done"));
+    }
+
+    // noPay → submit directly, no payment, lowest priority
+    if (planType === "noPay") {
+      setPlanSubmitting(true);
+      const updatedForm = { ...form, PlanType: "noPay", PaymentStatus: "No Payment — Basic Access", ScreenshotUrl: "" };
+      try {
+        const result = await submitToBackend(updatedForm);
+        onSubmit?.(updatedForm, result);
+      } catch (err) { console.error("Backend error:", err); }
+      setPlanSubmitting(false);
+      setStepIdx(steps.indexOf("done"));
+    }
   };
 
   const handleFileSelect = (file) => {
@@ -549,49 +601,124 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
       );
     }
 
+    // ── Plan selection ─────────────────────────────────────────────────────────
     if (curKey === "plan")
       return (
         <div>
-          <QHead q="How do you want to proceed?" hint="Choose a plan that works for you — both include a 15-day free look period" />
+          <QHead q="How do you want to proceed?" hint="Choose a plan that works for you — both include end-to-end coordination" />
           <div className="flex flex-col gap-3">
             {Object.values(PLANS).map((plan) => {
               const isSelected = form.PlanType === plan.id;
               const total = plan.amount + plan.gst;
               return (
-                <div key={plan.id} className="hw2-plan-card"
-                  style={{ borderColor: isSelected ? plan.color : "#E5E2DE", background: isSelected ? plan.bgColor : "#fff", boxShadow: isSelected ? `0 6px 24px ${plan.color}22` : "0 1px 6px rgba(0,0,0,0.04)" }}
-                  onClick={() => setF("PlanType", isSelected ? "" : plan.id)}>
-                  {isSelected && <div className="hw2-plan-selected-badge" style={{ background: plan.badgeBg }}><Check size={10} strokeWidth={3} color="#fff" /> Selected</div>}
-                  <div className="hw2-plan-header">
-                    <div>
-                      <div className="hw2-plan-badge" style={{ background: plan.badgeBg }}><span>{plan.emoji}</span><span>{plan.name}</span></div>
-                      <p className="hw2-plan-subtitle">{plan.subtitle}</p>
+                <div
+                  key={plan.id}
+                  className="hw2-plan-card-v2"
+                  style={{
+                    borderColor: isSelected ? plan.color : "#EBEBEB",
+                    background: isSelected ? plan.accentLight : "#fff",
+                    boxShadow: isSelected ? `0 4px 20px ${plan.color}20` : "0 1px 4px rgba(0,0,0,0.06)",
+                  }}
+                  onClick={() => setF("PlanType", isSelected ? "" : plan.id)}
+                >
+                  {/* Selected badge */}
+                  {isSelected && (
+                    <div className="hw2-pv2-selected-tick" style={{ background: plan.badgeBg }}>
+                      <FontAwesomeIcon icon={faCheck} style={{ fontSize: 9 }} />
+                      <span>Selected</span>
                     </div>
-                    <div className="hw2-plan-price-block">
-                      <span className="hw2-plan-amount" style={{ color: plan.color }}>₹{plan.amount.toLocaleString()}</span>
-                      <span className="hw2-plan-gst">+ GST ₹{plan.gst}</span>
-                      <span className="hw2-plan-total-inline" style={{ color: plan.color, borderColor: plan.borderColor, background: isSelected ? "rgba(255,255,255,0.6)" : plan.bgColor }}>₹{total.toLocaleString()} total</span>
+                  )}
+
+                  {/* Top row: name + price */}
+                  <div className="hw2-pv2-top">
+                    <div className="hw2-pv2-name-row">
+                      <div className="hw2-pv2-dot" style={{ background: plan.badgeBg }} />
+                      <span className="hw2-pv2-name" style={{ color: plan.color }}>{plan.name}</span>
+                      {plan.recommended && (
+                        <span className="hw2-pv2-rec" style={{ background: plan.badgeBg }}>Recommended</span>
+                      )}
+                    </div>
+                    <div className="hw2-pv2-price-col">
+                      <span className="hw2-pv2-amount" style={{ color: plan.color }}>
+                        {plan.amount === 0 ? "Free" : `₹${plan.amount.toLocaleString()}`}
+                      </span>
+                      {plan.amount > 0 && <span className="hw2-pv2-gst">+ ₹{plan.gst} GST</span>}
                     </div>
                   </div>
-                  <ul className="hw2-plan-perks">
+
+                  {/* Subtitle + total pill */}
+                  <div className="hw2-pv2-sub-row">
+                    <span className="hw2-pv2-subtitle">{plan.tag} · {plan.subtitle}</span>
+                    {plan.amount > 0 && (
+                      <span className="hw2-pv2-total" style={{ color: plan.color, borderColor: plan.borderColor, background: isSelected ? "rgba(255,255,255,0.7)" : plan.accentLight }}>
+                        ₹{total.toLocaleString()} total
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Divider */}
+                  <div className="hw2-pv2-divider" style={{ background: isSelected ? plan.borderColor : "#F0F0F0" }} />
+
+                  {/* Inclusions */}
+                  <ul className="hw2-pv2-list">
                     {plan.inclusions.map((item, i) => (
-                      <li key={i}><Check size={12} color={plan.color} strokeWidth={2.5} style={{ flexShrink: 0, marginTop: 1 }} /><span>{item}</span></li>
+                      <li key={i} className="hw2-pv2-item">
+                        <span className="hw2-pv2-icon-wrap" style={{ background: isSelected ? "rgba(255,255,255,0.65)" : plan.accentLight }}>
+                          <FontAwesomeIcon
+                            icon={FA_ICON_MAP[item.icon] || faCheck}
+                            style={{ color: plan.color, fontSize: 11, width: 11 }}
+                          />
+                        </span>
+                        <div className="hw2-pv2-item-txt">
+                          <span className="hw2-pv2-item-label">{item.label}</span>
+                          <span className="hw2-pv2-item-desc">{item.desc}</span>
+                        </div>
+                      </li>
                     ))}
                   </ul>
-                  {plan.bonus && <div className="hw2-plan-bonus" style={{ color: plan.color, borderColor: plan.borderColor, background: isSelected ? "rgba(255,255,255,0.55)" : plan.bgColor }}>🎁 <strong>Bonus:</strong> {plan.bonus}</div>}
-                  <div className="hw2-plan-meta-row">
-                    <div className="hw2-plan-meta-item"><Clock size={11} color={plan.color} strokeWidth={2} /><span style={{ color: isSelected ? plan.color : "#6b7280" }}>{plan.timeline}</span></div>
-                    <div className="hw2-plan-meta-item"><CreditCard size={11} color={plan.color} strokeWidth={2} /><span style={{ color: isSelected ? plan.color : "#6b7280" }}>{plan.paymentNote}</span></div>
-                  </div>
+
+                  {/* Bonus strip */}
+                  {plan.bonus && (
+                    <div className="hw2-pv2-bonus" style={{ background: isSelected ? "rgba(255,255,255,0.55)" : plan.accentLight, borderColor: plan.borderColor, color: plan.color }}>
+                      <FontAwesomeIcon icon={faGift} style={{ fontSize: 11, flexShrink: 0 }} />
+                      <span>{plan.bonus}</span>
+                    </div>
+                  )}
                 </div>
               );
             })}
           </div>
+
           {!form.PlanType && <p className="hw2-warn mt-3 text-center">Please select a plan to continue</p>}
-          {form.PlanType === "pbt" && (
-            <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="hw2-pbt-note mt-3">
-              <p>✅ <strong>No payment needed now.</strong> We'll shortlist candidates and share profiles within <strong>3–5 working days</strong>. Payment of ₹{(PLANS.pbt.amount + PLANS.pbt.gst).toLocaleString()} is collected only before the maid's trial begins.</p>
-              <p style={{ marginTop: 6 }}>📞 You'll receive a call on <strong>+91 {form.Phone || "your number"}</strong> to confirm shortlisting.</p>
+
+          {form.PlanType === "commitment" && (
+            <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="hw2-pbt-note mt-3">
+              <p>
+                <FontAwesomeIcon icon={faCircleCheck} style={{ marginRight: 6 }} />
+                <strong>Commitment fee of ₹{(PLANS.commitment.amount + PLANS.commitment.gst).toLocaleString()}</strong> collected before profile sharing.
+                Profiles delivered within <strong>3 working days</strong>.
+              </p>
+              <p style={{ marginTop: 5 }}>
+                <FontAwesomeIcon icon={faPhone} style={{ marginRight: 6 }} />
+                We'll call you on <strong>+91 {form.Phone || "your number"}</strong> to confirm.
+              </p>
+            </motion.div>
+          )}
+          {form.PlanType === "priority" && (
+            <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="hw2-pbt-note mt-3"
+              style={{ background: "#FFF7F4", borderColor: "#F5D8CF", color: "#7C2D12" }}>
+              <p>
+                <FontAwesomeIcon icon={faBolt} style={{ marginRight: 6 }} />
+                <strong>Pay now to activate priority handling.</strong> Profiles shared within <strong>24 hours</strong> of payment confirmation.
+              </p>
+            </motion.div>
+          )}
+          {form.PlanType === "noPay" && (
+            <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="hw2-pbt-note mt-3"
+              style={{ background: "#F9FAFB", borderColor: "#E5E7EB", color: "#6B7280" }}>
+              <p>
+                ⚠️ Without payment there is <strong>no priority, no guaranteed timeline, and no replacement support</strong>. Most clients who pick this option switch to a paid plan once they see the difference in response speed.
+              </p>
             </motion.div>
           )}
         </div>
@@ -696,25 +823,47 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
 
     if (curKey === "done") {
       const isPriority = form.PlanType === "priority";
+      const isNoPay = form.PlanType === "noPay";
       const hasScreenshot = !!screenshotUrl;
+      const doneBg = isPriority
+        ? "linear-gradient(135deg,#EC5F36,#D84E28)"
+        : isNoPay
+          ? "linear-gradient(135deg,#9CA3AF,#6B7280)"
+          : "linear-gradient(135deg,#3B82F6,#2563EB)";
       return (
         <div className="flex flex-col items-center justify-center py-8 text-center">
           <motion.div initial={{ scale: 0, rotate: -20 }} animate={{ scale: 1, rotate: 0 }} transition={{ type: "spring", stiffness: 280, damping: 16 }}
             className="w-20 h-20 rounded-full flex items-center justify-center mb-5"
-            style={{ background: isPriority ? "linear-gradient(135deg,#EC5F36,#D84E28)" : "linear-gradient(135deg,#3B82F6,#2563EB)", boxShadow: isPriority ? "0 10px 36px rgba(236,95,54,.40)" : "0 10px 36px rgba(59,130,246,.40)" }}>
+            style={{ background: doneBg, boxShadow: isPriority ? "0 10px 36px rgba(236,95,54,.40)" : isNoPay ? "0 10px 36px rgba(107,114,128,.28)" : "0 10px 36px rgba(59,130,246,.40)" }}>
             <Check size={36} color="#fff" strokeWidth={3} />
           </motion.div>
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
-            <h3 className="hw2-display text-xl font-bold text-gray-900 mb-2">{isPriority ? hasScreenshot ? "Request Submitted! 🚀" : "Request Received! 🎉" : "Request Confirmed! 🎉"}</h3>
+            <h3 className="hw2-display text-xl font-bold text-gray-900 mb-2">
+              {isPriority ? (hasScreenshot ? "Request Submitted! 🚀" : "Request Received! 🎉")
+                : isNoPay ? "Request Noted 👋"
+                  : "Request Confirmed! 🎉"}
+            </h3>
             <p className="text-sm text-gray-500 max-w-[280px] mx-auto leading-relaxed mb-1">
-              {isPriority ? hasScreenshot ? "Screenshot received — we'll verify your payment and start priority shortlisting. Expect a call within 2 hours on" : "Our team will call you to confirm payment, then start priority shortlisting within 24 hours. We'll reach you on" : "Our team will shortlist candidates and reach out within 3–4 working days on"}
+              {isPriority
+                ? hasScreenshot
+                  ? "Screenshot received — we'll verify your payment and start priority shortlisting. Expect a call within 2 hours on"
+                  : "Our team will call you to confirm payment, then start priority shortlisting within 24 hours. We'll reach you on"
+                : isNoPay
+                  ? "No payment was made — there's no timeline or priority guarantee. You may be contacted when capacity allows on"
+                  : "Commitment fee pending — our team will reach out within 24 hours to collect payment and begin shortlisting on"}
             </p>
             <p className="font-bold text-gray-900 text-base mb-1">+91 {form.Phone}</p>
             {form.Email && <p className="text-xs text-gray-400 mb-3">Confirmation sent to {form.Email}</p>}
-            <div className="hw2-done-plan-badge" style={{ background: isPriority ? "#FFF2EE" : "#EFF6FF", color: isPriority ? "#EC5F36" : "#3B82F6", borderColor: isPriority ? "#F5D8CF" : "#BFDBFE" }}>
-              {isPriority ? <><Bolt size={13} strokeWidth={2.5} /> Priority Plan — {hasScreenshot ? "Under Verification" : "Awaiting Payment"}</> : <><Timer size={13} strokeWidth={2.5} /> Pay Before Profile Sharing</>}
+            <div className="hw2-done-plan-badge" style={{
+              background: isPriority ? "#FFF2EE" : isNoPay ? "#F9FAFB" : "#EFF6FF",
+              color: isPriority ? "#EC5F36" : isNoPay ? "#6B7280" : "#3B82F6",
+              borderColor: isPriority ? "#F5D8CF" : isNoPay ? "#E5E7EB" : "#BFDBFE",
+            }}>
+              {isPriority ? <><Bolt size={13} strokeWidth={2.5} /> Priority Plan — {hasScreenshot ? "Under Verification" : "Awaiting Payment"}</>
+                : isNoPay ? <>No Commitment — Basic Access</>
+                  : <><Timer size={13} strokeWidth={2.5} /> Commitment Plan — Awaiting Fee Collection</>}
             </div>
-            <button className="hw2-btn mx-auto mt-5" style={{ background: isPriority ? "linear-gradient(135deg,#EC5F36,#D84E28)" : "linear-gradient(135deg,#3B82F6,#2563EB)" }} onClick={resetWizard}>
+            <button className="hw2-btn mx-auto mt-5" style={{ background: doneBg }} onClick={resetWizard}>
               <Sparkles size={14} /> Submit Another Request
             </button>
           </motion.div>
@@ -764,7 +913,6 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
   const renderFooter = () => {
     if (isDone) return null;
     const showBack = stepIdx > 0 && curKey !== "payment";
-    const isContact = curKey === "contact";
     const isPlan = curKey === "plan";
     const isPayment = curKey === "payment";
     if (!showBack && !showContinue) return null;
@@ -779,8 +927,9 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
               <><span className="hw2-spin" /> {isPlan ? "Processing…" : isPayment ? "Submitting…" : "Please wait…"}</>
             ) : isPlan ? (
               form.PlanType === "priority" ? <><Bolt size={14} strokeWidth={2.5} /> Continue to Payment</> :
-                form.PlanType === "pbt" ? <><Check size={14} strokeWidth={2.5} /> Confirm &amp; Submit</> :
-                  <>Select a Plan</>
+                form.PlanType === "commitment" ? <><Check size={14} strokeWidth={2.5} /> Confirm &amp; Submit</> :
+                  form.PlanType === "noPay" ? <>Continue Without Paying</> :
+                    <>Select a Plan</>
             ) : isPayment ? (
               screenshotUrl ? <><Send size={14} strokeWidth={2.5} /> Submit with Screenshot</> : <><Send size={14} strokeWidth={2.5} /> Submit &amp; Confirm Later</>
             ) : (
@@ -805,8 +954,15 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
     );
   };
 
+  const isExpandedStep = curKey === "plan" || curKey === "payment";
+
   const Shell = (
-    <div className="hw2-root flex flex-col bg-white rounded-3xl p-5 sm:p-6 w-full max-w-xl" style={{ height: "35rem" }}>
+    <div className="hw2-root flex flex-col bg-white rounded-3xl p-5 sm:p-6 w-full max-w-xl"
+      style={{
+        height: isExpandedStep ? "auto" : "36rem",
+        maxHeight: isExpandedStep ? "90vh" : "100%",
+        minHeight: "26rem",
+      }}>
       {renderProgress()}
       {renderPaymentHeader()}
       <div ref={bodyRef} className="hw2-body overflow-y-auto" style={{ flex: 1 }}>
