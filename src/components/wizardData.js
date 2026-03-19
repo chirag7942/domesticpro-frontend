@@ -578,7 +578,7 @@ export const PLANS = {
     bonus: null,
   },
   noPay: {
-    id: "noPay",
+    id: "nopay",
     name: "Continue Without Pay",
     tag: "Basic Access",
     subtitle: "No upfront payment",

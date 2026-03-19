@@ -162,10 +162,10 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
       setStepIdx(steps.indexOf("done"));
     }
 
-    // noPay → submit directly, no payment, lowest priority
-    if (planType === "noPay") {
+    // nopay → submit directly, no payment, lowest priority
+    if (planType === "nopay") {
       setPlanSubmitting(true);
-      const updatedForm = { ...form, PlanType: "noPay", PaymentStatus: "No Payment — Basic Access", ScreenshotUrl: "" };
+      const updatedForm = { ...form, PlanType: "nopay", PaymentStatus: "No Payment — Basic Access", ScreenshotUrl: "" };
       try {
         const result = await submitToBackend(updatedForm);
         onSubmit?.(updatedForm, result);
@@ -713,7 +713,7 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
               </p>
             </motion.div>
           )}
-          {form.PlanType === "noPay" && (
+          {form.PlanType === "nopay" && (
             <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="hw2-pbt-note mt-3"
               style={{ background: "#F9FAFB", borderColor: "#E5E7EB", color: "#6B7280" }}>
               <p>
@@ -823,7 +823,7 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
 
     if (curKey === "done") {
       const isPriority = form.PlanType === "priority";
-      const isNoPay = form.PlanType === "noPay";
+      const isNoPay = form.PlanType === "nopay";
       const hasScreenshot = !!screenshotUrl;
       const doneBg = isPriority
         ? "linear-gradient(135deg,#EC5F36,#D84E28)"
@@ -928,7 +928,7 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
             ) : isPlan ? (
               form.PlanType === "priority" ? <><Bolt size={14} strokeWidth={2.5} /> Continue to Payment</> :
                 form.PlanType === "commitment" ? <><Check size={14} strokeWidth={2.5} /> Confirm &amp; Submit</> :
-                  form.PlanType === "noPay" ? <>Continue Without Paying</> :
+                  form.PlanType === "nopay" ? <>Continue Without Paying</> :
                     <>Select a Plan</>
             ) : isPayment ? (
               screenshotUrl ? <><Send size={14} strokeWidth={2.5} /> Submit with Screenshot</> : <><Send size={14} strokeWidth={2.5} /> Submit &amp; Confirm Later</>
