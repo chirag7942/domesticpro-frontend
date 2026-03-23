@@ -18,7 +18,7 @@ const contactChannels = [
     label: "Call Us",
     value: "+91 92112 98139",
     sub: "Mon – Sat, 9am – 7pm",
-    action: "tel:+919876543210",
+    action: "tel:+919211298139",
     cta: "Call Now",
   },
   {
@@ -26,7 +26,7 @@ const contactChannels = [
     label: "WhatsApp",
     value: "+91 92112 98139",
     sub: "Usually replies in minutes",
-    action: "https://wa.me/919876543210",
+    action: "https://wa.me/919211298139",
     cta: "Message",
   },
   {

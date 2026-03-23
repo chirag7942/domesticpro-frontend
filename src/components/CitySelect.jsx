@@ -1,7 +1,7 @@
 // CitySelect.jsx — Searchable Indian city dropdown with portal (fixes overflow clipping)
 import { useState, useRef, useEffect, useMemo } from "react";
 import { createPortal } from "react-dom";
-import INDIAN_CITIES from "./indianCities";          // ← replaces country-state-city
+import INDIAN_CITIES from "./indianCities";
 import { ChevronDown, Search, X, MapPin } from "lucide-react";
 
 const CSS = `
@@ -38,6 +38,8 @@ const CSS = `
     border-radius: 12px; box-shadow: 0 12px 36px rgba(236,95,54,0.20);
     z-index: 99999; overflow: hidden;
     animation: cs-pop .15s ease-out;
+    box-sizing: border-box;
+    max-width: calc(100vw - 16px);
   }
   @keyframes cs-pop {
     from { opacity: 0; transform: translateY(-6px) scale(0.98); }
@@ -54,6 +56,7 @@ const CSS = `
     flex: 1; border: none; background: transparent; outline: none;
     font-size: 13px; color: #1a1a2e;
     font-family: 'Plus Jakarta Sans', sans-serif;
+    min-width: 0;
   }
   .cs-search-inp::placeholder { color: #d1c9c5; }
 
@@ -64,8 +67,8 @@ const CSS = `
   }
 
   .cs-list {
-    min-width: fit-content;
-    max-height: 200px; overflow-y: auto;
+    max-height: 200px; overflow-y: auto; overflow-x: hidden;
+    -webkit-overflow-scrolling: touch; /* smooth scroll on iOS */
     scrollbar-width: thin; scrollbar-color: #F0E8E4 transparent;
   }
   .cs-list::-webkit-scrollbar       { width: 3px; }
@@ -76,6 +79,10 @@ const CSS = `
     padding: 9px 13px; cursor: pointer; font-size: 13px;
     color: #374151; font-weight: 500; transition: background .12s;
     border: none; background: none; width: 100%; text-align: left;
+    box-sizing: border-box;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .cs-item:hover      { background: #FFF2EE; color: #EC5F36; }
   .cs-item.active     { background: #FFF2EE; color: #EC5F36; font-weight: 700; }
@@ -103,24 +110,25 @@ export default function CitySelect({
   const triggerRef = useRef(null);
   const searchRef = useRef(null);
 
-  // ── ONLY CHANGE FROM ORIGINAL: removed City.getCitiesOfCountry("IN") ────
-  // INDIAN_CITIES is already sorted alphabetically and deduplicated
   const allCities = INDIAN_CITIES;
-  // ─────────────────────────────────────────────────────────────────────────
 
-  // Position the portal dropdown directly under the trigger button
   const updatePosition = () => {
     if (!triggerRef.current) return;
     const rect = triggerRef.current.getBoundingClientRect();
     const spaceBelow = window.innerHeight - rect.bottom;
     const spaceAbove = rect.top;
     const dropdownHeight = 280;
+    const dropdownWidth = Math.max(rect.width, 200); // minimum 200px wide
+    const GUTTER = 8; // minimum gap from screen edge
 
     const openUpward = spaceBelow < dropdownHeight && spaceAbove > spaceBelow;
+    const rawLeft = rect.left;
+    const maxLeft = window.innerWidth - dropdownWidth - GUTTER;
+    const clampedLeft = Math.max(GUTTER, Math.min(rawLeft, maxLeft));
 
     setDropdownStyle({
-      left: rect.left,
-      width: rect.width,
+      left: clampedLeft,
+      width: dropdownWidth,
       ...(openUpward
         ? { bottom: window.innerHeight - rect.top + 4, top: "auto" }
         : { top: rect.bottom + 4 }),

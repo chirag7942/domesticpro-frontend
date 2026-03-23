@@ -35,7 +35,7 @@ export default function Navbar() {
           {/* LEFT SIDE */}
           <div className="flex items-center gap-6">
             <a
-              href="tel:+919876543210"
+              href="tel:+919211298139"
               className="flex items-center gap-2 hover:opacity-80 transition"
             >
               <Phone size={16} />
@@ -83,8 +83,7 @@ export default function Navbar() {
             <NavLink
               to="/"
               className={({ isActive }) =>
-                `hover:text-primary transition-colors duration-200 ${
-                  isActive ? "text-primary font-semibold" : ""
+                `hover:text-primary transition-colors duration-200 ${isActive ? "text-primary font-semibold" : ""
                 }`
               }
             >
@@ -94,8 +93,7 @@ export default function Navbar() {
             <NavLink
               to="/about"
               className={({ isActive }) =>
-                `hover:text-primary transition-colors duration-200 ${
-                  isActive ? "text-primary font-semibold" : ""
+                `hover:text-primary transition-colors duration-200 ${isActive ? "text-primary font-semibold" : ""
                 }`
               }
             >
@@ -113,11 +111,10 @@ export default function Navbar() {
 
               {/* DROPDOWN MENU */}
               <div
-                className={`absolute left-0 mt-3 w-56 bg-white rounded-xl shadow-xl border border-borderLight transition-all duration-200 ${
-                  servicesOpen
+                className={`absolute left-0 mt-3 w-56 bg-white rounded-xl shadow-xl border border-borderLight transition-all duration-200 ${servicesOpen
                     ? "opacity-100 visible translate-y-0"
                     : "opacity-0 invisible -translate-y-2"
-                }`}
+                  }`}
               >
                 <div className="flex flex-col py-3 text-sm">
                   <NavLink
@@ -127,11 +124,10 @@ export default function Navbar() {
                       `px-4 py-2 transition-all duration-300 
          hover:bg-bgLight hover:scale-105 hover:shadow-md 
          mx-2 rounded-lg flex items-center gap-2 group
-         ${
-           isActive
-             ? "text-primary font-semibold bg-bgLight"
-             : "hover:text-primary"
-         }`
+         ${isActive
+                        ? "text-primary font-semibold bg-bgLight"
+                        : "hover:text-primary"
+                      }`
                     }
                   >
                     <Home
@@ -148,11 +144,10 @@ export default function Navbar() {
                       `px-4 py-2 transition-all duration-300 
          hover:bg-bgLight hover:scale-105 hover:shadow-md 
          mx-2 rounded-lg flex items-center gap-2 group
-         ${
-           isActive
-             ? "text-primary font-semibold bg-bgLight"
-             : "hover:text-primary"
-         }`
+         ${isActive
+                        ? "text-primary font-semibold bg-bgLight"
+                        : "hover:text-primary"
+                      }`
                     }
                   >
                     <Baby
@@ -169,11 +164,10 @@ export default function Navbar() {
                       `px-4 py-2 transition-all duration-300 
          hover:bg-bgLight hover:scale-105 hover:shadow-md 
          mx-2 rounded-lg flex items-center gap-2 group
-         ${
-           isActive
-             ? "text-primary font-semibold bg-bgLight"
-             : "hover:text-primary"
-         }`
+         ${isActive
+                        ? "text-primary font-semibold bg-bgLight"
+                        : "hover:text-primary"
+                      }`
                     }
                   >
                     <Heart
@@ -190,11 +184,10 @@ export default function Navbar() {
                       `px-4 py-2 transition-all duration-300 
          hover:bg-bgLight hover:scale-105 hover:shadow-md 
          mx-2 rounded-lg flex items-center gap-2 group
-         ${
-           isActive
-             ? "text-primary font-semibold bg-bgLight"
-             : "hover:text-primary"
-         }`
+         ${isActive
+                        ? "text-primary font-semibold bg-bgLight"
+                        : "hover:text-primary"
+                      }`
                     }
                   >
                     <ChefHat
@@ -211,11 +204,10 @@ export default function Navbar() {
                       `px-4 py-2 transition-all duration-300 
          hover:bg-bgLight hover:scale-105 hover:shadow-md 
          mx-2 rounded-lg flex items-center gap-2 group
-         ${
-           isActive
-             ? "text-primary font-semibold bg-bgLight"
-             : "hover:text-primary"
-         }`
+         ${isActive
+                        ? "text-primary font-semibold bg-bgLight"
+                        : "hover:text-primary"
+                      }`
                     }
                   >
                     <BedDouble
@@ -232,11 +224,10 @@ export default function Navbar() {
                       `px-4 py-2 transition-all duration-300 
          hover:bg-bgLight hover:scale-105 hover:shadow-md 
          mx-2 rounded-lg flex items-center gap-2 group
-         ${
-           isActive
-             ? "text-primary font-semibold bg-bgLight"
-             : "hover:text-primary"
-         }`
+         ${isActive
+                        ? "text-primary font-semibold bg-bgLight"
+                        : "hover:text-primary"
+                      }`
                     }
                   >
                     <Stethoscope
@@ -253,11 +244,10 @@ export default function Navbar() {
                       `px-4 py-2 transition-all duration-300 
          hover:bg-bgLight hover:scale-105 hover:shadow-md 
          mx-2 rounded-lg flex items-center gap-2 group
-         ${
-           isActive
-             ? "text-primary font-semibold bg-bgLight"
-             : "hover:text-primary"
-         }`
+         ${isActive
+                        ? "text-primary font-semibold bg-bgLight"
+                        : "hover:text-primary"
+                      }`
                     }
                   >
                     <Clock
@@ -274,11 +264,10 @@ export default function Navbar() {
                       `px-4 py-2 transition-all duration-300 
          hover:bg-bgLight hover:scale-105 hover:shadow-md 
          mx-2 rounded-lg flex items-center gap-2 group
-         ${
-           isActive
-             ? "text-primary font-semibold bg-bgLight"
-             : "hover:text-primary"
-         }`
+         ${isActive
+                        ? "text-primary font-semibold bg-bgLight"
+                        : "hover:text-primary"
+                      }`
                     }
                   >
                     <Car
@@ -294,8 +283,7 @@ export default function Navbar() {
             <NavLink
               to="/refer"
               className={({ isActive }) =>
-                `hover:text-primary transition-colors duration-200 ${
-                  isActive ? "text-primary font-semibold" : ""
+                `hover:text-primary transition-colors duration-200 ${isActive ? "text-primary font-semibold" : ""
                 }`
               }
             >
@@ -305,8 +293,7 @@ export default function Navbar() {
             <NavLink
               to="/pricing"
               className={({ isActive }) =>
-                `hover:text-primary transition-colors duration-200 ${
-                  isActive ? "text-primary font-semibold" : ""
+                `hover:text-primary transition-colors duration-200 ${isActive ? "text-primary font-semibold" : ""
                 }`
               }
             >
@@ -404,10 +391,9 @@ export default function Navbar() {
                       to="/all-rounder"
                       onClick={() => setOpen(false)}
                       className={({ isActive }) =>
-                        `flex items-center gap-2 transition-colors duration-300 ${
-                          isActive
-                            ? "text-primary font-semibold"
-                            : "hover:text-primary"
+                        `flex items-center gap-2 transition-colors duration-300 ${isActive
+                          ? "text-primary font-semibold"
+                          : "hover:text-primary"
                         }`
                       }
                     >
@@ -419,10 +405,9 @@ export default function Navbar() {
                       to="/baby-caretaker"
                       onClick={() => setOpen(false)}
                       className={({ isActive }) =>
-                        `flex items-center gap-2 transition-colors duration-300 ${
-                          isActive
-                            ? "text-primary font-semibold"
-                            : "hover:text-primary"
+                        `flex items-center gap-2 transition-colors duration-300 ${isActive
+                          ? "text-primary font-semibold"
+                          : "hover:text-primary"
                         }`
                       }
                     >
@@ -434,10 +419,9 @@ export default function Navbar() {
                       to="/japa"
                       onClick={() => setOpen(false)}
                       className={({ isActive }) =>
-                        `flex items-center gap-2 transition-colors duration-300 ${
-                          isActive
-                            ? "text-primary font-semibold"
-                            : "hover:text-primary"
+                        `flex items-center gap-2 transition-colors duration-300 ${isActive
+                          ? "text-primary font-semibold"
+                          : "hover:text-primary"
                         }`
                       }
                     >
@@ -449,10 +433,9 @@ export default function Navbar() {
                       to="/cooking-help"
                       onClick={() => setOpen(false)}
                       className={({ isActive }) =>
-                        `flex items-center gap-2 transition-colors duration-300 ${
-                          isActive
-                            ? "text-primary font-semibold"
-                            : "hover:text-primary"
+                        `flex items-center gap-2 transition-colors duration-300 ${isActive
+                          ? "text-primary font-semibold"
+                          : "hover:text-primary"
                         }`
                       }
                     >
@@ -464,10 +447,9 @@ export default function Navbar() {
                       to="/live-in-support"
                       onClick={() => setOpen(false)}
                       className={({ isActive }) =>
-                        `flex items-center gap-2 transition-colors duration-300 ${
-                          isActive
-                            ? "text-primary font-semibold"
-                            : "hover:text-primary"
+                        `flex items-center gap-2 transition-colors duration-300 ${isActive
+                          ? "text-primary font-semibold"
+                          : "hover:text-primary"
                         }`
                       }
                     >
@@ -479,10 +461,9 @@ export default function Navbar() {
                       to="/patient-care"
                       onClick={() => setOpen(false)}
                       className={({ isActive }) =>
-                        `flex items-center gap-2 transition-colors duration-300 ${
-                          isActive
-                            ? "text-primary font-semibold"
-                            : "hover:text-primary"
+                        `flex items-center gap-2 transition-colors duration-300 ${isActive
+                          ? "text-primary font-semibold"
+                          : "hover:text-primary"
                         }`
                       }
                     >
@@ -494,10 +475,9 @@ export default function Navbar() {
                       to="/on-demand"
                       onClick={() => setOpen(false)}
                       className={({ isActive }) =>
-                        `flex items-center gap-2 transition-colors duration-300 ${
-                          isActive
-                            ? "text-primary font-semibold"
-                            : "hover:text-primary"
+                        `flex items-center gap-2 transition-colors duration-300 ${isActive
+                          ? "text-primary font-semibold"
+                          : "hover:text-primary"
                         }`
                       }
                     >
@@ -509,10 +489,9 @@ export default function Navbar() {
                       to="/drivers"
                       onClick={() => setOpen(false)}
                       className={({ isActive }) =>
-                        `flex items-center gap-2 transition-colors duration-300 ${
-                          isActive
-                            ? "text-primary font-semibold"
-                            : "hover:text-primary"
+                        `flex items-center gap-2 transition-colors duration-300 ${isActive
+                          ? "text-primary font-semibold"
+                          : "hover:text-primary"
                         }`
                       }
                     >

@@ -11,6 +11,7 @@ import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import ScrollToTop from "./components/ScrollToTop";
 import Loader from "./components/Loader";
+import PaymentStatus from "./pages/PaymentStatus";
 
 /* -------- Lazy Loaded Pages -------- */
 
@@ -47,6 +48,7 @@ const routes = [
   { path: "/contact", element: <ContectNow /> },
   { path: "/baby-caretaker", element: <Nanny /> },
   { path: "/cooking-help", element: <Cook /> },
+  { path: "payment-status", element: <PaymentStatus /> },
   { path: "/drivers", element: <Driver /> },
   { path: "/japa", element: <Japa /> },
   { path: "/live-in-support", element: <HouseHelp /> },

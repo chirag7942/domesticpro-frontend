@@ -2,57 +2,52 @@ import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import CitySelect from "./CitySelect";
 
-// lucide-react (used everywhere except plan cards)
-import { Check, ArrowLeft, X, CheckCircle2, Minus, Plus, Sparkles, Zap, Briefcase, Clock, CreditCard, Copy, Timer, Bolt, Upload, ImageIcon, CheckCircle, Send, Wallet, Building2, Smartphone } from "lucide-react";
+import {
+  Check, ArrowLeft, X, CheckCircle2, Minus, Plus,
+  Sparkles, Briefcase, Clock, CreditCard, Bolt, Timer,
+} from "lucide-react";
 
-// Font Awesome — React component
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faBolt, faIdCard, faUserCheck, faHeadset, faHandshake, faRotate,
   faGaugeHigh, faCreditCard, faAddressCard, faFilter, faBullseye,
   faClock, faGift, faCheck, faCircleCheck, faPhone,
-  faUsers, faBan,
+  faUsers, faBan, faSpinner,
 } from "@fortawesome/free-solid-svg-icons";
 
-import { SERVICES, SERVICE_FORMATS, GENDER_OPTIONS_DATA, TASKS, HOUSE_SIZES, PETS_OPTIONS, MEAL_PREFS, MEALS_NEEDED, CUISINES, CHILD_DUTIES, CARE_NEEDED, VEHICLE_TYPES, MANAGER_DUTIES, HOME_TYPES, MULTI_SERVICES, BUDGETS, SUBSTITUTE_BUDGETS, URGENCY_OPTIONS, PLANS, PAYMENT_INFO, SERVICE_FLOWS, DEFAULT_FLOW, PROG_META, INIT } from "./wizardData";
+import {
+  SERVICES, SERVICE_FORMATS, GENDER_OPTIONS_DATA, TASKS, HOUSE_SIZES,
+  PETS_OPTIONS, MEAL_PREFS, MEALS_NEEDED, CUISINES, CHILD_DUTIES,
+  CARE_NEEDED, VEHICLE_TYPES, MANAGER_DUTIES, HOME_TYPES, MULTI_SERVICES,
+  BUDGETS, SUBSTITUTE_BUDGETS, URGENCY_OPTIONS, PLANS,
+  SERVICE_FLOWS, DEFAULT_FLOW, PROG_META, INIT,
+} from "./wizardData";
 
 const API_BASE = import.meta.env.VITE_REACT_APP_API;
-const CLOUDINARY_CLOUD_NAME = "dto7bji6b";
-const CLOUDINARY_UPLOAD_PRESET = "payment_screenshots";
 
-// Map icon string keys (stored in wizardData) → FA icon objects
 const FA_ICON_MAP = {
-  "bolt": faBolt,
-  "id-card": faIdCard,
-  "user-check": faUserCheck,
-  "headset": faHeadset,
-  "handshake": faHandshake,
-  "rotate": faRotate,
-  "gauge-high": faGaugeHigh,
-  "credit-card": faCreditCard,
-  "address-card": faAddressCard,
-  "filter": faFilter,
-  "bullseye": faBullseye,
-  "clock": faClock,
-  "gift": faGift,
-  "check": faCheck,
-  "circle-check": faCircleCheck,
-  "phone": faPhone,
-  "users": faUsers,
-  "ban": faBan,
+  "bolt": faBolt, "id-card": faIdCard, "user-check": faUserCheck,
+  "headset": faHeadset, "handshake": faHandshake, "rotate": faRotate,
+  "gauge-high": faGaugeHigh, "credit-card": faCreditCard, "address-card": faAddressCard,
+  "filter": faFilter, "bullseye": faBullseye, "clock": faClock,
+  "gift": faGift, "check": faCheck, "circle-check": faCircleCheck,
+  "phone": faPhone, "users": faUsers, "ban": faBan,
 };
 
-const uploadToCloudinary = async (file) => {
-  const fd = new FormData();
-  fd.append("file", file);
-  fd.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
-  fd.append("folder", "payment_screenshots");
-  const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, { method: "POST", body: fd });
-  if (!res.ok) throw new Error("Cloudinary upload failed");
-  return res.json();
+// ── API helpers ────────────────────────────────────────────────────────────────
+
+const createCashfreeOrder = async ({ plan, customer, zohoFields }) => {
+  const res = await fetch(`${API_BASE}/create-order`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ plan, customer, zohoFields }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || "Order creation failed");
+  return data;
 };
 
-const submitToBackend = async (formData) => {
+const submitDirect = async (formData) => {
   const res = await fetch(`${API_BASE}/submit`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -61,21 +56,15 @@ const submitToBackend = async (formData) => {
   return res.json();
 };
 
+// ── Main component ─────────────────────────────────────────────────────────────
 export default function HeroWizard({ asModal = false, isOpen = true, onClose, onSubmit }) {
   const [stepIdx, setStepIdx] = useState(0);
   const [dir, setDir] = useState(1);
   const [form, setForm] = useState({ ...INIT });
   const [planSubmitting, setPlanSubmitting] = useState(false);
-  const [copied, setCopied] = useState("");
-  const [screenshotFile, setScreenshotFile] = useState(null);
-  const [screenshotPreview, setScreenshotPreview] = useState(null);
-  const [screenshotUploading, setScreenshotUploading] = useState(false);
-  const [screenshotUrl, setScreenshotUrl] = useState("");
-  const [paymentSubmitting, setPaymentSubmitting] = useState(false);
-  const [dragOver, setDragOver] = useState(false);
+  const [paymentStage, setPaymentStage] = useState("idle"); // "idle"|"creating_order"|"redirecting"
 
   const bodyRef = useRef(null);
-  const fileInputRef = useRef(null);
 
   useEffect(() => {
     if (bodyRef.current) bodyRef.current.scrollTop = 0;
@@ -85,7 +74,7 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
   const curKey = steps[stepIdx] ?? "service";
   const isDone = curKey === "done";
 
-  const progKeys = steps.filter((k) => k !== "done" && k !== "payment");
+  const progKeys = steps.filter((k) => k !== "done");
   const progIdx = isDone ? progKeys.length : progKeys.indexOf(curKey);
   const progPct = progKeys.length <= 1 ? 0 : Math.round((Math.max(0, progIdx) / (progKeys.length - 1)) * 100);
 
@@ -97,16 +86,10 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
 
   const resetWizard = () => {
     setStepIdx(0); setDir(1); setForm({ ...INIT });
-    setPlanSubmitting(false); setCopied("");
-    setScreenshotFile(null); setScreenshotPreview(null);
-    setScreenshotUploading(false); setScreenshotUrl("");
-    setPaymentSubmitting(false); setDragOver(false);
+    setPlanSubmitting(false); setPaymentStage("idle");
   };
 
-  const copyToClipboard = (text, key) => {
-    navigator.clipboard.writeText(text).then(() => { setCopied(key); setTimeout(() => setCopied(""), 2000); });
-  };
-
+  // ── Validation ───────────────────────────────────────────────────────────────
   const isValid = () => {
     switch (curKey) {
       case "service": return !!form.ServiceType;
@@ -132,84 +115,121 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
           form.Phone.length === 10 && /^[6-9]/.test(form.Phone) &&
           form.Street.trim() !== "" && form.City.trim() !== "";
       case "plan": return !!form.PlanType;
-      case "payment": return true;
       default: return true;
     }
   };
 
-  const CONT_KEYS = new Set(["tasks", "mealtime", "cuisine", "childduties", "careneeded", "vehicletype", "managerduties", "multiservices", "contact", "housesize", "mealpref", "urgency", "budget", "patientage", "childage", "patientgender", "hometype", "plan", "payment"]);
+  const CONT_KEYS = new Set([
+    "tasks", "mealtime", "cuisine", "childduties", "careneeded", "vehicletype",
+    "managerduties", "multiservices", "contact", "housesize", "mealpref", "urgency",
+    "budget", "patientage", "childage", "patientgender", "hometype", "plan",
+  ]);
   const showContinue = CONT_KEYS.has(curKey);
 
+  // ── Plan submit handler ───────────────────────────────────────────────────────
   const handlePlanSubmit = async (planType) => {
     if (!planType || planSubmitting) return;
     setF("PlanType", planType);
+    setPlanSubmitting(true);
 
-    if (planType === "priority") {
-      setF("PaymentStatus", "Pending Payment");
-      goNext();
+    // ── PRIORITY + COMMITMENT: both go through Cashfree ──────────────────────
+    if (planType === "priority" || planType === "commitment") {
+      try {
+        setPaymentStage("creating_order");
+
+        const zohoFields = buildZohoFields({ ...form, PlanType: planType });
+
+        const order = await createCashfreeOrder({
+          plan: planType,
+          customer: {
+            name: `${form.FirstName} ${form.LastName}`.trim(),
+            email: form.Email || `${form.Phone}@noemail.com`,
+            phone: `91${form.Phone}`, // E.164 without +
+          },
+          zohoFields,
+        });
+
+        // Store everything in sessionStorage — PaymentStatus reads these
+        sessionStorage.setItem("dp_order_id", order.order_id);
+        sessionStorage.setItem("dp_plan", planType);
+        sessionStorage.setItem("dp_zoho_fields", JSON.stringify(zohoFields));
+        sessionStorage.setItem("dp_customer_phone", form.Phone);
+
+        setPaymentStage("redirecting");
+
+        const { load } = await import("@cashfreepayments/cashfree-js");
+        const cashfree = await load({ mode: "sandbox" }); // → "production" when going live
+
+        await cashfree.checkout({
+          paymentSessionId: order.payment_session_id,
+          redirectTarget: "_self",
+        });
+
+      } catch (err) {
+        console.error("Cashfree order error:", err);
+        setPaymentStage("idle");
+        setPlanSubmitting(false);
+        alert(`Payment failed to initialise: ${err.message}. Please try again.`);
+      }
       return;
     }
 
-    // commitment → submit directly, skip payment screen
-    if (planType === "commitment") {
-      setPlanSubmitting(true);
-      const updatedForm = { ...form, PlanType: "commitment", PaymentStatus: "Commitment Fee Pending", ScreenshotUrl: "" };
-      try {
-        const result = await submitToBackend(updatedForm);
-        onSubmit?.(updatedForm, result);
-      } catch (err) { console.error("Backend error:", err); }
-      setPlanSubmitting(false);
-      setStepIdx(steps.indexOf("done"));
-    }
-
-    // nopay → submit directly, no payment, lowest priority
+    // ── NOPAY: submit directly, no payment ────────────────────────────────────
     if (planType === "nopay") {
-      setPlanSubmitting(true);
-      const updatedForm = { ...form, PlanType: "nopay", PaymentStatus: "No Payment — Basic Access", ScreenshotUrl: "" };
-      try {
-        const result = await submitToBackend(updatedForm);
-        onSubmit?.(updatedForm, result);
-      } catch (err) { console.error("Backend error:", err); }
-      setPlanSubmitting(false);
-      setStepIdx(steps.indexOf("done"));
-    }
-  };
-
-  const handleFileSelect = (file) => {
-    if (!file || !file.type.startsWith("image/")) return;
-    setScreenshotFile(file);
-    setScreenshotUrl("");
-    const reader = new FileReader();
-    reader.onload = (e) => setScreenshotPreview(e.target.result);
-    reader.readAsDataURL(file);
-  };
-
-  const handleUploadScreenshot = async () => {
-    if (!screenshotFile || screenshotUploading) return;
-    setScreenshotUploading(true);
-    try {
-      const data = await uploadToCloudinary(screenshotFile);
-      setScreenshotUrl(data.secure_url);
-    } catch (err) { console.error("Upload error:", err); alert("Upload failed. Please try again."); }
-    setScreenshotUploading(false);
-  };
-
-  const handlePaymentSubmit = async () => {
-    if (paymentSubmitting) return;
-    setPaymentSubmitting(true);
-    try {
       const updatedForm = {
         ...form,
-        PlanType: "priority",
-        PaymentStatus: screenshotUrl ? "Screenshot Received — Pending Verification" : "Pending Payment",
-        ScreenshotUrl: screenshotUrl || "",
+        PlanType: "nopay",
+        PaymentStatus: "No Payment — Basic Access",
       };
-      const result = await submitToBackend(updatedForm);
-      onSubmit?.(updatedForm, result);
-    } catch (err) { console.error("Payment submit error:", err); }
-    setPaymentSubmitting(false);
-    goNext();
+      try {
+        const result = await submitDirect(updatedForm);
+        onSubmit?.(updatedForm, result);
+      } catch (err) {
+        console.error("Backend error:", err);
+      }
+      setPlanSubmitting(false);
+      setStepIdx(steps.indexOf("done"));
+    }
   };
+
+  // ── Builds the Zoho fields object from form state ─────────────────────────
+  function buildZohoFields(f) {
+    return {
+      Full_Name: `${f.FirstName} ${f.LastName}`.trim(),
+      First_Name: f.FirstName,
+      Last_Name: f.LastName,
+      Mobile_Number: f.Phone,
+      Email: f.Email,
+      Street_Address: f.Street,
+      City: f.City,
+      Service_Type: f.ServiceType,
+      Service_Label: f.ServiceLabel,
+      Service_Format: f.ServiceFormat,
+      Tasks_Needed: f.Tasks.join(", "),
+      House_Size: f.HouseSize,
+      People_At_Home: String(f.PeopleAtHome),
+      Pets_At_Home: f.PetsAtHome,
+      Meal_Preferences: f.MealPref,
+      Meals_Needed: f.MealsNeeded.join(", "),
+      Cuisine_Preference: f.CuisinePref.join(", "),
+      Child_Age: f.ChildAge,
+      Child_Duties: f.ChildDuties.join(", "),
+      Patient_Age: f.PatientAge,
+      Patient_Gender: f.PatientGender,
+      Care_Needed: f.CareNeeded.join(", "),
+      Vehicle_Type: f.VehicleType.join(", "),
+      Manager_Duties: f.ManagerDuties.join(", "),
+      Home_Type: f.HomeType,
+      Multi_Services: f.MultiServices.join(", "),
+      Monthly_Budget: f.Budget,
+      Urgency: f.Urgency,
+      Special_Instructions: f.Instructions,
+      Plan_Type: f.PlanType,
+      Payment_Status: f.PaymentStatus,
+    };
+  }
+
+  // ── Sub-components ────────────────────────────────────────────────────────────
 
   const SvcCard = ({ svc, selected, onClick, className = "" }) => (
     <button type="button" aria-pressed={selected} onClick={onClick} className={`hw2-svc-card ${className}`}
@@ -265,9 +285,9 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
     <div className="hw2-stepper">
       <span className="hw2-step-label">{label}</span>
       <div className="hw2-step-ctrl">
-        <button type="button" onClick={onDec} disabled={value <= min} className="hw2-step-btn" aria-label="dec"><Minus size={13} strokeWidth={2.5} /></button>
+        <button type="button" onClick={onDec} disabled={value <= min} className="hw2-step-btn"><Minus size={13} strokeWidth={2.5} /></button>
         <span className="hw2-step-val">{value}</span>
-        <button type="button" onClick={onInc} disabled={value >= max} className="hw2-step-btn" aria-label="inc"><Plus size={13} strokeWidth={2.5} /></button>
+        <button type="button" onClick={onInc} disabled={value >= max} className="hw2-step-btn"><Plus size={13} strokeWidth={2.5} /></button>
       </div>
     </div>
   );
@@ -279,6 +299,7 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
     </div>
   );
 
+  // ── renderStep ────────────────────────────────────────────────────────────────
   const renderStep = () => {
     if (curKey === "service")
       return (
@@ -308,14 +329,14 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
                 <button key={opt.id} type="button" aria-pressed={form.ServiceFormat === opt.id} disabled={isCS}
                   onClick={() => { if (isCS) return; setF("ServiceFormat", opt.id); after(); }}
                   className="hw2-pill"
-                  style={{ background: isCS ? "#F9F9F9" : form.ServiceFormat === opt.id ? "#EC5F36" : "#fff", borderColor: isCS ? "#E5E2DE" : form.ServiceFormat === opt.id ? "#EC5F36" : "#E5E2DE", boxShadow: !isCS && form.ServiceFormat === opt.id ? "0 6px 18px rgba(236,95,54,0.33)" : "0 1px 4px rgba(0,0,0,0.04)", opacity: isCS ? 0.6 : 1, cursor: isCS ? "not-allowed" : "pointer", position: "relative" }}>
+                  style={{ background: isCS ? "#F9F9F9" : form.ServiceFormat === opt.id ? "#EC5F36" : "#fff", borderColor: isCS ? "#E5E2DE" : form.ServiceFormat === opt.id ? "#EC5F36" : "#E5E2DE", opacity: isCS ? 0.6 : 1, cursor: isCS ? "not-allowed" : "pointer" }}>
                   <div className="hw2-pill-ico" style={{ background: isCS ? "#F0F0F0" : form.ServiceFormat === opt.id ? "rgba(255,255,255,0.22)" : "#FFF2EE" }}>
                     <opt.icon size={16} color={isCS ? "#bbb" : form.ServiceFormat === opt.id ? "#fff" : "#EC5F36"} strokeWidth={1.8} />
                   </div>
                   <div className="hw2-pill-txt">
                     <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
                       <span className="hw2-pill-label" style={{ color: isCS ? "#aaa" : form.ServiceFormat === opt.id ? "#fff" : "#1a1a2e" }}>{opt.label}</span>
-                      {isCS && <span style={{ fontSize: "9px", fontWeight: 800, background: "linear-gradient(135deg,#6366f1,#8b5cf6)", color: "#fff", borderRadius: "20px", padding: "2px 8px", letterSpacing: "0.04em", textTransform: "uppercase" }}>Coming Soon</span>}
+                      {isCS && <span style={{ fontSize: "9px", fontWeight: 800, background: "linear-gradient(135deg,#6366f1,#8b5cf6)", color: "#fff", borderRadius: "20px", padding: "2px 8px" }}>Coming Soon</span>}
                     </div>
                     <span className="hw2-pill-desc" style={{ color: isCS ? "#bbb" : form.ServiceFormat === opt.id ? "rgba(255,255,255,0.78)" : "#888" }}>{opt.desc}</span>
                   </div>
@@ -327,213 +348,52 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
         </div>
       );
 
-    if (curKey === "tasks")
-      return (
-        <div>
-          <QHead q="Which tasks are needed?" hint="Select all that apply" />
-          <div className="grid grid-cols-3 gap-2.5">
-            {TASKS.map((t) => <ImgChip key={t.id} label={t.label} image={t.image} selected={form.Tasks.includes(t.id)} onClick={() => toggleArr("Tasks", t.id)} />)}
-          </div>
-          {form.Tasks.length === 0 && <p className="hw2-warn mt-2">Pick at least one task to continue</p>}
-        </div>
-      );
-
-    if (curKey === "housesize")
-      return (
-        <div>
-          <QHead q="What's your home size?" hint="Helps us estimate effort & staff" />
-          <div className="grid grid-cols-3 gap-2.5">
-            {HOUSE_SIZES.map((h) => <ImgChip key={h.id} label={h.label} image={h.image} selected={form.HouseSize === h.id} onClick={() => setF("HouseSize", h.id)} />)}
-          </div>
-          <div className="mt-3">
-            <Stepper label="People at home" value={form.PeopleAtHome} onDec={() => setF("PeopleAtHome", Math.max(1, form.PeopleAtHome - 1))} onInc={() => setF("PeopleAtHome", Math.min(20, form.PeopleAtHome + 1))} />
-          </div>
-        </div>
-      );
-
-    if (curKey === "pets")
-      return (
-        <div>
-          <QHead q="Do you have pets at home?" hint="Some helpers prefer no pets — we'll match accordingly" />
-          <div className="grid grid-cols-2 gap-3 mt-1">
-            {PETS_OPTIONS.map((o) => <ImgChip key={o.id} label={o.label} image={o.image} selected={form.PetsAtHome === o.id} onClick={() => { setF("PetsAtHome", o.id); after(); }} />)}
-          </div>
-        </div>
-      );
-
-    if (curKey === "mealpref")
-      return (
-        <div>
-          <QHead q="Dietary preference?" hint="Helps match the right cook for your household" />
-          <div className="grid grid-cols-3 gap-2.5">
-            {MEAL_PREFS.map((m) => <ImgChip key={m.id} label={m.label} image={m.image} selected={form.MealPref === m.id} onClick={() => { setF("MealPref", m.id); after(); }} />)}
-          </div>
-        </div>
-      );
-
-    if (curKey === "mealtime")
-      return (
-        <div>
-          <QHead q="Which meals do you need cooked?" hint="Select all that apply" />
-          <div className="grid grid-cols-2 gap-2.5">
-            {MEALS_NEEDED.map((m) => <ImgChip key={m.id} label={m.label} image={m.image} selected={form.MealsNeeded.includes(m.id)} onClick={() => toggleArr("MealsNeeded", m.id)} />)}
-          </div>
-          {form.MealsNeeded.length === 0 && <p className="hw2-warn mt-2">Pick at least one meal</p>}
-        </div>
-      );
-
-    if (curKey === "cuisine")
-      return (
-        <div>
-          <QHead q="Cuisine preference?" hint="Select all that your cook should know" />
-          <div className="grid grid-cols-3 gap-2.5">
-            {CUISINES.map((c) => <ImgChip key={c.id} label={c.label} image={c.image} selected={form.CuisinePref.includes(c.id)} onClick={() => toggleArr("CuisinePref", c.id)} />)}
-          </div>
-          {form.CuisinePref.length === 0 && <p className="hw2-warn mt-2">Pick at least one cuisine</p>}
-        </div>
-      );
-
-    if (curKey === "childage")
-      return (
-        <div>
-          <QHead q="How old is the child?" hint="Enter the child's age — we'll match caretakers accordingly" />
-          <div className="hw2-age-input-wrap">
-            <input className="hw2-finput hw2-age-input" type="text" placeholder="e.g. 2 years, 8 months…" value={form.ChildAge} autoFocus onChange={(e) => setF("ChildAge", e.target.value)} />
-            <p className="hw2-age-hint">You can type freely, e.g. "3 years", "18 months", "5 years old"</p>
-          </div>
-        </div>
-      );
-
-    if (curKey === "childduties")
-      return (
-        <div>
-          <QHead q="What duties are needed?" hint="Select all that apply" />
-          <div className="grid grid-cols-3 gap-2.5">
-            {CHILD_DUTIES.map((d) => <ImgChip key={d.id} label={d.label} image={d.image} selected={form.ChildDuties.includes(d.id)} onClick={() => toggleArr("ChildDuties", d.id)} />)}
-          </div>
-          {form.ChildDuties.length === 0 && <p className="hw2-warn mt-2">Select at least one duty</p>}
-        </div>
-      );
-
-    if (curKey === "patientage")
-      return (
-        <div>
-          <QHead q="How old is the patient?" hint="Enter the patient's age — helps us assign the right caregiver" />
-          <div className="hw2-age-input-wrap">
-            <input className="hw2-finput hw2-age-input" type="text" placeholder="e.g. 68 years, 72 years old…" value={form.PatientAge} autoFocus onChange={(e) => setF("PatientAge", e.target.value)} />
-            <p className="hw2-age-hint">Type freely, e.g. "65 years", "70+", "senior citizen"</p>
-          </div>
-        </div>
-      );
-
-    if (curKey === "patientgender")
-      return (
-        <div>
-          <QHead q="Patient's gender?" hint="Helps us assign an appropriate caregiver" />
-          <div className="grid grid-cols-2 gap-3">
-            {GENDER_OPTIONS_DATA.map((g) => <GenderImgCard key={g.id} opt={g} selected={form.PatientGender === g.id} onClick={() => { setF("PatientGender", g.id); after(); }} />)}
-          </div>
-        </div>
-      );
-
-    if (curKey === "careneeded")
-      return (
-        <div>
-          <QHead q="What care is required?" hint="Select all that apply" />
-          <div className="grid grid-cols-3 gap-2.5">
-            {CARE_NEEDED.map((c) => <ImgChip key={c.id} label={c.label} image={c.image} selected={form.CareNeeded.includes(c.id)} onClick={() => toggleArr("CareNeeded", c.id)} />)}
-          </div>
-          {form.CareNeeded.length === 0 && <p className="hw2-warn mt-2">Select at least one type of care</p>}
-        </div>
-      );
-
-    if (curKey === "vehicletype")
-      return (
-        <div>
-          <QHead q="What vehicle(s) will the driver operate?" hint="Select all that apply" />
-          <div className="grid grid-cols-2 gap-2.5">
-            {VEHICLE_TYPES.map((v) => <ImgChip key={v.id} label={v.label} image={v.image} selected={form.VehicleType.includes(v.id)} onClick={() => toggleArr("VehicleType", v.id)} />)}
-          </div>
-          {form.VehicleType.length === 0 && <p className="hw2-warn mt-2">Select at least one vehicle type</p>}
-        </div>
-      );
-
-    if (curKey === "managerduties")
-      return (
-        <div>
-          <QHead q="What responsibilities are needed?" hint="Select all that apply" />
-          <div className="grid grid-cols-3 gap-2.5">
-            {MANAGER_DUTIES.map((d) => <ImgChip key={d.id} label={d.label} image={d.image} selected={form.ManagerDuties.includes(d.id)} onClick={() => toggleArr("ManagerDuties", d.id)} />)}
-          </div>
-          {form.ManagerDuties.length === 0 && <p className="hw2-warn mt-2">Select at least one responsibility</p>}
-        </div>
-      );
-
-    if (curKey === "hometype")
-      return (
-        <div>
-          <QHead q="What type of home?" hint="Helps determine scope of management" />
-          <div className="grid grid-cols-3 gap-2.5">
-            {HOME_TYPES.map((h) => <ImgChip key={h.id} label={h.label} image={h.image} selected={form.HomeType === h.id} onClick={() => { setF("HomeType", h.id); after(); }} />)}
-          </div>
-        </div>
-      );
-
-    if (curKey === "multiservices")
-      return (
-        <div>
-          <QHead q="Which services do you need?" hint="Select all that apply — we'll bundle them" />
-          <div className="grid grid-cols-3 gap-2.5">
-            {MULTI_SERVICES.map((s) => <ImgChip key={s.id} label={s.label} image={s.image} selected={form.MultiServices.includes(s.id)} onClick={() => toggleArr("MultiServices", s.id)} />)}
-          </div>
-          {form.MultiServices.length === 0 && <p className="hw2-warn mt-2">Select at least one service</p>}
-        </div>
-      );
-
-    if (curKey === "urgency")
-      return (
-        <div>
-          <QHead q="How soon do you need placement?" hint="We'll prioritize based on your timeline" />
-          <div className="flex flex-col gap-2">
-            {URGENCY_OPTIONS.map((o) => <Pill key={o.id} icon={o.icon} label={o.label} desc={o.desc} selected={form.Urgency === o.id} onClick={() => { setF("Urgency", o.id); after(); }} />)}
-          </div>
-        </div>
-      );
+    if (curKey === "tasks") return <div><QHead q="Which tasks are needed?" hint="Select all that apply" /><div className="grid grid-cols-3 gap-2.5">{TASKS.map((t) => <ImgChip key={t.id} label={t.label} image={t.image} selected={form.Tasks.includes(t.id)} onClick={() => toggleArr("Tasks", t.id)} />)}</div>{form.Tasks.length === 0 && <p className="hw2-warn mt-2">Pick at least one task to continue</p>}</div>;
+    if (curKey === "housesize") return <div><QHead q="What's your home size?" hint="Helps us estimate effort & staff" /><div className="grid grid-cols-3 gap-2.5">{HOUSE_SIZES.map((h) => <ImgChip key={h.id} label={h.label} image={h.image} selected={form.HouseSize === h.id} onClick={() => setF("HouseSize", h.id)} />)}</div><div className="mt-3"><Stepper label="People at home" value={form.PeopleAtHome} onDec={() => setF("PeopleAtHome", Math.max(1, form.PeopleAtHome - 1))} onInc={() => setF("PeopleAtHome", Math.min(20, form.PeopleAtHome + 1))} /></div></div>;
+    if (curKey === "pets") return <div><QHead q="Do you have pets at home?" hint="Some helpers prefer no pets — we'll match accordingly" /><div className="grid grid-cols-2 gap-3 mt-1">{PETS_OPTIONS.map((o) => <ImgChip key={o.id} label={o.label} image={o.image} selected={form.PetsAtHome === o.id} onClick={() => { setF("PetsAtHome", o.id); after(); }} />)}</div></div>;
+    if (curKey === "mealpref") return <div><QHead q="Dietary preference?" hint="Helps match the right cook" /><div className="grid grid-cols-3 gap-2.5">{MEAL_PREFS.map((m) => <ImgChip key={m.id} label={m.label} image={m.image} selected={form.MealPref === m.id} onClick={() => { setF("MealPref", m.id); after(); }} />)}</div></div>;
+    if (curKey === "mealtime") return <div><QHead q="Which meals do you need cooked?" hint="Select all that apply" /><div className="grid grid-cols-2 gap-2.5">{MEALS_NEEDED.map((m) => <ImgChip key={m.id} label={m.label} image={m.image} selected={form.MealsNeeded.includes(m.id)} onClick={() => toggleArr("MealsNeeded", m.id)} />)}</div>{form.MealsNeeded.length === 0 && <p className="hw2-warn mt-2">Pick at least one meal</p>}</div>;
+    if (curKey === "cuisine") return <div><QHead q="Cuisine preference?" /><div className="grid grid-cols-3 gap-2.5">{CUISINES.map((c) => <ImgChip key={c.id} label={c.label} image={c.image} selected={form.CuisinePref.includes(c.id)} onClick={() => toggleArr("CuisinePref", c.id)} />)}</div>{form.CuisinePref.length === 0 && <p className="hw2-warn mt-2">Pick at least one cuisine</p>}</div>;
+    if (curKey === "childage") return <div><QHead q="How old is the child?" hint="Enter the child's age" /><div className="hw2-age-input-wrap"><input className="hw2-finput hw2-age-input" type="text" placeholder="e.g. 2 years, 8 months…" value={form.ChildAge} autoFocus onChange={(e) => setF("ChildAge", e.target.value)} /><p className="hw2-age-hint">You can type freely, e.g. "3 years"</p></div></div>;
+    if (curKey === "childduties") return <div><QHead q="What duties are needed?" hint="Select all that apply" /><div className="grid grid-cols-3 gap-2.5">{CHILD_DUTIES.map((d) => <ImgChip key={d.id} label={d.label} image={d.image} selected={form.ChildDuties.includes(d.id)} onClick={() => toggleArr("ChildDuties", d.id)} />)}</div>{form.ChildDuties.length === 0 && <p className="hw2-warn mt-2">Select at least one duty</p>}</div>;
+    if (curKey === "patientage") return <div><QHead q="How old is the patient?" /><div className="hw2-age-input-wrap"><input className="hw2-finput hw2-age-input" type="text" placeholder="e.g. 68 years…" value={form.PatientAge} autoFocus onChange={(e) => setF("PatientAge", e.target.value)} /></div></div>;
+    if (curKey === "patientgender") return <div><QHead q="Patient's gender?" /><div className="grid grid-cols-2 gap-3">{GENDER_OPTIONS_DATA.map((g) => <GenderImgCard key={g.id} opt={g} selected={form.PatientGender === g.id} onClick={() => { setF("PatientGender", g.id); after(); }} />)}</div></div>;
+    if (curKey === "careneeded") return <div><QHead q="What care is required?" hint="Select all that apply" /><div className="grid grid-cols-3 gap-2.5">{CARE_NEEDED.map((c) => <ImgChip key={c.id} label={c.label} image={c.image} selected={form.CareNeeded.includes(c.id)} onClick={() => toggleArr("CareNeeded", c.id)} />)}</div>{form.CareNeeded.length === 0 && <p className="hw2-warn mt-2">Select at least one type of care</p>}</div>;
+    if (curKey === "vehicletype") return <div><QHead q="What vehicle(s) will the driver operate?" hint="Select all that apply" /><div className="grid grid-cols-2 gap-2.5">{VEHICLE_TYPES.map((v) => <ImgChip key={v.id} label={v.label} image={v.image} selected={form.VehicleType.includes(v.id)} onClick={() => toggleArr("VehicleType", v.id)} />)}</div>{form.VehicleType.length === 0 && <p className="hw2-warn mt-2">Select at least one vehicle type</p>}</div>;
+    if (curKey === "managerduties") return <div><QHead q="What responsibilities are needed?" hint="Select all that apply" /><div className="grid grid-cols-3 gap-2.5">{MANAGER_DUTIES.map((d) => <ImgChip key={d.id} label={d.label} image={d.image} selected={form.ManagerDuties.includes(d.id)} onClick={() => toggleArr("ManagerDuties", d.id)} />)}</div>{form.ManagerDuties.length === 0 && <p className="hw2-warn mt-2">Select at least one responsibility</p>}</div>;
+    if (curKey === "hometype") return <div><QHead q="What type of home?" /><div className="grid grid-cols-3 gap-2.5">{HOME_TYPES.map((h) => <ImgChip key={h.id} label={h.label} image={h.image} selected={form.HomeType === h.id} onClick={() => { setF("HomeType", h.id); after(); }} />)}</div></div>;
+    if (curKey === "multiservices") return <div><QHead q="Which services do you need?" hint="Select all that apply" /><div className="grid grid-cols-3 gap-2.5">{MULTI_SERVICES.map((s) => <ImgChip key={s.id} label={s.label} image={s.image} selected={form.MultiServices.includes(s.id)} onClick={() => toggleArr("MultiServices", s.id)} />)}</div>{form.MultiServices.length === 0 && <p className="hw2-warn mt-2">Select at least one service</p>}</div>;
+    if (curKey === "urgency") return <div><QHead q="How soon do you need placement?" /><div className="flex flex-col gap-2">{URGENCY_OPTIONS.map((o) => <Pill key={o.id} icon={o.icon} label={o.label} desc={o.desc} selected={form.Urgency === o.id} onClick={() => { setF("Urgency", o.id); after(); }} />)}</div></div>;
 
     if (curKey === "budget") {
       const isSubstitute = form.ServiceFormat === "Substitute";
-      if (isSubstitute)
-        return (
-          <div>
-            <QHead q="Substitute Service Pricing" hint="Fixed monthly rate — no hidden charges" />
-            <div className="flex flex-col gap-3">
-              {SUBSTITUTE_BUDGETS.map((b) => (
-                <button key={b.id} type="button" onClick={() => { setF("Budget", b.id); after(); }} className="hw2-sub-budget-card"
-                  style={{ background: form.Budget === b.id ? "linear-gradient(135deg,#EC5F36,#D84E28)" : "#fff", borderColor: form.Budget === b.id ? "#EC5F36" : "#E5E2DE", boxShadow: form.Budget === b.id ? "0 8px 28px rgba(236,95,54,0.32)" : "0 1px 6px rgba(0,0,0,0.05)" }}>
-                  <div className="hw2-sub-budget-inner">
-                    <div className="hw2-sub-budget-left">
-                      <span className="hw2-sub-budget-badge" style={{ background: form.Budget === b.id ? "rgba(255,255,255,0.22)" : "#FFF2EE", color: form.Budget === b.id ? "#fff" : "#EC5F36" }}>{b.badge}</span>
-                      <span className="hw2-sub-budget-label" style={{ color: form.Budget === b.id ? "#fff" : "#1a1a2e" }}>{b.label}</span>
-                      <span className="hw2-sub-budget-desc" style={{ color: form.Budget === b.id ? "rgba(255,255,255,0.78)" : "#9ca3af" }}>{b.desc}</span>
-                    </div>
-                    {form.Budget === b.id && <Check size={20} strokeWidth={2.5} color="#fff" />}
+      if (isSubstitute) return (
+        <div>
+          <QHead q="Substitute Service Pricing" hint="Fixed monthly rate — no hidden charges" />
+          <div className="flex flex-col gap-3">
+            {SUBSTITUTE_BUDGETS.map((b) => (
+              <button key={b.id} type="button" onClick={() => { setF("Budget", b.id); after(); }} className="hw2-sub-budget-card"
+                style={{ background: form.Budget === b.id ? "linear-gradient(135deg,#EC5F36,#D84E28)" : "#fff", borderColor: form.Budget === b.id ? "#EC5F36" : "#E5E2DE" }}>
+                <div className="hw2-sub-budget-inner">
+                  <div className="hw2-sub-budget-left">
+                    <span className="hw2-sub-budget-badge" style={{ background: form.Budget === b.id ? "rgba(255,255,255,0.22)" : "#FFF2EE", color: form.Budget === b.id ? "#fff" : "#EC5F36" }}>{b.badge}</span>
+                    <span className="hw2-sub-budget-label" style={{ color: form.Budget === b.id ? "#fff" : "#1a1a2e" }}>{b.label}</span>
+                    <span className="hw2-sub-budget-desc" style={{ color: form.Budget === b.id ? "rgba(255,255,255,0.78)" : "#9ca3af" }}>{b.desc}</span>
                   </div>
-                </button>
-              ))}
-              <div className="hw2-sub-info-card">
-                <div className="hw2-sub-info-row"><span className="hw2-sub-info-icon">📋</span><div><p className="hw2-sub-info-title">What's included</p><p className="hw2-sub-info-body">Trained replacement staff, profile matching, and coordination — all at a single flat fee of ₹5,000/month.</p></div></div>
-                <div className="hw2-sub-info-row" style={{ marginTop: 8 }}><span className="hw2-sub-info-icon">⏱️</span><div><p className="hw2-sub-info-title">Minimum duration</p><p className="hw2-sub-info-body">30 days minimum — ideal for covering extended leaves, emergencies, or vacations.</p></div></div>
-              </div>
-            </div>
+                  {form.Budget === b.id && <Check size={20} strokeWidth={2.5} color="#fff" />}
+                </div>
+              </button>
+            ))}
           </div>
-        );
+        </div>
+      );
       return (
         <div>
           <QHead q="What's your monthly budget?" hint="We'll match staff within your budget" />
           <div className="flex flex-col gap-2">
             {BUDGETS.map((b) => (
               <button key={b.id} type="button" onClick={() => { setF("Budget", b.id); after(); }} className="hw2-budget-row"
-                style={{ background: form.Budget === b.id ? "#EC5F36" : "#fff", borderColor: form.Budget === b.id ? "#EC5F36" : "#E5E2DE", boxShadow: form.Budget === b.id ? "0 6px 18px rgba(236,95,54,0.28)" : "0 1px 4px rgba(0,0,0,0.04)" }}>
+                style={{ background: form.Budget === b.id ? "#EC5F36" : "#fff", borderColor: form.Budget === b.id ? "#EC5F36" : "#E5E2DE" }}>
                 <span className="hw2-budget-label" style={{ color: form.Budget === b.id ? "#fff" : "#1a1a2e" }}>{b.label}</span>
                 <span className="hw2-budget-desc" style={{ color: form.Budget === b.id ? "rgba(255,255,255,0.8)" : "#888" }}>{b.desc}</span>
                 {form.Budget === b.id && <Check size={16} strokeWidth={2.5} color="#fff" className="ml-auto flex-shrink-0" />}
@@ -585,12 +445,8 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
               form.HouseSize && { k: "Home Size", v: form.HouseSize.toUpperCase() },
               { k: "Household", v: `${form.PeopleAtHome} people` },
               form.MealPref && { k: "Diet", v: form.MealPref },
-              form.CuisinePref.length && { k: "Cuisine", v: form.CuisinePref.join(", ") },
               form.ChildAge && { k: "Child Age", v: form.ChildAge },
               form.PatientAge && { k: "Patient Age", v: form.PatientAge },
-              form.CareNeeded.length && { k: "Care", v: form.CareNeeded.join(", ") },
-              form.VehicleType.length && { k: "Vehicle", v: form.VehicleType.join(", ") },
-              form.ManagerDuties.length && { k: "Manager Duties", v: form.ManagerDuties.length + " selected" },
               form.Budget && { k: "Budget", v: BUDGETS.find((b) => b.id === form.Budget)?.label },
               form.Urgency && { k: "Urgency", v: URGENCY_OPTIONS.find((o) => o.id === form.Urgency)?.label },
             ].filter(Boolean).map(({ k, v }) => (
@@ -601,52 +457,35 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
       );
     }
 
-    // ── Plan selection ─────────────────────────────────────────────────────────
+    // ── Plan selection ────────────────────────────────────────────────────────
     if (curKey === "plan")
       return (
         <div>
-          <QHead q="How do you want to proceed?" hint="Choose a plan that works for you — both include end-to-end coordination" />
+          <QHead q="How do you want to proceed?" hint="Choose a plan that works for you" />
           <div className="flex flex-col gap-3">
             {Object.values(PLANS).map((plan) => {
               const isSelected = form.PlanType === plan.id;
               const total = plan.amount + plan.gst;
               return (
-                <div
-                  key={plan.id}
-                  className="hw2-plan-card-v2"
-                  style={{
-                    borderColor: isSelected ? plan.color : "#EBEBEB",
-                    background: isSelected ? plan.accentLight : "#fff",
-                    boxShadow: isSelected ? `0 4px 20px ${plan.color}20` : "0 1px 4px rgba(0,0,0,0.06)",
-                  }}
-                  onClick={() => setF("PlanType", isSelected ? "" : plan.id)}
-                >
-                  {/* Selected badge */}
+                <div key={plan.id} className="hw2-plan-card-v2"
+                  style={{ borderColor: isSelected ? plan.color : "#EBEBEB", background: isSelected ? plan.accentLight : "#fff", boxShadow: isSelected ? `0 4px 20px ${plan.color}20` : "0 1px 4px rgba(0,0,0,0.06)" }}
+                  onClick={() => setF("PlanType", isSelected ? "" : plan.id)}>
                   {isSelected && (
                     <div className="hw2-pv2-selected-tick" style={{ background: plan.badgeBg }}>
-                      <FontAwesomeIcon icon={faCheck} style={{ fontSize: 9 }} />
-                      <span>Selected</span>
+                      <FontAwesomeIcon icon={faCheck} style={{ fontSize: 9 }} /><span>Selected</span>
                     </div>
                   )}
-
-                  {/* Top row: name + price */}
                   <div className="hw2-pv2-top">
                     <div className="hw2-pv2-name-row">
                       <div className="hw2-pv2-dot" style={{ background: plan.badgeBg }} />
                       <span className="hw2-pv2-name" style={{ color: plan.color }}>{plan.name}</span>
-                      {plan.recommended && (
-                        <span className="hw2-pv2-rec" style={{ background: plan.badgeBg }}>Recommended</span>
-                      )}
+                      {plan.recommended && <span className="hw2-pv2-rec" style={{ background: plan.badgeBg }}>Recommended</span>}
                     </div>
                     <div className="hw2-pv2-price-col">
-                      <span className="hw2-pv2-amount" style={{ color: plan.color }}>
-                        {plan.amount === 0 ? "Free" : `₹${plan.amount.toLocaleString()}`}
-                      </span>
+                      <span className="hw2-pv2-amount" style={{ color: plan.color }}>{plan.amount === 0 ? "Free" : `₹${plan.amount.toLocaleString()}`}</span>
                       {plan.amount > 0 && <span className="hw2-pv2-gst">+ ₹{plan.gst} GST</span>}
                     </div>
                   </div>
-
-                  {/* Subtitle + total pill */}
                   <div className="hw2-pv2-sub-row">
                     <span className="hw2-pv2-subtitle">{plan.tag} · {plan.subtitle}</span>
                     {plan.amount > 0 && (
@@ -655,19 +494,12 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
                       </span>
                     )}
                   </div>
-
-                  {/* Divider */}
                   <div className="hw2-pv2-divider" style={{ background: isSelected ? plan.borderColor : "#F0F0F0" }} />
-
-                  {/* Inclusions */}
                   <ul className="hw2-pv2-list">
                     {plan.inclusions.map((item, i) => (
                       <li key={i} className="hw2-pv2-item">
                         <span className="hw2-pv2-icon-wrap" style={{ background: isSelected ? "rgba(255,255,255,0.65)" : plan.accentLight }}>
-                          <FontAwesomeIcon
-                            icon={FA_ICON_MAP[item.icon] || faCheck}
-                            style={{ color: plan.color, fontSize: 11, width: 11 }}
-                          />
+                          <FontAwesomeIcon icon={FA_ICON_MAP[item.icon] || faCheck} style={{ color: plan.color, fontSize: 11, width: 11 }} />
                         </span>
                         <div className="hw2-pv2-item-txt">
                           <span className="hw2-pv2-item-label">{item.label}</span>
@@ -676,8 +508,6 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
                       </li>
                     ))}
                   </ul>
-
-                  {/* Bonus strip */}
                   {plan.bonus && (
                     <div className="hw2-pv2-bonus" style={{ background: isSelected ? "rgba(255,255,255,0.55)" : plan.accentLight, borderColor: plan.borderColor, color: plan.color }}>
                       <FontAwesomeIcon icon={faGift} style={{ fontSize: 11, flexShrink: 0 }} />
@@ -691,16 +521,16 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
 
           {!form.PlanType && <p className="hw2-warn mt-3 text-center">Please select a plan to continue</p>}
 
+          {/* Contextual notes */}
           {form.PlanType === "commitment" && (
             <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="hw2-pbt-note mt-3">
               <p>
                 <FontAwesomeIcon icon={faCircleCheck} style={{ marginRight: 6 }} />
-                <strong>Commitment fee of ₹{(PLANS.commitment.amount + PLANS.commitment.gst).toLocaleString()}</strong> collected before profile sharing.
-                Profiles delivered within <strong>3 working days</strong>.
+                <strong>Pay ₹{(PLANS.commitment.amount + PLANS.commitment.gst).toLocaleString()}</strong> now to confirm your request. Profiles delivered within <strong>3 working days</strong>.
               </p>
               <p style={{ marginTop: 5 }}>
                 <FontAwesomeIcon icon={faPhone} style={{ marginRight: 6 }} />
-                We'll call you on <strong>+91 {form.Phone || "your number"}</strong> to confirm.
+                You'll be redirected to a secure Cashfree payment page.
               </p>
             </motion.div>
           )}
@@ -709,159 +539,49 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
               style={{ background: "#FFF7F4", borderColor: "#F5D8CF", color: "#7C2D12" }}>
               <p>
                 <FontAwesomeIcon icon={faBolt} style={{ marginRight: 6 }} />
-                <strong>Pay now to activate priority handling.</strong> Profiles shared within <strong>24 hours</strong> of payment confirmation.
+                <strong>You'll be redirected to a secure Cashfree payment page.</strong> Profiles shared within <strong>24 hours</strong> of payment.
               </p>
             </motion.div>
           )}
           {form.PlanType === "nopay" && (
             <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="hw2-pbt-note mt-3"
               style={{ background: "#F9FAFB", borderColor: "#E5E7EB", color: "#6B7280" }}>
-              <p>
-                ⚠️ Without payment there is <strong>no priority, no guaranteed timeline, and no replacement support</strong>. Most clients who pick this option switch to a paid plan once they see the difference in response speed.
-              </p>
+              <p>⚠️ Without payment there is <strong>no priority, no guaranteed timeline, and no replacement support</strong>.</p>
             </motion.div>
           )}
         </div>
       );
 
-    if (curKey === "payment") {
-      const total = PLANS.priority.amount + PLANS.priority.gst;
-      return (
-        <div>
-          <div className="hw2-pay-page-header">
-            <div className="hw2-pay-amount-badge">
-              <Wallet size={16} color="#EC5F36" strokeWidth={2} />
-              <span>₹{total.toLocaleString()}</span>
-              <span className="hw2-pay-gst-small">incl. 18% GST</span>
-            </div>
-            <p className="hw2-pay-page-title">Complete Your Payment</p>
-            <p className="hw2-pay-page-sub">Pay using UPI or bank transfer — upload your screenshot to speed up verification (optional)</p>
-          </div>
-          <div className="hw2-pay-methods">
-            <div className="hw2-pay-method-card">
-              <div className="hw2-pay-method-head"><Smartphone size={14} color="#EC5F36" strokeWidth={2} /><span>Pay via UPI</span></div>
-              <div className="hw2-pay-qr-row">
-                <div className="hw2-pay-qr-box">
-                  <img src="https://res.cloudinary.com/dhtzknkdr/image/upload/v1773031910/qrCode_btlxci.jpg" alt="QR Code" width={90} height={90} />
-                  <p className="hw2-pay-qr-hint">Scan with any UPI app</p>
-                </div>
-                <div className="hw2-pay-upi-details">
-                  <p className="hw2-pay-upi-label">UPI ID</p>
-                  <div className="hw2-pay-upi-row">
-                    <span className="hw2-pay-upi-id">{PAYMENT_INFO.upiId}</span>
-                    <button type="button" className="hw2-copy-btn" onClick={() => copyToClipboard(PAYMENT_INFO.upiId, "upi")}>{copied === "upi" ? <CheckCircle2 size={12} color="#16a34a" /> : <Copy size={12} color="#9ca3af" />}</button>
-                  </div>
-                  <p className="hw2-pay-upi-apps">Works with PhonePe, GPay, Paytm, BHIM &amp; any UPI app</p>
-                  <div className="hw2-pay-amount-chip">Pay exactly <strong>₹{total.toLocaleString()}</strong></div>
-                </div>
-              </div>
-            </div>
-            <div className="hw2-pay-or"><span>or pay via</span></div>
-            <div className="hw2-pay-method-card">
-              <div className="hw2-pay-method-head"><Building2 size={14} color="#3B82F6" strokeWidth={2} /><span>Bank Transfer / NEFT / IMPS</span></div>
-              <div className="hw2-bank-grid">
-                {[
-                  { label: "Account Name", value: PAYMENT_INFO.accountName, key: "name" },
-                  { label: "Account Number", value: PAYMENT_INFO.accountNumber, key: "acc" },
-                  { label: "IFSC Code", value: PAYMENT_INFO.ifsc, key: "ifsc" },
-                  { label: "Bank & Branch", value: `${PAYMENT_INFO.bankName}, ${PAYMENT_INFO.branch}`, key: "bank" },
-                ].map((row) => (
-                  <div key={row.key} className="hw2-bank-item">
-                    <span className="hw2-bank-item-label">{row.label}</span>
-                    <div className="hw2-bank-item-row">
-                      <span className="hw2-bank-item-val">{row.value}</span>
-                      <button type="button" className="hw2-copy-btn" onClick={(e) => { e.stopPropagation(); copyToClipboard(row.value, row.key); }}>{copied === row.key ? <CheckCircle2 size={11} color="#16a34a" /> : <Copy size={11} color="#9ca3af" />}</button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div className="hw2-bank-amount-tag">Transfer amount: <strong>₹{total.toLocaleString()}</strong> <span>(incl. 18% GST)</span></div>
-            </div>
-          </div>
-          <div className="hw2-screenshot-section">
-            <p className="hw2-screenshot-title"><Upload size={14} color="#EC5F36" strokeWidth={2} />Upload Payment Screenshot</p>
-            <p className="hw2-screenshot-sub">Upload your payment confirmation screenshot to speed up verification — <em>optional but recommended</em></p>
-            <div className="hw2-dropzone"
-              style={{ borderColor: dragOver ? "#EC5F36" : screenshotPreview ? "#16a34a" : "#E5E2DE", background: dragOver ? "#FFF7F4" : screenshotPreview ? "#F0FDF4" : "#FAFAFA" }}
-              onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
-              onDragLeave={() => setDragOver(false)}
-              onDrop={(e) => { e.preventDefault(); setDragOver(false); const f = e.dataTransfer.files[0]; if (f) handleFileSelect(f); }}
-              onClick={() => !screenshotPreview && fileInputRef.current?.click()}>
-              <input ref={fileInputRef} type="file" accept="image/*" style={{ display: "none" }} onChange={(e) => handleFileSelect(e.target.files[0])} />
-              {screenshotPreview ? (
-                <div className="hw2-preview-wrap">
-                  <img src={screenshotPreview} alt="Payment screenshot preview" className="hw2-preview-img" />
-                  <div className="hw2-preview-actions">
-                    <button type="button" className="hw2-preview-change" onClick={(e) => { e.stopPropagation(); setScreenshotFile(null); setScreenshotPreview(null); setScreenshotUrl(""); }}>Change</button>
-                    {!screenshotUrl && (
-                      <button type="button" className="hw2-upload-btn" onClick={(e) => { e.stopPropagation(); handleUploadScreenshot(); }} disabled={screenshotUploading}>
-                        {screenshotUploading ? <><span className="hw2-spin" /> Uploading…</> : <><Upload size={12} strokeWidth={2.5} /> Confirm Upload</>}
-                      </button>
-                    )}
-                  </div>
-                </div>
-              ) : (
-                <div className="hw2-dropzone-idle">
-                  <div className="hw2-dropzone-ico"><ImageIcon size={22} color="#EC5F36" strokeWidth={1.5} /></div>
-                  <p className="hw2-dropzone-main">Tap to select or drag &amp; drop</p>
-                  <p className="hw2-dropzone-hint">PNG, JPG, WEBP — max 10 MB</p>
-                </div>
-              )}
-            </div>
-            {screenshotUrl && (
-              <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="hw2-upload-success">
-                <CheckCircle size={14} color="#16a34a" strokeWidth={2} />
-                <span>Screenshot uploaded! Click <strong>Submit with Screenshot</strong> below to confirm.</span>
-              </motion.div>
-            )}
-            {!screenshotUrl && <p className="hw2-skip-hint">🔖 No screenshot yet? You can still submit — our team will contact you to verify payment manually.</p>}
-          </div>
-          <div className="hw2-pay-whatsapp-note">💬 Alternatively, WhatsApp your payment screenshot to <strong>+91 {PAYMENT_INFO.whatsapp}</strong> with your registered phone number.</div>
-        </div>
-      );
-    }
-
+    // ── Done ──────────────────────────────────────────────────────────────────
     if (curKey === "done") {
-      const isPriority = form.PlanType === "priority";
       const isNoPay = form.PlanType === "nopay";
-      const hasScreenshot = !!screenshotUrl;
-      const doneBg = isPriority
-        ? "linear-gradient(135deg,#EC5F36,#D84E28)"
-        : isNoPay
-          ? "linear-gradient(135deg,#9CA3AF,#6B7280)"
-          : "linear-gradient(135deg,#3B82F6,#2563EB)";
+      const doneBg = isNoPay
+        ? "linear-gradient(135deg,#9CA3AF,#6B7280)"
+        : "linear-gradient(135deg,#EC5F36,#D84E28)";
       return (
         <div className="flex flex-col items-center justify-center py-8 text-center">
           <motion.div initial={{ scale: 0, rotate: -20 }} animate={{ scale: 1, rotate: 0 }} transition={{ type: "spring", stiffness: 280, damping: 16 }}
             className="w-20 h-20 rounded-full flex items-center justify-center mb-5"
-            style={{ background: doneBg, boxShadow: isPriority ? "0 10px 36px rgba(236,95,54,.40)" : isNoPay ? "0 10px 36px rgba(107,114,128,.28)" : "0 10px 36px rgba(59,130,246,.40)" }}>
+            style={{ background: doneBg, boxShadow: "0 10px 36px rgba(0,0,0,.20)" }}>
             <Check size={36} color="#fff" strokeWidth={3} />
           </motion.div>
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
             <h3 className="hw2-display text-xl font-bold text-gray-900 mb-2">
-              {isPriority ? (hasScreenshot ? "Request Submitted! 🚀" : "Request Received! 🎉")
-                : isNoPay ? "Request Noted 👋"
-                  : "Request Confirmed! 🎉"}
+              {isNoPay ? "Request Noted 👋" : "Request Submitted! 🎉"}
             </h3>
             <p className="text-sm text-gray-500 max-w-[280px] mx-auto leading-relaxed mb-1">
-              {isPriority
-                ? hasScreenshot
-                  ? "Screenshot received — we'll verify your payment and start priority shortlisting. Expect a call within 2 hours on"
-                  : "Our team will call you to confirm payment, then start priority shortlisting within 24 hours. We'll reach you on"
-                : isNoPay
-                  ? "No payment was made — there's no timeline or priority guarantee. You may be contacted when capacity allows on"
-                  : "Commitment fee pending — our team will reach out within 24 hours to collect payment and begin shortlisting on"}
+              {isNoPay
+                ? "No payment was made — there's no timeline or priority guarantee. You may be contacted when capacity allows on"
+                : "Your request has been submitted. Our team will be in touch on"}
             </p>
             <p className="font-bold text-gray-900 text-base mb-1">+91 {form.Phone}</p>
             {form.Email && <p className="text-xs text-gray-400 mb-3">Confirmation sent to {form.Email}</p>}
             <div className="hw2-done-plan-badge" style={{
-              background: isPriority ? "#FFF2EE" : isNoPay ? "#F9FAFB" : "#EFF6FF",
-              color: isPriority ? "#EC5F36" : isNoPay ? "#6B7280" : "#3B82F6",
-              borderColor: isPriority ? "#F5D8CF" : isNoPay ? "#E5E7EB" : "#BFDBFE",
+              background: isNoPay ? "#F9FAFB" : "#FFF2EE",
+              color: isNoPay ? "#6B7280" : "#EC5F36",
+              borderColor: isNoPay ? "#E5E7EB" : "#F5D8CF",
             }}>
-              {isPriority ? <><Bolt size={13} strokeWidth={2.5} /> Priority Plan — {hasScreenshot ? "Under Verification" : "Awaiting Payment"}</>
-                : isNoPay ? <>No Commitment — Basic Access</>
-                  : <><Timer size={13} strokeWidth={2.5} /> Commitment Plan — Awaiting Fee Collection</>}
+              {isNoPay ? <>No Commitment — Basic Access</> : <><FontAwesomeIcon icon={faBolt} style={{ marginRight: 5 }} />Request submitted</>}
             </div>
             <button className="hw2-btn mx-auto mt-5" style={{ background: doneBg }} onClick={resetWizard}>
               <Sparkles size={14} /> Submit Another Request
@@ -870,11 +590,13 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
         </div>
       );
     }
+
     return null;
   };
 
+  // ── Progress bar ──────────────────────────────────────────────────────────────
   const renderProgress = () => {
-    if (isDone || curKey === "payment") return null;
+    if (isDone) return null;
     return (
       <div className="mb-5">
         <div className="flex items-center justify-between mb-3">
@@ -910,29 +632,36 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
     );
   };
 
+  // ── Footer ────────────────────────────────────────────────────────────────────
   const renderFooter = () => {
     if (isDone) return null;
-    const showBack = stepIdx > 0 && curKey !== "payment";
+    const showBack = stepIdx > 0;
     const isPlan = curKey === "plan";
-    const isPayment = curKey === "payment";
     if (!showBack && !showContinue) return null;
-    const busy = planSubmitting || paymentSubmitting || screenshotUploading;
+    const busy = planSubmitting;
+
+    const planBtnLabel = () => {
+      if (!form.PlanType) return "Select a Plan";
+      if (paymentStage === "creating_order") return <><FontAwesomeIcon icon={faSpinner} spin style={{ marginRight: 6 }} />Creating order…</>;
+      if (paymentStage === "redirecting") return <><FontAwesomeIcon icon={faSpinner} spin style={{ marginRight: 6 }} />Redirecting…</>;
+      if (form.PlanType === "priority")
+        return <><FontAwesomeIcon icon={faBolt} style={{ marginRight: 6 }} />Pay Now — ₹{(PLANS.priority.amount + PLANS.priority.gst).toLocaleString()}</>;
+      if (form.PlanType === "commitment")
+        return <><FontAwesomeIcon icon={faBolt} style={{ marginRight: 6 }} />Pay Now — ₹{(PLANS.commitment.amount + PLANS.commitment.gst).toLocaleString()}</>;
+      if (form.PlanType === "nopay")
+        return <>Continue Without Paying</>;
+      return "Select a Plan";
+    };
+
     return (
       <div className="pt-3 flex justify-between items-center" style={{ borderTop: "1.5px solid #F0EBE8", marginTop: "auto" }}>
-        {showBack ? <button type="button" className="hw2-back" onClick={goBack}><ArrowLeft size={14} strokeWidth={2.5} /> Back</button> : <div />}
+        {showBack
+          ? <button type="button" className="hw2-back" disabled={busy} onClick={goBack}><ArrowLeft size={14} strokeWidth={2.5} /> Back</button>
+          : <div />}
         {showContinue && (
           <button type="button" className="hw2-btn" disabled={!isValid() || busy}
-            onClick={isPlan ? () => handlePlanSubmit(form.PlanType) : isPayment ? handlePaymentSubmit : goNext}>
-            {busy ? (
-              <><span className="hw2-spin" /> {isPlan ? "Processing…" : isPayment ? "Submitting…" : "Please wait…"}</>
-            ) : isPlan ? (
-              form.PlanType === "priority" ? <><Bolt size={14} strokeWidth={2.5} /> Continue to Payment</> :
-                form.PlanType === "commitment" ? <><Check size={14} strokeWidth={2.5} /> Confirm &amp; Submit</> :
-                  form.PlanType === "nopay" ? <>Continue Without Paying</> :
-                    <>Select a Plan</>
-            ) : isPayment ? (
-              screenshotUrl ? <><Send size={14} strokeWidth={2.5} /> Submit with Screenshot</> : <><Send size={14} strokeWidth={2.5} /> Submit &amp; Confirm Later</>
-            ) : (
+            onClick={isPlan ? () => handlePlanSubmit(form.PlanType) : goNext}>
+            {isPlan ? planBtnLabel() : (
               <>Continue <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg></>
             )}
           </button>
@@ -941,30 +670,9 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
     );
   };
 
-  const renderPaymentHeader = () => {
-    if (curKey !== "payment") return null;
-    return (
-      <div className="flex items-center justify-between mb-4">
-        <div>
-          <h2 className="hw2-display text-lg font-bold text-gray-900">Secure Payment</h2>
-          <p className="text-xs text-gray-400 font-medium mt-0.5">Priority Plan — Final Step</p>
-        </div>
-        <div className="hw2-payment-step-badge"><Bolt size={11} color="#EC5F36" strokeWidth={2.5} />Priority Active</div>
-      </div>
-    );
-  };
-
-  const isExpandedStep = curKey === "plan" || curKey === "payment";
-
   const Shell = (
-    <div className="hw2-root flex flex-col bg-white rounded-3xl p-5 sm:p-6 w-full max-w-xl"
-      style={{
-        height: isExpandedStep ? "auto" : "36rem",
-        maxHeight: isExpandedStep ? "90vh" : "100%",
-        minHeight: "26rem",
-      }}>
+    <div className="hw2-root flex flex-col bg-white rounded-3xl p-5 sm:p-6 w-full max-w-[30rem]" style={{ height: "34rem" }}>
       {renderProgress()}
-      {renderPaymentHeader()}
       <div ref={bodyRef} className="hw2-body overflow-y-auto" style={{ flex: 1 }}>
         <AnimatePresence mode="wait" custom={dir}>
           <motion.div key={`${form.ServiceType || "svc"}-${stepIdx}`} custom={dir}

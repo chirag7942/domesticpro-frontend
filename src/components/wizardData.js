@@ -433,17 +433,12 @@ export const BUDGETS = [
     label: "₹15,000 – ₹17,999",
     desc: "Untrained helpers",
   },
-  {
-    id: "₹10,000 – ₹14,999",
-    label: "₹10,000 – ₹14,999",
-    desc: "Limited availability in this range",
-  },
 ];
 
 export const SUBSTITUTE_BUDGETS = [
   {
     id: "sub-5k",
-    label: "₹5,000 / month",
+    label: "₹5,000",
     desc: "Standard substitute placement — fixed rate",
     badge: "Fixed Rate",
     highlight: true,
@@ -474,7 +469,6 @@ export const URGENCY_OPTIONS = [
   },
 ];
 
-// ── PLANS ─────────────────────────────────────────────────────────────────────
 export const PLANS = {
   priority: {
     id: "priority",
@@ -547,7 +541,7 @@ export const PLANS = {
       {
         icon: "credit-card",
         label: "Commitment Fee (Upfront)",
-        desc: "A nominal fee is charged before sharing profiles to ensure serious intent and dedicated service from our end.",
+        desc: "A nominal fee is charged before sharing profiles to ensure serious intent.",
       },
       {
         icon: "address-card",
@@ -612,16 +606,9 @@ export const PLANS = {
   },
 };
 
-export const PAYMENT_INFO = {
-  upiId: "domesticpro@upi",
-  accountName: "Domestic Pro Pvt Ltd",
-  accountNumber: "1234 5678 9012 3456",
-  ifsc: "HDFC0001234",
-  bankName: "HDFC Bank",
-  branch: "Connaught Place, New Delhi",
-  whatsapp: "9876543210",
-};
-
+// ── SERVICE_FLOWS — "payment" step REMOVED from all flows.
+//    Priority plan now redirects to Cashfree externally from the plan step.
+//    Commitment and NoPay submit directly and land on "done".
 export const SERVICE_FLOWS = {
   "House Help": [
     "service",
@@ -633,7 +620,6 @@ export const SERVICE_FLOWS = {
     "urgency",
     "contact",
     "plan",
-    "payment",
     "done",
   ],
   Cook: [
@@ -646,7 +632,6 @@ export const SERVICE_FLOWS = {
     "urgency",
     "contact",
     "plan",
-    "payment",
     "done",
   ],
   Babysitter: [
@@ -658,7 +643,6 @@ export const SERVICE_FLOWS = {
     "urgency",
     "contact",
     "plan",
-    "payment",
     "done",
   ],
   "Elderly Care": [
@@ -671,7 +655,6 @@ export const SERVICE_FLOWS = {
     "urgency",
     "contact",
     "plan",
-    "payment",
     "done",
   ],
   Driver: [
@@ -682,7 +665,6 @@ export const SERVICE_FLOWS = {
     "urgency",
     "contact",
     "plan",
-    "payment",
     "done",
   ],
   "House Manager": [
@@ -694,7 +676,6 @@ export const SERVICE_FLOWS = {
     "urgency",
     "contact",
     "plan",
-    "payment",
     "done",
   ],
   "Multiple Services": [
@@ -705,7 +686,6 @@ export const SERVICE_FLOWS = {
     "urgency",
     "contact",
     "plan",
-    "payment",
     "done",
   ],
 };
@@ -717,7 +697,6 @@ export const DEFAULT_FLOW = [
   "budget",
   "contact",
   "plan",
-  "payment",
   "done",
 ];
 
@@ -743,7 +722,6 @@ export const PROG_META = {
   budget: { label: "Budget", icon: DollarSign },
   contact: { label: "Contact", icon: Phone },
   plan: { label: "Plan", icon: CreditCard },
-  payment: { label: "Payment", icon: Wallet },
 };
 
 export const INIT = {
@@ -779,5 +757,4 @@ export const INIT = {
   Instructions: "",
   PlanType: "",
   PaymentStatus: "",
-  ScreenshotUrl: "",
 };
