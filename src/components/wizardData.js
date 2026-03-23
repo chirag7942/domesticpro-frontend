@@ -17,7 +17,6 @@ import {
   DollarSign,
   ClipboardList,
   CreditCard,
-  Wallet,
   Utensils,
   Coffee,
   Sparkles,
@@ -32,7 +31,6 @@ export const SERVICES = [
     image: `${CDN}/v1773034357/househelp_wsuqby.png`,
     color: "#4F9EF8",
     emoji: "🏠",
-    desc: "Daily cleaning & chores",
   },
   {
     id: "Cook",
@@ -40,7 +38,6 @@ export const SERVICES = [
     image: `${CDN}/v1773034353/cook_aa2ex7.png`,
     color: "#F87C4F",
     emoji: "👨‍🍳",
-    desc: "Meals & kitchen care",
   },
   {
     id: "Babysitter",
@@ -48,7 +45,6 @@ export const SERVICES = [
     image: `${CDN}/v1773034351/baby-caretaker_qtcpvn.png`,
     color: "#A78BFA",
     emoji: "👶",
-    desc: "Child care & safety",
   },
   {
     id: "Elderly Care",
@@ -56,7 +52,6 @@ export const SERVICES = [
     image: `${CDN}/v1773034355/elderly-household_mt1b8o.png`,
     color: "#F87FAC",
     emoji: "🧓",
-    desc: "Senior care & support",
   },
   {
     id: "Driver",
@@ -64,7 +59,6 @@ export const SERVICES = [
     image: `${CDN}/v1773034355/driver_efye54.png`,
     color: "#34D399",
     emoji: "🚗",
-    desc: "Reliable transport",
   },
   {
     id: "House Manager",
@@ -72,7 +66,6 @@ export const SERVICES = [
     image: `${CDN}/v1773034359/house-manager_by4krx.png`,
     color: "#FBBF24",
     emoji: "📋",
-    desc: "Full household mgmt",
   },
   {
     id: "Multiple Services",
@@ -80,7 +73,6 @@ export const SERVICES = [
     image: `${CDN}/v1773034365/multiple-services_ja2pbu.png`,
     color: "#EC5F36",
     emoji: "✨",
-    desc: "Combine services",
   },
 ];
 
@@ -88,13 +80,13 @@ export const SERVICE_FORMATS = [
   {
     id: "Live-In",
     label: "Live-In",
-    desc: "Stays at your home full-time. Available round the clock for all household needs.",
+    desc: "Stays at your home full-time. Available round the clock.",
     icon: Home,
   },
   {
     id: "Substitute",
     label: "Substitute",
-    desc: "Short-term replacement cover for your existing staff member.",
+    desc: "Short-term replacement cover for your existing staff.",
     icon: Users,
   },
   {
@@ -150,36 +142,11 @@ export const TASKS = [
 ];
 
 export const HOUSE_SIZES = [
-  {
-    id: "1BHK",
-    label: "1 BHK",
-    desc: "~400–600 sq ft",
-    image: `${CDN}/v1773037116/1BHK_bgzp6k.png`,
-  },
-  {
-    id: "2BHK",
-    label: "2 BHK",
-    desc: "~700–1000 sq ft",
-    image: `${CDN}/v1773037121/2BHK_sin2om.png`,
-  },
-  {
-    id: "3BHK",
-    label: "3 BHK",
-    desc: "~1100–1500 sq ft",
-    image: `${CDN}/v1773037117/3BHK_jc54bv.png`,
-  },
-  {
-    id: "4BHK",
-    label: "4 BHK",
-    desc: "~1600–2500 sq ft",
-    image: `${CDN}/v1773037118/4BHK_vnuyup.png`,
-  },
-  {
-    id: "Villa",
-    label: "Villa",
-    desc: "2500+ sq ft",
-    image: `${CDN}/v1773037129/villa_jextfy.png`,
-  },
+  { id: "1BHK", label: "1 BHK", image: `${CDN}/v1773037116/1BHK_bgzp6k.png` },
+  { id: "2BHK", label: "2 BHK", image: `${CDN}/v1773037121/2BHK_sin2om.png` },
+  { id: "3BHK", label: "3 BHK", image: `${CDN}/v1773037117/3BHK_jc54bv.png` },
+  { id: "4BHK", label: "4 BHK", image: `${CDN}/v1773037118/4BHK_vnuyup.png` },
+  { id: "Villa", label: "Villa", image: `${CDN}/v1773037129/villa_jextfy.png` },
 ];
 
 export const PETS_OPTIONS = [
@@ -371,21 +338,14 @@ export const HOME_TYPES = [
   {
     id: "Apartment",
     label: "Apartment",
-    desc: "Flat / unit in building",
     image: `${CDN}/v1773038422/apartment_ys8rbw.png`,
   },
   {
     id: "Independent House",
     label: "Independent House",
-    desc: "Standalone bungalow",
     image: `${CDN}/v1773038451/individual_k0ko1y.png`,
   },
-  {
-    id: "Villa",
-    label: "Villa",
-    desc: "Gated community villa",
-    image: `${CDN}/v1773038464/villa_z0apwp.png`,
-  },
+  { id: "Villa", label: "Villa", image: `${CDN}/v1773038464/villa_z0apwp.png` },
 ];
 
 export const MULTI_SERVICES = [
@@ -441,7 +401,6 @@ export const SUBSTITUTE_BUDGETS = [
     label: "₹5,000",
     desc: "Standard substitute placement — fixed rate",
     badge: "Fixed Rate",
-    highlight: true,
   },
 ];
 
@@ -449,21 +408,21 @@ export const URGENCY_OPTIONS = [
   {
     id: "Immediately",
     label: "Immediately",
-    desc: "We fast-track your request — profiles shared within 24 hours.",
+    desc: "Fast-tracked — profiles within 24 hours.",
     icon: Zap,
     color: "#EF4444",
   },
   {
     id: "Within 7–15 days",
     label: "Within 7–15 days",
-    desc: "Planned start — profiles shared within 3–5 working days.",
+    desc: "Planned start — profiles within 3–5 working days.",
     icon: CalendarClock,
     color: "#F59E0B",
   },
   {
     id: "Within 30 days",
     label: "Within 30 days",
-    desc: "No big rush — we'll find the best possible match for you.",
+    desc: "No rush — we'll find the best possible match.",
     icon: Clock,
     color: "#3B82F6",
   },
@@ -481,8 +440,6 @@ export const PLANS = {
     accentLight: "#FFF7F4",
     borderColor: "#F5D8CF",
     badgeBg: "linear-gradient(135deg,#EC5F36,#D84E28)",
-    timeline: "5 verified profiles within 24 hours",
-    paymentNote: "Pay now to activate priority handling",
     recommended: true,
     inclusions: [
       {
@@ -493,17 +450,17 @@ export const PLANS = {
       {
         icon: "id-card",
         label: "5 Verified Profiles within 24 Hours",
-        desc: "Carefully shortlisted candidates based on your requirement.",
+        desc: "Carefully shortlisted based on your requirement.",
       },
       {
         icon: "user-check",
         label: "Pre-Screened & Relevant Matches",
-        desc: "Profiles shared only after basic verification, experience check, and suitability.",
+        desc: "Profiles shared after verification, experience check, and suitability.",
       },
       {
         icon: "headset",
         label: "End-to-End Coordination",
-        desc: "Scheduling calls, interviews, and trial setup managed by our team.",
+        desc: "Calls, interviews, and trial setup managed by our team.",
       },
       {
         icon: "handshake",
@@ -534,29 +491,27 @@ export const PLANS = {
     accentLight: "#EFF6FF",
     borderColor: "#BFDBFE",
     badgeBg: "linear-gradient(135deg,#3B82F6,#2563EB)",
-    timeline: "Profiles shared within 3 working days",
-    paymentNote: "Commitment fee ensures serious intent",
     recommended: false,
     inclusions: [
       {
         icon: "credit-card",
         label: "Commitment Fee (Upfront)",
-        desc: "A nominal fee is charged before sharing profiles to ensure serious intent.",
+        desc: "Nominal fee before profiles — ensures serious intent.",
       },
       {
         icon: "address-card",
         label: "Curated Profile Sharing",
-        desc: "Relevant and suitable profiles shared based on your requirement.",
+        desc: "Relevant profiles shared based on your requirement.",
       },
       {
         icon: "filter",
         label: "Basic Screening & Matching",
-        desc: "Candidates filtered for experience and role suitability.",
+        desc: "Candidates filtered for experience and suitability.",
       },
       {
         icon: "headset",
         label: "End-to-End Coordination",
-        desc: "Interview scheduling, trials, and communication handled by our team.",
+        desc: "Interview scheduling and communication handled by our team.",
       },
       {
         icon: "bullseye",
@@ -582,33 +537,28 @@ export const PLANS = {
     accentLight: "#F9FAFB",
     borderColor: "#E5E7EB",
     badgeBg: "linear-gradient(135deg,#9CA3AF,#6B7280)",
-    timeline: "Profiles shared only after availability",
-    paymentNote: "No priority assigned to this request",
     recommended: false,
     inclusions: [
       {
         icon: "clock",
         label: "Delayed Profile Sharing",
-        desc: "Profiles are shared only after priority requests are fulfilled.",
+        desc: "Profiles shared only after priority requests are fulfilled.",
       },
       {
         icon: "users",
         label: "Limited Matches",
-        desc: "Fewer and less relevant profiles may be shared based on availability.",
+        desc: "Fewer profiles based on availability.",
       },
       {
         icon: "ban",
         label: "No Replacement Support",
-        desc: "No free replacements or dedicated assistance included.",
+        desc: "No free replacements or dedicated assistance.",
       },
     ],
     bonus: null,
   },
 };
 
-// ── SERVICE_FLOWS — "payment" step REMOVED from all flows.
-//    Priority plan now redirects to Cashfree externally from the plan step.
-//    Commitment and NoPay submit directly and land on "done".
 export const SERVICE_FLOWS = {
   "House Help": [
     "service",
@@ -692,7 +642,6 @@ export const SERVICE_FLOWS = {
 
 export const DEFAULT_FLOW = [
   "service",
-  "details",
   "urgency",
   "budget",
   "contact",
@@ -725,36 +674,50 @@ export const PROG_META = {
 };
 
 export const INIT = {
+  // Contact
   FirstName: "",
   LastName: "",
   Email: "",
   Phone: "",
+  PAN: "", // ← new
+  GST: "", // ← new
   Street: "",
   City: "",
   State: "",
   Pincode: "",
+  // Service
   ServiceType: "",
   ServiceLabel: "",
   ServiceFormat: "",
+  // House help
   Tasks: [],
   HouseSize: "",
   PeopleAtHome: 3,
   PetsAtHome: "",
   HomeType: "",
+  // Cook
   MealPref: "",
   MealsNeeded: [],
   CuisinePref: [],
+  // Babysitter
   ChildAge: "",
   ChildDuties: [],
+  // Elderly care
   PatientAge: "",
   PatientGender: "",
   CareNeeded: [],
+  // Driver
   VehicleType: [],
+  // House manager
   ManagerDuties: [],
   MultiServices: [],
+  // Common
   Budget: "",
   Urgency: "",
   Instructions: "",
+  // Plan
   PlanType: "",
   PaymentStatus: "",
+  PAN: "",
+  GST: "",
 };
