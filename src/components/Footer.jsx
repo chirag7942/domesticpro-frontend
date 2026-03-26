@@ -13,8 +13,8 @@ export default function Footer() {
             </h2>
 
             <p className="text-gray-300 text-sm leading-relaxed">
-              Hire verified baby caretaker, live-in support, cooking help,
-              drivers, patient care, on-demand and all-rounder Help with
+              Hire verified baby caretakers, live-in support, cooking help,
+              drivers, patient care and japa Help with
               confidence. Fast hiring. Background-checked professionals.
             </p>
 
@@ -77,10 +77,10 @@ export default function Footer() {
               </li>
               <li>
                 <Link
-                  to="all-rounder"
+                  to="japa"
                   className="hover:text-primary transition"
                 >
-                  All-Rounder Help
+                  Japa
                 </Link>
               </li>
             </ul>

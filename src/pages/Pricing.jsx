@@ -17,12 +17,12 @@ const CSS = `
 `;
 
 const tableRows = [
-  { feature: "Verified Profiles", connect: "1–2", care: "3", complete: "5" },
+  { feature: "Verified Profiles", connect: "5", care: "7", complete: "10" },
   { feature: "ID & Address Check", connect: true, care: true, complete: true },
   { feature: "Police Verification", connect: false, care: true, complete: true },
-  { feature: "Trial Period", connect: "7 Days", care: "7 Days", complete: "7 Days" },
-  { feature: "Replacement Window", connect: "10 Days", care: "10 Days", complete: "15 Days" },
-  { feature: "Replacement Guarantee", connect: false, care: false, complete: "30 Days" },
+  { feature: "Trial Period", connect: "7 Days", care: "10 Days", complete: "15 Days" },
+  { feature: "Free Lookup Period", connect: "5 Days", care: "7 Days", complete: "10 Days" },
+  { feature: "Replacement Window", connect: false, care: "1 Replacement", complete: "2 Replacements" },
   { feature: "Priority Matching", connect: false, care: false, complete: true },
   { feature: "Background & Reference", connect: false, care: false, complete: true },
   { feature: "Ongoing Support", connect: false, care: false, complete: true },
@@ -125,23 +125,29 @@ export default function PricingPage() {
                 </tbody>
               </table>
             </div>
-
-            {/* pricing row */}
-            <div className="grid grid-cols-4 border-x border-b border-borderLight rounded-b-2xl overflow-hidden -mt-px">
+            {/* available plan row */}
+            {/* <div className="grid grid-cols-4 border-x border-b border-borderLight rounded-b-2xl overflow-hidden -mt-px">
               <div className="p-4 bg-bgLight border-r border-borderLight flex items-center">
-                <span className="text-sm font-bold text-textDark">Price (+ GST)</span>
+                <span className="text-sm font-bold text-textDark">Available Plan</span>
               </div>
               {[
-                { price: "₹11,000", gst: "₹12,980 incl. GST" },
-                { price: "₹15,000", gst: "₹17,700 incl. GST" },
-                { price: "₹20,000", gst: "₹23,600 incl. GST", highlight: true },
+                { label: "Connect", tag: "Basic", tagColor: "bg-blue-50 text-blue-600 border-blue-200" },
+                { label: "Care", tag: "Standard", tagColor: "bg-amber-50 text-amber-600 border-amber-200" },
+                { label: "Complete", tag: "Recommended", tagColor: "bg-primary/10 text-primary border-primary/30", highlight: true },
               ].map((p, i) => (
-                <div key={i} className={`p-4 border-r border-borderLight last:border-r-0 text-center ${p.highlight ? "table-highlight-col" : "bg-white"}`}>
-                  <div className={`font-bold text-base ${p.highlight ? "text-primary" : "text-textDark"}`}>{p.price}</div>
-                  <div className="text-xs text-textLight mt-0.5">{p.gst}</div>
+                <div key={i} className={`p-4 border-r border-borderLight last:border-r-0 text-center flex flex-col items-center justify-center gap-2 ${p.highlight ? "table-highlight-col" : "bg-white"}`}>
+                  <button
+                    onClick={() => setIsModalOpen(true)}
+                    className={`text-xs font-bold px-4 py-1.5 rounded-lg transition-all duration-200 ${p.highlight
+                      ? "bg-primary text-white hover:bg-primaryHover shadow-sm hover:shadow-md"
+                      : "bg-bgLight text-textDark border border-borderLight hover:border-primary hover:text-primary"
+                      }`}
+                  >
+                    Get {p.label}
+                  </button>
                 </div>
               ))}
-            </div>
+            </div> */}
           </div>
         </section>
 

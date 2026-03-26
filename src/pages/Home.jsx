@@ -5,25 +5,26 @@ import PricingSection from "../components/PricingSection";
 import HowItWorks from "../components/HowItWorks";
 import { useNavigate } from "react-router-dom";
 import { ShieldCheck, Zap, RefreshCw, Headphones, ArrowRight, Check } from "lucide-react";
+import MatchedProfilesPreview from "../components/MatchedProfilesPreview";
 
 const WHY_CARDS = [
   {
-    icon: ShieldCheck,
+    image: "https://res.cloudinary.com/dto7bji6b/image/upload/v1774330222/unnamed_jn88vo.jpg",   // save your image here
     title: "Verified Staff",
     desc: "Every candidate undergoes strict background verification for your safety.",
   },
   {
-    icon: Zap,
+    image: "https://res.cloudinary.com/dto7bji6b/image/upload/v1774330704/clock_qplc39.png",
     title: "Fast Hiring",
     desc: "Get suitable staff within 24–48 hours based on your requirements.",
   },
   {
-    icon: RefreshCw,
+    image: "https://res.cloudinary.com/dto7bji6b/image/upload/v1774330769/New_housemaid_transition_in_home_setting_rdss8s.png",
     title: "Substitute Guarantee",
     desc: "Replacement staff provided instantly if your regular staff is unavailable.",
   },
   {
-    icon: Headphones,
+    image: "https://res.cloudinary.com/dto7bji6b/image/upload/v1774330874/ChatGPT_Image_Mar_24_2026_11_10_46_AM_hwbydu.png",
     title: "Dedicated Support",
     desc: "Our team assists you throughout hiring and after placement.",
   },
@@ -135,11 +136,18 @@ export default function Home() {
 
           {/* features grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-            {WHY_CARDS.map(({ icon: Icon, title, desc }) => (
-              <div key={title}
-                className="bg-bgLight border border-borderLight rounded-2xl p-6 text-center hover:border-primary hover:shadow-[0_8px_32px_rgba(236,95,54,0.10)] transition-all duration-300 group">
-                <div className="w-14 h-14 bg-primary/10 text-primary flex items-center justify-center rounded-full mx-auto mb-4 group-hover:bg-primary transition-colors duration-300">
-                  <Icon size={22} className="text-primary group-hover:text-white transition-colors duration-300" strokeWidth={2} />
+            {WHY_CARDS.map(({ image, title, desc }) => (
+              <div
+                key={title}
+                className="bg-bgLight border border-borderLight rounded-2xl p-6 text-center hover:border-primary hover:shadow-[0_8px_32px_rgba(236,95,54,0.10)] transition-all duration-300 group"
+              >
+                {/* image circle */}
+                <div className="w-20 h-20 rounded-full overflow-hidden mx-auto mb-4 border-2 border-borderLight group-hover:border-primary transition-colors duration-300">
+                  <img
+                    src={image}
+                    alt={title}
+                    className="w-full h-full object-cover"
+                  />
                 </div>
                 <h3 className="font-bold text-textDark text-base mb-2">{title}</h3>
                 <p className="text-textLight text-sm leading-relaxed">{desc}</p>
@@ -174,30 +182,7 @@ export default function Home() {
       {/* ── TESTIMONIALS ── */}
       <TestimonialCarousel />
 
-      {/* ── IMPORTANT TERMS ── */}
-      <section className="bg-white border-t border-borderLight">
-        <div className="max-w-5xl mx-auto px-6 py-20 scroll-section">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-textDark mb-3">
-              Please Read Before Booking
-            </h2>
-            <p className="text-textLight max-w-2xl mx-auto">
-              Transparent service terms to ensure clarity, trust, and smooth hiring.
-            </p>
-          </div>
-
-          <div className="bg-bgLight border border-borderLight rounded-3xl p-8 md:p-10 space-y-5">
-            {TERMS.map((term, i) => (
-              <div key={i} className="flex gap-4 items-start group">
-                <div className="w-9 h-9 bg-primary/10 border border-primary/20 text-primary rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0 group-hover:bg-primary group-hover:text-white group-hover:border-primary transition-colors duration-200">
-                  {i + 1}
-                </div>
-                <p className="text-sm text-textLight leading-relaxed pt-1.5">{term.text}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      <MatchedProfilesPreview />
 
       {/* ── CTA ── */}
       <section style={{ background: "linear-gradient(135deg, #EC5F36 0%, #C94520 100%)" }}>

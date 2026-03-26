@@ -26,53 +26,46 @@ const CDN = "https://res.cloudinary.com/dhtzknkdr/image/upload";
 
 export const SERVICES = [
   {
-    id: "House Help",
-    label: "House Help",
-    image: `${CDN}/v1773034357/househelp_wsuqby.png`,
-    color: "#4F9EF8",
-    emoji: "🏠",
+    id: "Live-in Support",
+    label: "Live-in Support",
+    image: `${CDN}/v1773034359/house-manager_by4krx.png`,
+    color: "#FBBF24",
+    emoji: "🏡",
   },
   {
-    id: "Cook",
-    label: "Cook",
-    image: `${CDN}/v1773034353/cook_aa2ex7.png`,
-    color: "#F87C4F",
-    emoji: "👨‍🍳",
-  },
-  {
-    id: "Babysitter",
-    label: "Babysitter",
+    id: "Baby Caretaker",
+    label: "Baby Caretaker",
     image: `${CDN}/v1773034351/baby-caretaker_qtcpvn.png`,
     color: "#A78BFA",
     emoji: "👶",
   },
   {
-    id: "Elderly Care",
-    label: "Elderly Care",
+    id: "Japa",
+    label: "Japa",
+    image: `${CDN}/v1773034351/japa_kjbqeu.png`,
+    color: "#F472B6",
+    emoji: "🤱",
+  },
+  {
+    id: "Cooking Help",
+    label: "Cooking Help",
+    image: `${CDN}/v1773034353/cook_aa2ex7.png`,
+    color: "#F87C4F",
+    emoji: "👨‍🍳",
+  },
+  {
+    id: "Patient Care",
+    label: "Patient Care",
     image: `${CDN}/v1773034355/elderly-household_mt1b8o.png`,
     color: "#F87FAC",
     emoji: "🧓",
   },
   {
     id: "Driver",
-    label: "Driver",
+    label: "Drivers",
     image: `${CDN}/v1773034355/driver_efye54.png`,
     color: "#34D399",
     emoji: "🚗",
-  },
-  {
-    id: "House Manager",
-    label: "House Manager",
-    image: `${CDN}/v1773034359/house-manager_by4krx.png`,
-    color: "#FBBF24",
-    emoji: "📋",
-  },
-  {
-    id: "Multiple Services",
-    label: "Multiple Services",
-    image: `${CDN}/v1773034365/multiple-services_ja2pbu.png`,
-    color: "#EC5F36",
-    emoji: "✨",
   },
 ];
 
@@ -296,44 +289,6 @@ export const VEHICLE_TYPES = [
   { id: "Sedan", label: "Sedan", image: `${CDN}/v1773038639/sedan_q1xmlm.png` },
 ];
 
-export const MANAGER_DUTIES = [
-  {
-    id: "Oversee help",
-    label: "Oversee help",
-    image: `${CDN}/v1773038455/oversees_xfxlru.png`,
-  },
-  {
-    id: "Household Purchases",
-    label: "Household Purchases",
-    image: `${CDN}/v1773038449/householdPurchases_lc4bgs.png`,
-  },
-  {
-    id: "Groceries & Inventory",
-    label: "Groceries & Inventory",
-    image: `${CDN}/v1773038425/grocery_yv1iqg.png`,
-  },
-  {
-    id: "Supervise Maintenance",
-    label: "Supervise Maintenance",
-    image: `${CDN}/v1773038453/maintenence_kbyfbt.png`,
-  },
-  {
-    id: "Guest Management",
-    label: "Guest Management",
-    image: `${CDN}/v1773038428/guest_tm7kc8.png`,
-  },
-  {
-    id: "Cooking Oversight",
-    label: "Cooking Oversight",
-    image: `${CDN}/v1773038424/cookingOversight_bonbic.png`,
-  },
-  {
-    id: "Vendor Coordination",
-    label: "Vendor Coordination",
-    image: `${CDN}/v1773038457/vendor_pyxn9t.png`,
-  },
-];
-
 export const HOME_TYPES = [
   {
     id: "Apartment",
@@ -346,35 +301,6 @@ export const HOME_TYPES = [
     image: `${CDN}/v1773038451/individual_k0ko1y.png`,
   },
   { id: "Villa", label: "Villa", image: `${CDN}/v1773038464/villa_z0apwp.png` },
-];
-
-export const MULTI_SERVICES = [
-  {
-    id: "House Help",
-    label: "House Help",
-    image: `${CDN}/v1773034357/househelp_wsuqby.png`,
-  },
-  { id: "Cook", label: "Cook", image: `${CDN}/v1773034353/cook_aa2ex7.png` },
-  {
-    id: "Babysitter",
-    label: "Babysitter",
-    image: `${CDN}/v1773034351/baby-caretaker_qtcpvn.png`,
-  },
-  {
-    id: "Elderly Care",
-    label: "Elderly Care",
-    image: `${CDN}/v1773034355/elderly-household_mt1b8o.png`,
-  },
-  {
-    id: "Driver",
-    label: "Driver",
-    image: `${CDN}/v1773034355/driver_efye54.png`,
-  },
-  {
-    id: "House Manager",
-    label: "House Manager",
-    image: `${CDN}/v1773034359/house-manager_by4krx.png`,
-  },
 ];
 
 export const BUDGETS = [
@@ -395,12 +321,11 @@ export const BUDGETS = [
   },
 ];
 
+// FIX: cleaned up — no unused label/badge fields
 export const SUBSTITUTE_BUDGETS = [
   {
     id: "sub-5k",
-    label: "₹5,000",
-    desc: "Standard substitute placement — fixed rate",
-    badge: "Fixed Rate",
+    desc: "One-time placement fee. Helper salary is separate.",
   },
 ];
 
@@ -428,14 +353,71 @@ export const URGENCY_OPTIONS = [
   },
 ];
 
+// ── JAPA ─────────────────────────────────────────────────────────────────────
+// What the Japa maid does FOR THE NEWBORN
+export const JAPA_DUTIES = [
+  {
+    id: "Newborn Bath",
+    label: "Newborn Bath",
+    image: `${CDN}/v1773038057/bathing_bykrvq.png`,
+  },
+  {
+    id: "Feeding Support",
+    label: "Feeding Support",
+    image: `${CDN}/v1773038057/feeding_kvsvwk.png`,
+  },
+  {
+    id: "Swaddling",
+    label: "Swaddling",
+    image: `${CDN}/v1773038061/Swaddling_ce8kdn.png`,
+  },
+  {
+    id: "Night Watch",
+    label: "Night Watch",
+    image: `${CDN}/v1773038061/sleeping_uk5vqm.png`,
+  },
+  { id: "Other", label: "Other", image: `${CDN}/v1773034370/other_s1pon0.png` },
+];
+
+// What the Japa maid does FOR THE MOTHER
+export const JAPA_MOTHER_NEEDS = [
+  {
+    id: "Body Massage",
+    label: "Body Massage",
+    image: `${CDN}/v1773038315/body-massage_spvlzz`,
+  },
+  {
+    id: "Diet & Nutrition",
+    label: "Diet & Nutrition",
+    image: `${CDN}/v1773038424/cookingOversight_bonbic.png`,
+  },
+  {
+    id: "Light Cooking",
+    label: "Light Cooking",
+    image: `${CDN}/v1773037719/light-cooking_bs02ym.png`,
+  },
+  {
+    id: "Night Support",
+    label: "Night Support",
+    image: `${CDN}/v1773038061/night-support_sqnjvw.png`,
+  },
+  {
+    id: "Personal Hygiene",
+    label: "Personal Hygiene",
+    image: `${CDN}/v1773038311/personal-hygiene_ynuc3c.png`,
+  },
+  { id: "Other", label: "Other", image: `${CDN}/v1773034370/other_s1pon0.png` },
+];
+
+// ── PLANS ─────────────────────────────────────────────────────────────────────
 export const PLANS = {
   priority: {
     id: "priority",
     name: "Priority Pay",
     tag: "Fast-Track Hiring",
     subtitle: "Pay Before Trial",
-    amount: 3000,
-    gst: Math.round(3000 * 0.18),
+    amount: 1,
+    gst: 0,
     color: "#EC5F36",
     accentLight: "#FFF7F4",
     borderColor: "#F5D8CF",
@@ -559,8 +541,10 @@ export const PLANS = {
   },
 };
 
+// ── SERVICE FLOWS ─────────────────────────────────────────────────────────────
+// NOTE: All keys must exactly match SERVICES[].id (case-sensitive)
 export const SERVICE_FLOWS = {
-  "House Help": [
+  "Live-in Support": [
     "service",
     "format",
     "tasks",
@@ -572,7 +556,7 @@ export const SERVICE_FLOWS = {
     "plan",
     "done",
   ],
-  Cook: [
+  "Cooking Help": [
     "service",
     "format",
     "mealpref",
@@ -584,7 +568,7 @@ export const SERVICE_FLOWS = {
     "plan",
     "done",
   ],
-  Babysitter: [
+  "Baby Caretaker": [
     "service",
     "format",
     "childage",
@@ -595,7 +579,19 @@ export const SERVICE_FLOWS = {
     "plan",
     "done",
   ],
-  "Elderly Care": [
+  Japa: [
+    "service",
+    "format",
+    "japanewbornage",
+    "japaduties",
+    "japamotherneeds",
+    "budget",
+    "urgency",
+    "contact",
+    "plan",
+    "done",
+  ],
+  "Patient Care": [
     "service",
     "format",
     "patientage",
@@ -611,27 +607,6 @@ export const SERVICE_FLOWS = {
     "service",
     "format",
     "vehicletype",
-    "budget",
-    "urgency",
-    "contact",
-    "plan",
-    "done",
-  ],
-  "House Manager": [
-    "service",
-    "format",
-    "managerduties",
-    "hometype",
-    "budget",
-    "urgency",
-    "contact",
-    "plan",
-    "done",
-  ],
-  "Multiple Services": [
-    "service",
-    "format",
-    "multiservices",
     "budget",
     "urgency",
     "contact",
@@ -664,32 +639,32 @@ export const PROG_META = {
   patientgender: { label: "Gender", icon: UserCheck },
   careneeded: { label: "Care", icon: HandHeart },
   vehicletype: { label: "Vehicle", icon: Car },
-  managerduties: { label: "Duties", icon: ClipboardList },
   hometype: { label: "Home", icon: Home },
   multiservices: { label: "Services", icon: Sparkles },
   urgency: { label: "Urgency", icon: Zap },
   budget: { label: "Budget", icon: DollarSign },
   contact: { label: "Contact", icon: Phone },
   plan: { label: "Plan", icon: CreditCard },
+  // Japa
+  japanewbornage: { label: "Baby Age", icon: Baby },
+  japaduties: { label: "Duties", icon: HandHeart },
+  japamotherneeds: { label: "Mother", icon: HeartPulse },
 };
 
+// ── INIT ──────────────────────────────────────────────────────────────────────
 export const INIT = {
   // Contact
   FirstName: "",
   LastName: "",
   Email: "",
   Phone: "",
-  PAN: "", // ← new
-  GST: "", // ← new
   Street: "",
   City: "",
-  State: "",
-  Pincode: "",
   // Service
   ServiceType: "",
   ServiceLabel: "",
   ServiceFormat: "",
-  // House help
+  // Live-in
   Tasks: [],
   HouseSize: "",
   PeopleAtHome: 3,
@@ -699,18 +674,19 @@ export const INIT = {
   MealPref: "",
   MealsNeeded: [],
   CuisinePref: [],
-  // Babysitter
+  // Baby Caretaker
   ChildAge: "",
   ChildDuties: [],
-  // Elderly care
+  // Japa
+  JapaNewbornAge: "",
+  JapaDuties: [],
+  JapaMotherNeeds: [],
+  // Patient Care
   PatientAge: "",
   PatientGender: "",
   CareNeeded: [],
   // Driver
   VehicleType: [],
-  // House manager
-  ManagerDuties: [],
-  MultiServices: [],
   // Common
   Budget: "",
   Urgency: "",
@@ -718,6 +694,4 @@ export const INIT = {
   // Plan
   PlanType: "",
   PaymentStatus: "",
-  PAN: "",
-  GST: "",
 };

@@ -353,7 +353,7 @@ export default function PrivacyPolicy() {
                   <p className="text-sm text-textLight mb-1">
                     <strong className="text-textDark">Response Time:</strong> We aim to respond to all privacy queries within <strong className="text-textDark">2 business days.</strong>
                   </p>
-                  <p className="text-xs text-textLight">Working Hours: Mon–Fri 9am–8pm · Sat 9am–6pm · Sun 10am–3pm</p>
+                  <p className="text-xs text-textLight">Working Hours: Mon–Fri 9am–8pm · Sat 9am–6pm</p>
                 </div>
               </section>
 

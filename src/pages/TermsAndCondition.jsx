@@ -109,7 +109,7 @@ export default function TermsAndCondition() {
         {/* ── HERO ── */}
         <section className="relative h-[75vh] md:h-[85vh] flex items-center justify-center">
           <div className="absolute inset-0 bg-cover bg-center"
-            style={{ backgroundImage: `url(https://res.cloudinary.com/dhtzknkdr/image/upload/v1773031911/term_Condition_ak3ux1.png)` }} />
+            style={{ backgroundImage: `url(https://res.cloudinary.com/dto7bji6b/image/upload/v1774429745/terma_and_conditions_oneo24.jpg)` }} />
           <div className="absolute inset-0 bg-black/80" />
           <div className="relative z-10 text-center px-5 max-w-4xl mx-auto">
             <h1 className="text-[clamp(32px,5vw,52px)] font-extrabold text-white leading-tight mb-4">

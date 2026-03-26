@@ -31,7 +31,7 @@ const PLAN_CONFIG = {
     successSub: "Your Priority request is now active. We're fast-tracking your requirement.",
     steps: [
       { dot: "bg-primary", label: "Our team reviews your requirement immediately" },
-      { dot: "bg-primary/60", label: "5 verified profiles shortlisted" },
+      { dot: "bg-primary/60", label: "3 verified profiles shortlisted" },
       { dot: "bg-primary/30", label: "Profiles shared within 24 hours" },
     ],
     badge: <><FontAwesomeIcon icon={faBolt} style={{ marginRight: 5 }} />Priority Plan — Active</>,
@@ -46,8 +46,8 @@ const PLAN_CONFIG = {
     successSub: "Your Commitment plan is active. We'll begin shortlisting your profiles.",
     steps: [
       { dot: "bg-blue-500", label: "Our team reviews your requirement" },
-      { dot: "bg-blue-400", label: "Profiles curated based on your needs" },
-      { dot: "bg-blue-300", label: "Profiles shared within 3 working days" },
+      { dot: "bg-blue-400", label: "2 verified profiles shortlisted" },
+      { dot: "bg-blue-300", label: "Profiles shared within 2 working days" },
     ],
     badge: <><FontAwesomeIcon icon={faCalendarCheck} style={{ marginRight: 5 }} />Commitment Plan — Active</>,
   },

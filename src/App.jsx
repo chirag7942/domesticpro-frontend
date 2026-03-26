@@ -17,7 +17,8 @@ import PaymentStatus from "./pages/PaymentStatus";
 
 const Home = lazy(() => import("./pages/Home"));
 const AboutUs = lazy(() => import("./pages/AboutUs"));
-const Referrals = lazy(() => import("./pages/Referrals"));
+const ReferHelper = lazy(() => import("./pages/ReferAHelper"));
+const ReferHousehold = lazy(() => import("./pages/ReferAHousehold"));
 const Pricing = lazy(() => import("./pages/Pricing"));
 const ContectNow = lazy(() => import("./pages/ContectNow"));
 
@@ -27,8 +28,6 @@ const Driver = lazy(() => import("./pages/products/Driver"));
 const HouseHelp = lazy(() => import("./pages/products/HouseHelp"));
 const PatientCare = lazy(() => import("./pages/products/PatientCare"));
 const Japa = lazy(() => import("./pages/products/Japa"));
-const OnDemand = lazy(() => import("./pages/products/OnDemand"));
-const AllRounder = lazy(() => import("./pages/products/AllRounder"));
 
 const TermstAndCondition = lazy(() => import("./pages/TermsAndCondition"));
 const RefundPolicy = lazy(() => import("./pages/RefundPolicy"));
@@ -41,10 +40,9 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 const routes = [
   { path: "/", element: <Home /> },
   { path: "/about", element: <AboutUs /> },
-  { path: "/refer", element: <Referrals /> },
+  { path: "/refer-a-helper", element: <ReferHelper /> },
+  { path: "/refer-a-household", element: <ReferHousehold /> },
   { path: "/pricing", element: <Pricing /> },
-  { path: "/on-demand", element: <OnDemand /> },
-  { path: "/all-rounder", element: <AllRounder /> },
   { path: "/contact", element: <ContectNow /> },
   { path: "/baby-caretaker", element: <Nanny /> },
   { path: "/cooking-help", element: <Cook /> },

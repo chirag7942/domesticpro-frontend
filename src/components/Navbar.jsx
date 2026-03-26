@@ -14,17 +14,24 @@ import {
   Stethoscope,
   Clock,
   Car,
+  UserPlus,
+  Users
 } from "lucide-react";
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
   const [servicesOpen, setServicesOpen] = useState(false);
+  const [referOpen, setReferOpen] = useState(false);
 
   const toggleMenu = () => {
     setOpen(!open);
   };
   const closeServices = () => {
     setServicesOpen(false);
+  };
+
+  const closeRefer = () => {
+    setReferOpen(false);
   };
 
   return (
@@ -112,13 +119,13 @@ export default function Navbar() {
               {/* DROPDOWN MENU */}
               <div
                 className={`absolute left-0 mt-3 w-56 bg-white rounded-xl shadow-xl border border-borderLight transition-all duration-200 ${servicesOpen
-                    ? "opacity-100 visible translate-y-0"
-                    : "opacity-0 invisible -translate-y-2"
+                  ? "opacity-100 visible translate-y-0"
+                  : "opacity-0 invisible -translate-y-2"
                   }`}
               >
                 <div className="flex flex-col py-3 text-sm">
                   <NavLink
-                    to="/all-rounder"
+                    to="/live-in-support"
                     onClick={closeServices}
                     className={({ isActive }) =>
                       `px-4 py-2 transition-all duration-300 
@@ -130,11 +137,11 @@ export default function Navbar() {
                       }`
                     }
                   >
-                    <Home
+                    <BedDouble
                       size={16}
                       className="transition-colors duration-300 group-hover:text-primary"
                     />
-                    All-rounder Help
+                    Live-in Support
                   </NavLink>
 
                   <NavLink
@@ -198,26 +205,6 @@ export default function Navbar() {
                   </NavLink>
 
                   <NavLink
-                    to="/live-in-support"
-                    onClick={closeServices}
-                    className={({ isActive }) =>
-                      `px-4 py-2 transition-all duration-300 
-         hover:bg-bgLight hover:scale-105 hover:shadow-md 
-         mx-2 rounded-lg flex items-center gap-2 group
-         ${isActive
-                        ? "text-primary font-semibold bg-bgLight"
-                        : "hover:text-primary"
-                      }`
-                    }
-                  >
-                    <BedDouble
-                      size={16}
-                      className="transition-colors duration-300 group-hover:text-primary"
-                    />
-                    Live-in Support
-                  </NavLink>
-
-                  <NavLink
                     to="/patient-care"
                     onClick={closeServices}
                     className={({ isActive }) =>
@@ -235,26 +222,6 @@ export default function Navbar() {
                       className="transition-colors duration-300 group-hover:text-primary"
                     />
                     Patient Care
-                  </NavLink>
-
-                  <NavLink
-                    to="/on-demand"
-                    onClick={closeServices}
-                    className={({ isActive }) =>
-                      `px-4 py-2 transition-all duration-300 
-         hover:bg-bgLight hover:scale-105 hover:shadow-md 
-         mx-2 rounded-lg flex items-center gap-2 group
-         ${isActive
-                        ? "text-primary font-semibold bg-bgLight"
-                        : "hover:text-primary"
-                      }`
-                    }
-                  >
-                    <Clock
-                      size={16}
-                      className="transition-colors duration-300 group-hover:text-primary"
-                    />
-                    On Demand
                   </NavLink>
 
                   <NavLink
@@ -280,15 +247,53 @@ export default function Navbar() {
               </div>
             </div>
 
-            <NavLink
-              to="/refer"
-              className={({ isActive }) =>
-                `hover:text-primary transition-colors duration-200 ${isActive ? "text-primary font-semibold" : ""
-                }`
-              }
+            {/* REFER DROPDOWN */}
+            <div
+              className="relative"
+              onMouseEnter={() => setReferOpen(true)}
+              onMouseLeave={() => setReferOpen(false)}
             >
-              Refer Us
-            </NavLink>
+              <button className="hover:text-primary transition-colors duration-200 font-medium">
+                Refer Us
+              </button>
+
+              <div
+                className={`absolute left-0 mt-3 w-52 bg-white rounded-xl shadow-xl border border-borderLight transition-all duration-200 ${referOpen
+                  ? "opacity-100 visible translate-y-0"
+                  : "opacity-0 invisible -translate-y-2"
+                  }`}
+              >
+                <div className="flex flex-col py-3 text-sm">
+                  <NavLink
+                    to="/refer-a-helper"
+                    onClick={closeRefer}
+                    className={({ isActive }) =>
+                      `px-4 py-2 transition-all duration-300 
+         hover:bg-bgLight hover:scale-105 hover:shadow-md 
+         mx-2 rounded-lg flex items-center gap-2 group
+         ${isActive ? "text-primary font-semibold bg-bgLight" : "hover:text-primary"}`
+                    }
+                  >
+                    <UserPlus size={16} className="transition-colors duration-300 group-hover:text-primary" />
+                    Refer a Helper
+                  </NavLink>
+
+                  <NavLink
+                    to="/refer-a-household"
+                    onClick={closeRefer}
+                    className={({ isActive }) =>
+                      `px-4 py-2 transition-all duration-300 
+         hover:bg-bgLight hover:scale-105 hover:shadow-md 
+         mx-2 rounded-lg flex items-center gap-2 group
+         ${isActive ? "text-primary font-semibold bg-bgLight" : "hover:text-primary"}`
+                    }
+                  >
+                    <Users size={16} className="transition-colors duration-300 group-hover:text-primary" />
+                    Refer a Household
+                  </NavLink>
+                </div>
+              </div>
+            </div>
 
             <NavLink
               to="/pricing"
@@ -388,7 +393,7 @@ export default function Navbar() {
                 {servicesOpen && (
                   <div className="ml-4 mt-3 flex flex-col space-y-3 text-sm">
                     <NavLink
-                      to="/all-rounder"
+                      to="/live-in-support"
                       onClick={() => setOpen(false)}
                       className={({ isActive }) =>
                         `flex items-center gap-2 transition-colors duration-300 ${isActive
@@ -397,8 +402,8 @@ export default function Navbar() {
                         }`
                       }
                     >
-                      <Home size={16} />
-                      All-rounder Help
+                      <BedDouble size={16} />
+                      Live-in Support
                     </NavLink>
 
                     <NavLink
@@ -444,20 +449,6 @@ export default function Navbar() {
                     </NavLink>
 
                     <NavLink
-                      to="/live-in-support"
-                      onClick={() => setOpen(false)}
-                      className={({ isActive }) =>
-                        `flex items-center gap-2 transition-colors duration-300 ${isActive
-                          ? "text-primary font-semibold"
-                          : "hover:text-primary"
-                        }`
-                      }
-                    >
-                      <BedDouble size={16} />
-                      Live-in Support
-                    </NavLink>
-
-                    <NavLink
                       to="/patient-care"
                       onClick={() => setOpen(false)}
                       className={({ isActive }) =>
@@ -469,20 +460,6 @@ export default function Navbar() {
                     >
                       <Stethoscope size={16} />
                       Patient Care
-                    </NavLink>
-
-                    <NavLink
-                      to="/on-demand"
-                      onClick={() => setOpen(false)}
-                      className={({ isActive }) =>
-                        `flex items-center gap-2 transition-colors duration-300 ${isActive
-                          ? "text-primary font-semibold"
-                          : "hover:text-primary"
-                        }`
-                      }
-                    >
-                      <Clock size={16} />
-                      On Demand
                     </NavLink>
 
                     <NavLink
@@ -502,13 +479,39 @@ export default function Navbar() {
                 )}
               </div>
 
-              <NavLink
-                to="/refer"
-                onClick={() => setOpen(false)}
-                className="flex items-center gap-2 group hover:text-primary transition-colors duration-300"
-              >
-                Refer Us
-              </NavLink>
+
+              {/* MOBILE REFER */}
+              <div>
+                <button
+                  onClick={() => setReferOpen(!referOpen)}
+                  className="w-full text-left flex items-center gap-2 hover:text-primary transition-colors duration-300"
+                >
+                  Refer Us
+                </button>
+
+                {referOpen && (
+                  <div className="ml-4 mt-3 flex flex-col space-y-3 text-sm">
+                    <NavLink
+                      to="/refer-a-helper"
+                      onClick={() => setOpen(false)}
+                      className={({ isActive }) =>
+                        `flex items-center gap-2 transition-colors duration-300 ${isActive ? "text-primary font-semibold" : "hover:text-primary"}`
+                      }
+                    >
+                      <UserPlus size={16} /> Refer a Helper
+                    </NavLink>
+                    <NavLink
+                      to="/refer-a-household"
+                      onClick={() => setOpen(false)}
+                      className={({ isActive }) =>
+                        `flex items-center gap-2 transition-colors duration-300 ${isActive ? "text-primary font-semibold" : "hover:text-primary"}`
+                      }
+                    >
+                      <Users size={16} /> Refer a Household
+                    </NavLink>
+                  </div>
+                )}
+              </div>
 
               <NavLink
                 to="/pricing"

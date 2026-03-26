@@ -4,7 +4,18 @@ import HeroWizard from "../../components/HeroWizard";
 const Nanny = () => {
   const [modalType, setModalType] = useState(null);
 
-  const openModal = (type) => setModalType(type);
+  const [modalConfig, setModalConfig] = useState({ service: null, format: null });
+
+  const openModal = (type) => {
+    if (type === "livein") {
+      setModalConfig({ service: "Baby Caretaker", format: "Live-In" });
+    } else if (type === "substitute") {
+      setModalConfig({ service: "Baby Caretaker", format: "Substitute" });
+    } else {
+      setModalConfig({ service: "Baby Caretaker", format: null });
+    }
+    setModalType(type);
+  };
 
   useEffect(() => {
     const sections = document.querySelectorAll(".scroll-section");
@@ -205,7 +216,7 @@ const Nanny = () => {
               </ul>
 
               <button
-                onClick={() => openModal("liveinNanny")}
+                onClick={() => openModal("livein")}
                 className="relative z-10 bg-primary hover:bg-primaryHover text-white px-6 py-3 rounded-xl font-semibold transition"
               >
                 Hire Full-Time Baby Caretaker
@@ -262,7 +273,7 @@ const Nanny = () => {
               </ul>
 
               <button
-                onClick={() => openModal("substituteNanny")}
+                onClick={() => openModal("substitute")}
                 className="relative z-10 bg-primary hover:bg-primaryHover text-white px-6 py-3 rounded-xl font-semibold transition"
               >
                 Request Substitute Baby Caretaker
@@ -763,8 +774,10 @@ const Nanny = () => {
 
       <HeroWizard
         asModal
-        isOpen={modalType}
-        onClose={() => setModalType(false)}
+        isOpen={!!modalType}
+        onClose={() => setModalType(null)}
+        initialService={modalConfig.service}
+        initialFormat={modalConfig.format}
       />
     </>
   );

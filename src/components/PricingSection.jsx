@@ -24,13 +24,14 @@ const plans = [
     price: 11000,
     gstPrice: 12980,
     tagline: "Structured support to help you hire verified domestic help.",
-    profiles: "1–2 verified profiles",
+    profiles: "5 verified profiles",
     icon: Zap,
+    badge: "🚀 Most Popular & Quickest",
     features: [
       "Requirement understanding (role, hours, expectations)",
       "ID & address verification",
       "7-day trial period",
-      "10-day replacement search window",
+      "5-day free lookup period",
       "Profile finalization assistance (Audio/Video interview)",
       "One-time placement support",
     ],
@@ -41,10 +42,13 @@ const plans = [
     price: 15000,
     gstPrice: 17700,
     tagline: "Enhanced verification and screening for added confidence.",
-    profiles: "3 verified profiles",
+    profiles: "7 verified profiles",
     icon: Shield,
     features: [
       "Includes everything in Connect",
+      "10-day trial period",
+      "7-day free lookup period",
+      "1 Replacement in 11 months",
       "Police verification",
       "Enhanced screening review",
     ],
@@ -55,12 +59,13 @@ const plans = [
     price: 20000,
     gstPrice: 23600,
     tagline: "End-to-end protection with priority support.",
-    profiles: "5 verified profiles",
+    profiles: "10 verified profiles",
     icon: Star,
     features: [
       "Includes everything in Care",
-      "15-day replacement search window",
-      "30-day replacement guarantee",
+      "15-day trial period",
+      "10-day free lookup period",
+      "2 Replacement in 11 months",
       "Priority matching",
       "Detailed background & reference verification",
       "Ongoing support & mediation",
@@ -120,10 +125,17 @@ export default function PricingSection() {
                     }`}
                   style={{ minHeight: 680 }}
                 >
-                  {/* Most recommended badge */}
+                  {/* Recommended badge for Complete */}
                   {plan.highlighted && (
                     <div className="badge-gradient absolute -top-4 left-1/2 -translate-x-1/2 text-white text-xs font-bold tracking-widest px-5 py-1.5 rounded-full uppercase whitespace-nowrap shadow-[0_4px_14px_rgba(236,95,54,0.40)]">
-                      ⭐ Most Recommended
+                      ⭐ Recommended
+                    </div>
+                  )}
+
+                  {/* Most Popular & Quickest badge for Connect */}
+                  {plan.badge && !plan.highlighted && (
+                    <div className="badge-gradient absolute -top-4 left-1/2 -translate-x-1/2 text-white text-xs font-bold tracking-widest px-5 py-1.5 rounded-full uppercase whitespace-nowrap shadow-[0_4px_14px_rgba(236,95,54,0.40)]">
+                      {plan.badge}
                     </div>
                   )}
 
@@ -149,9 +161,6 @@ export default function PricingSection() {
                       </span>
                       <span className="text-sm text-textLight mb-1">+ GST</span>
                     </div>
-                    <p className="text-xs text-textLight mt-1">
-                      ₹{plan.gstPrice.toLocaleString()} incl. GST
-                    </p>
                   </div>
 
                   <div className="border-t border-borderLight mb-5" />

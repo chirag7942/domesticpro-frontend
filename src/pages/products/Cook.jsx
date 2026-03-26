@@ -4,7 +4,18 @@ import HeroWizard from "../../components/HeroWizard";
 const Cook = () => {
   const [modalType, setModalType] = useState(null);
 
-  const openModal = (type) => setModalType(type);
+  const [modalConfig, setModalConfig] = useState({ service: null, format: null });
+
+  const openModal = (type) => {
+    if (type === "livein") {
+      setModalConfig({ service: "Cooking Help", format: "Live-In" });
+    } else if (type === "substitute") {
+      setModalConfig({ service: "Cooking Help", format: "Substitute" });
+    } else {
+      setModalConfig({ service: "Cooking Help", format: null });
+    }
+    setModalType(type);
+  };
 
   useEffect(() => {
     const sections = document.querySelectorAll(".scroll-section");
@@ -82,7 +93,7 @@ const Cook = () => {
 
             <div className="flex flex-wrap gap-4">
               <button
-                onClick={() => openModal("general")}
+                onClick={() => openModal("cook")}
                 className="bg-primary hover:bg-primaryHover text-white px-6 py-3 rounded-xl font-semibold transition duration-300 shadow-md"
               >
                 Hire Now
@@ -165,7 +176,7 @@ hover:shadow-2xl transition-all duration-500 overflow-hidden transform scale-105
               </ul>
 
               <button
-                onClick={() => openModal("liveinCook")}
+                onClick={() => openModal("livein")}
                 className="relative z-10 bg-primary hover:bg-primaryHover text-white px-6 py-3 rounded-xl font-semibold transition"
               >
                 Hire Full-Time Cook
@@ -218,7 +229,7 @@ hover:shadow-2xl transition-all duration-500 overflow-hidden transform scale-105
               </ul>
 
               <button
-                onClick={() => openModal("substituteCook")}
+                onClick={() => openModal("substitute")}
                 className="relative z-10 bg-primary hover:bg-primaryHover text-white px-6 py-3 rounded-xl font-semibold transition"
               >
                 Request Substitute Cook
@@ -726,8 +737,10 @@ hover:shadow-2xl transition-all duration-500 overflow-hidden transform scale-105
       {/* HIRE MODAL */}
       <HeroWizard
         asModal
-        isOpen={modalType}
-        onClose={() => setModalType(false)}
+        isOpen={!!modalType}
+        onClose={() => setModalType(null)}
+        initialService={modalConfig.service}
+        initialFormat={modalConfig.format}
       />
     </>
   );

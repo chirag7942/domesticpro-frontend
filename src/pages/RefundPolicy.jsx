@@ -273,36 +273,120 @@ export default function RefundPolicy() {
 
               <div className="grid md:grid-cols-3 gap-6 mt-8">
                 {[
-                  { name: "Connect", emoji: "⚡", price: "₹11,000", gst: "₹12,980", profiles: "1–2 verified profiles", features: ["Requirement understanding (role, hours, expectations)", "ID & address verification", "7-day trial period", "10-day replacement search window", "Profile finalization assistance", "One-time placement support"], highlighted: false },
-                  { name: "Care", emoji: "🛡️", price: "₹15,000", gst: "₹17,700", profiles: "3 verified profiles", features: ["Includes everything in Connect", "Police verification", "Enhanced screening review"], highlighted: false },
-                  { name: "Complete", emoji: "⭐", price: "₹20,000", gst: "₹23,600", profiles: "5 verified profiles", features: ["Includes everything in Care", "15-day replacement search window", "30-day replacement guarantee", "Priority matching", "Detailed background & reference verification", "Ongoing support & mediation", "Periodic check-ins (30 / 60 days)", "Role upgrade support"], highlighted: true },
+                  {
+                    name: "Connect",
+                    emoji: "⚡",
+                    subtitle: "Structured support to help you hire verified domestic help.",
+                    price: "₹11,000",
+                    profiles: "6 verified profiles",
+                    badge: { label: "★ Most Popular & Quickest", style: "bg-primary text-white" },
+                    features: [
+                      "Requirement understanding (role, hours, expectations)",
+                      "ID & address verification",
+                      "7-day trial period",
+                      "5-day free lookup period",
+                      "Profile finalization assistance (Audio/Video interview)",
+                      "One-time placement support",
+                    ],
+                    highlighted: false,
+                  },
+                  {
+                    name: "Care",
+                    emoji: "🛡️",
+                    subtitle: "Enhanced verification and screening for added confidence.",
+                    price: "₹15,000",
+                    profiles: "7 verified profiles",
+                    badge: null,
+                    features: [
+                      "Includes everything in Connect",
+                      "10-day trial period",
+                      "7-day free lookup period",
+                      "1 Replacement in 11 months",
+                      "Police verification",
+                      "Enhanced screening review",
+                    ],
+                    highlighted: false,
+                  },
+                  {
+                    name: "Complete",
+                    emoji: "⭐",
+                    subtitle: "End-to-end protection with priority support.",
+                    price: "₹20,000",
+                    profiles: "10 verified profiles",
+                    badge: { label: "✦ Recommended", style: "bg-primary text-white" },
+                    features: [
+                      "Includes everything in Care",
+                      "15-day trial period",
+                      "10-day free lookup period",
+                      "2 Replacement in 11 months",
+                      "Priority matching",
+                      "Detailed background & reference verification",
+                      "Ongoing support & mediation",
+                      "Periodic check-ins (30 / 60 days)",
+                      "Role upgrade support (within plan validity)",
+                    ],
+                    highlighted: true,
+                  },
                 ].map((plan) => (
-                  <div key={plan.name}
-                    className={`bg-white rounded-2xl p-7 relative flex flex-col border transition-all duration-200 ${plan.highlighted ? "border-2 border-primary shadow-[0_12px_40px_rgba(236,95,54,0.18)]" : "border-borderLight hover:border-primary/40 hover:shadow-sm"}`}>
-                    {plan.highlighted && (
-                      <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-primary text-white text-xs font-bold px-4 py-1 rounded-full whitespace-nowrap shadow-[0_4px_12px_rgba(236,95,54,0.35)]">
-                        ⭐ Most Recommended
+                  <div
+                    key={plan.name}
+                    className={`bg-white rounded-2xl p-7 relative flex flex-col border transition-all duration-200 ${plan.highlighted
+                        ? "border-2 border-primary shadow-[0_12px_40px_rgba(236,95,54,0.18)]"
+                        : "border-borderLight hover:border-primary/40 hover:shadow-sm"
+                      }`}
+                  >
+                    {/* Badge */}
+                    {plan.badge && (
+                      <div className={`absolute -top-3.5 left-1/2 -translate-x-1/2 text-xs font-bold px-4 py-1 rounded-full whitespace-nowrap shadow-[0_4px_12px_rgba(236,95,54,0.35)] ${plan.badge.style}`}>
+                        {plan.badge.label}
                       </div>
                     )}
-                    <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-xl mb-4">{plan.emoji}</div>
-                    <h3 className="text-base font-bold text-textDark mb-1">Domestic Pro – <span className={plan.highlighted ? "text-primary" : ""}>{plan.name}</span></h3>
-                    <div className={`rounded-xl px-4 py-3 my-5 ${plan.highlighted ? "bg-primary/5 border border-primary/10" : "bg-bgLight"}`}>
-                      <p className="text-2xl font-bold text-textDark">{plan.price} <span className="text-sm font-medium text-textLight">+ GST</span></p>
-                      <p className="text-xs text-textLight mt-0.5">{plan.gst} incl. GST</p>
+
+                    {/* Icon */}
+                    <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-xl mb-4">
+                      {plan.emoji}
                     </div>
+
+                    {/* Title + Subtitle */}
+                    <h3 className="text-xl font-bold text-textDark mb-1">
+                      Domestic Pro –{" "}
+                      <span className={plan.highlighted ? "text-primary" : ""}>{plan.name}</span>
+                    </h3>
+                    <p className="text-sm text-textLight mb-5 leading-relaxed">{plan.subtitle}</p>
+
+                    {/* Price */}
+                    <div className={`rounded-xl px-4 py-3 mb-5 ${plan.highlighted ? "bg-primary/5 border border-primary/10" : "bg-bgLight"}`}>
+                      <p className="text-2xl font-bold text-textDark">
+                        {plan.price}{" "}
+                        <span className="text-sm font-medium text-textLight">+ GST</span>
+                      </p>
+                    </div>
+
+                    {/* Profile count */}
                     <p className="text-sm font-bold text-primary mb-3 flex items-center gap-1.5">
-                      <span className="w-1.5 h-1.5 rounded-full bg-primary" />{plan.profiles}
+                      <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+                      {plan.profiles}
                     </p>
+
+                    {/* Features */}
                     <ul className="flex-1 space-y-2 mb-6 text-sm text-textLight">
                       {plan.features.map((f, i) => (
                         <li key={i} className="flex items-start gap-2">
-                          <span className="text-primary flex-shrink-0 mt-0.5 text-xs">✓</span>{f}
+                          <span className="text-primary flex-shrink-0 mt-0.5 text-xs">✓</span>
+                          {f}
                         </li>
                       ))}
                     </ul>
-                    <button onClick={() => setIsModalOpen(true)}
-                      className={`w-full py-3 rounded-xl font-bold text-sm transition-all duration-200 ${plan.highlighted ? "bg-primary hover:bg-primaryHover text-white shadow-[0_4px_14px_rgba(236,95,54,0.30)]" : "border-2 border-primary text-primary hover:bg-primary hover:text-white"}`}>
-                      Choose {plan.name}
+
+                    {/* CTA */}
+                    <button
+                      onClick={() => setIsModalOpen(true)}
+                      className={`w-full py-3 rounded-xl font-bold text-sm transition-all duration-200 ${plan.highlighted
+                          ? "bg-primary hover:bg-primaryHover text-white shadow-[0_4px_14px_rgba(236,95,54,0.30)]"
+                          : "border-2 border-primary text-primary hover:bg-primary hover:text-white"
+                        }`}
+                    >
+                      Choose {plan.name} →
                     </button>
                   </div>
                 ))}
@@ -315,7 +399,7 @@ export default function RefundPolicy() {
               <div className="mt-5 bg-bgLight border border-borderLight rounded-xl p-6">
                 <h3 className="font-bold text-textDark mb-3">Domestic Pro</h3>
                 <div className="space-y-1.5 text-sm text-textLight">
-                  <p>📍 Unitech Trade Center, Sector-43, Gurugram</p>
+                  <p>📍 LG-006, DLF Grand Mall, Mehrauli, Gurugram - 122001</p>
                   <p>📞 +91 92112 98139</p>
                   <p>✉ support@domesticpro.in</p>
                 </div>

@@ -4,8 +4,18 @@ import HeroWizard from "../../components/HeroWizard";
 const Driver = () => {
   const [modalType, setModalType] = useState(null);
 
-  const openModal = (type) => setModalType(type);
-  const closeModal = () => setModalType(null);
+  const [modalConfig, setModalConfig] = useState({ service: null, format: null });
+
+  const openModal = (type) => {
+    if (type === "livein") {
+      setModalConfig({ service: "Drivers", format: "Live-In" });
+    } else if (type === "substitute") {
+      setModalConfig({ service: "Drivers", format: "Substitute" });
+    } else {
+      setModalConfig({ service: "Drivers", format: null });
+    }
+    setModalType(type);
+  };
 
   useEffect(() => {
     const sections = document.querySelectorAll(".scroll-section");
@@ -115,7 +125,7 @@ const Driver = () => {
           {/* RIGHT IMAGE */}
           <div className="flex justify-center md:justify-end animate-right">
             <img
-              src="https://res.cloudinary.com/dhtzknkdr/image/upload/v1773031900/driver_yvlvk2.png"
+              src="https://res.cloudinary.com/dto7bji6b/image/upload/v1774429112/driver_dxdx5j.png"
               alt="Domestic Pro Driver"
               className="rounded-2xl h-[350px] md:h-[400px] shadow-xl w-full  max-w-md object-cover"
             />
@@ -750,8 +760,10 @@ const Driver = () => {
 
       <HeroWizard
         asModal
-        isOpen={modalType}
-        onClose={() => setModalType(false)}
+        isOpen={!!modalType}
+        onClose={() => setModalType(null)}
+        initialService={modalConfig.service}
+        initialFormat={modalConfig.format}
       />
     </>
   );

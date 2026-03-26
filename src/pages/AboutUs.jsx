@@ -4,7 +4,8 @@ import {
   faShieldHalved, faStar, faHandshake, faHeart, faHouse, faBaby, faBed, faUserNurse, faUtensils, faCircleCheck, faClock, faArrowsRotate, faCheck, faUmbrellaBeach, faSun, faMountain, faCar, faGlobe, faEnvelope, faPhone, faLeaf,
   faAward,
   faHandHoldingHand,
-  faHandHoldingHeart
+  faHandHoldingHeart,
+  faPersonBreastfeeding
 } from "@fortawesome/free-solid-svg-icons";
 
 export default function AboutUs() {
@@ -20,46 +21,26 @@ export default function AboutUs() {
 
   const WHO_WE_ARE = [
     "Background-Verified and Identity-Checked Domestic Helpers",
-    "Skilled in Home Management, Elder Care, Child Care & Cooking",
+    "Skilled in Live-In Support, Patient Care, Child Care & Cooking",
     "Structured Screening and Careful Matching Process",
     "Replacement Assistance for Continued Peace of Mind",
     "Dedicated Support Team for Ongoing Client Assistance",
   ];
 
-  const OTHERS = [
-    "Not properly registered or traceable",
-    "Advance payment required before service",
-    "Small database of limited helpers",
-    "Renewal charges after 1 year",
-    "No guaranteed replacement support",
-    "Weak or fake background verification",
-    "Operated by small unstructured teams",
-  ];
-
-  const DOMESTIC_PRO = [
-    "Professionally registered and trusted platform",
-    "No advance payment — Pay after finalization",
-    "Large and growing verified helper database",
-    "No hidden or renewal charges",
-    "Immediate replacement support",
-    "Proper document & identity verification",
-    "Dedicated professional support team",
-  ];
-
   const CORE_VALUES = [
-    { icon: faShieldHalved, title: "Trust & Safety", desc: "Security comes first with police-verified and background-checked maids." },
-    { icon: faAward, title: "Professional Excellence", desc: "Delivering trained and skilled domestic helpers for all needs." },
-    { icon: faHandshake, title: "Customer-Centricity", desc: "Every service is tailored to your family's lifestyle and requirements." },
-    { icon: faHandHoldingHeart, title: "Compassion & Care", desc: "Beyond work, we bring kindness, respect, and empathy to your home." },
+    { image: "https://res.cloudinary.com/dto7bji6b/image/upload/v1774416765/trust_and_safety__about_yk2ijo.png", title: "Trust & Safety", desc: "Security comes first with police-verified and background-checked maids." },
+    { image: "https://res.cloudinary.com/dto7bji6b/image/upload/v1774417914/professional-excellence_about_cxyxxb.png", title: "Professional Excellence", desc: "Delivering trained and skilled domestic helpers for all needs." },
+    { image: "https://res.cloudinary.com/dto7bji6b/image/upload/v1774419096/customer-centricity_about_cqcbgg.png", title: "Customer-Centricity", desc: "Every service is tailored to your family's lifestyle and requirements." },
+    { image: "https://res.cloudinary.com/dto7bji6b/image/upload/v1774418953/customer-centricity_about_hbxmay.png", title: "Compassion & Care", desc: "Beyond work, we bring kindness, respect, and empathy to your home." },
   ];
 
   const SERVICES = [
-    { icon: faHouse, title: "House Help", desc: "Full household support including cleaning, laundry, and daily chores." },
-    { icon: faBaby, title: "Babysitter", desc: "Professional nannies for infants, toddlers, and young children." },
-    { icon: faUtensils, title: "Cook", desc: "Dedicated cooks for hygienic, home-style meals." },
-    { icon: faUserNurse, title: "Elderly Care", desc: "Compassionate care for elderly or recovering patients." },
-    { icon: faCar, title: "Driver", desc: "Experienced and reliable drivers for daily commuting, school drops, office travel, and family outings." },
-    { icon: faBed, title: "House Manager", desc: "24x7 assistance for all household management needs." },
+    { icon: faHouse, title: "Live-In Support", desc: "Full household support including cleaning, laundry, and daily chores." },
+    { icon: faBaby, title: "Baby Caretaker", desc: "Professional nannies for infants, toddlers, and young children." },
+    { icon: faPersonBreastfeeding, title: "Japa", desc: "Complete mother and child care right at your doorstep, offering round-the-clock support during the crucial postpartum phase" },
+    { icon: faUtensils, title: "Cooking Help", desc: "Dedicated cooks for hygienic, home-style meals." },
+    { icon: faUserNurse, title: "Patient Care", desc: "Compassionate care for elderly or recovering patients." },
+    { icon: faCar, title: "Drivers", desc: "Experienced and reliable drivers for daily commuting, school drops, office travel, and family outings." },
   ];
 
   const WHY_US = [
@@ -75,13 +56,19 @@ export default function AboutUs() {
     { region: "UK & North America", icon: faUmbrellaBeach, cities: ["London", "New York", "Toronto", "New Jersey"] },
   ];
 
+  const FOUNDER_MISSION = [
+    "Provide families with dependable, verified, and suitable household support",
+    "Ensure domestic workers are placed in respectful, safe, and fair-paying homes",
+    "Keep services accessible — starting at ₹11,000, unlike brokers who charge ₹25,000–₹30,000+",
+  ];
+
   return (
     <div>
 
       {/* ── HERO ── */}
       <section className="relative h-[75vh] md:h-[85vh] flex items-center justify-center">
         <div className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: `url(https://res.cloudinary.com/dhtzknkdr/image/upload/v1773031893/about-hero_zhrrxa.webp)` }} />
+          style={{ backgroundImage: `url(https://res.cloudinary.com/dto7bji6b/image/upload/v1774413666/about_hero_nibkui.png)` }} />
         <div className="absolute inset-0 bg-black/80" />
         <div className="relative z-10 text-center px-5 max-w-4xl mx-auto">
           <h1 className="text-4xl md:text-6xl font-extrabold text-white mb-6 leading-tight">
@@ -106,7 +93,6 @@ export default function AboutUs() {
               alt="DomesticPro Team"
               className="rounded-2xl shadow-xl w-full object-cover"
             />
-            <div className="absolute -bottom-4 -right-4 w-24 h-24 rounded-2xl bg-primary/10 border-2 border-primary/20 -z-10" />
           </div>
           <div>
             <h2 className="text-4xl font-bold text-textDark mb-3">Who We Are</h2>
@@ -133,7 +119,7 @@ export default function AboutUs() {
         </div>
       </section>
 
-      {/* ── CORE VALUES — centered large circle icon matching Maidvy ── */}
+      {/* ── CORE VALUES ── */}
       <section className="py-24 bg-white border-b border-borderLight">
         <div className="max-w-7xl mx-auto px-6 scroll-section">
           <div className="text-center mb-16">
@@ -141,11 +127,10 @@ export default function AboutUs() {
             <p className="text-textLight max-w-xl mx-auto">The foundation of everything we do at Domestic Pro.</p>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {CORE_VALUES.map(({ icon, title, desc }) => (
+            {CORE_VALUES.map(({ image, title, desc }) => (
               <div key={title} className="group bg-bgLight rounded-2xl p-8 border border-borderLight hover:border-primary hover:shadow-[0_8px_32px_rgba(236,95,54,0.10)] transition-all duration-300 text-center">
-                {/* large circle icon — matches Maidvy's card style */}
-                <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6 group-hover:bg-primary transition-colors duration-300">
-                  <FontAwesomeIcon icon={icon} className="text-primary group-hover:text-white transition-colors duration-300" style={{ fontSize: "3rem" }} />
+                <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6 group-hover:bg-primary/20 transition-colors duration-300">
+                  <img src={image} alt={title} className="w-20 h-20 object-cover rounded-full" />
                 </div>
                 <h3 className="text-lg font-bold text-textDark mb-3">{title}</h3>
                 <p className="text-sm text-textLight leading-relaxed">{desc}</p>
@@ -155,7 +140,7 @@ export default function AboutUs() {
         </div>
       </section>
 
-      {/* ── OUR SERVICES — circle icon top-left matching Maidvy ── */}
+      {/* ── OUR SERVICES ── */}
       <section className="py-24 bg-bgLight border-b border-borderLight">
         <div className="max-w-7xl mx-auto px-6 scroll-section">
           <div className="text-center mb-16">
@@ -178,108 +163,7 @@ export default function AboutUs() {
         </div>
       </section>
 
-      {/* ── COMPARISON ── */}
-      {/* <section className="py-24 bg-white border-b border-borderLight">
-        <div className="max-w-7xl mx-auto px-6 scroll-section">
-          <div className="text-center mb-14">
-            <h2 className="text-4xl md:text-5xl font-bold text-textDark mb-4">Us vs. Other Agencies</h2>
-            <p className="text-textLight max-w-2xl mx-auto">
-              See why thousands of families trust DomesticPro for reliable and verified domestic helpers.
-            </p>
-          </div>
-          <div className="grid md:grid-cols-2 gap-8">
-            <div className="bg-bgLight rounded-2xl p-8 border border-borderLight">
-              <h3 className="text-xl font-bold text-textDark mb-2 text-center">Other Maid Agencies</h3>
-              <div className="w-10 h-0.5 bg-borderLight rounded-full mx-auto mb-6" />
-              <ul className="space-y-3">
-                {OTHERS.map((item) => (
-                  <li key={item} className="flex items-start gap-3 text-sm text-textLight">
-                    <span className="w-5 h-5 rounded-md bg-red-50 border border-red-100 flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <FontAwesomeIcon icon={faXmark} className="text-red-400" style={{ fontSize: 11 }} />
-                    </span>
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div className="bg-white rounded-2xl p-8 border-2 border-primary shadow-[0_8px_40px_rgba(236,95,54,0.12)]">
-              <div className="flex items-center justify-center gap-2 mb-2">
-                <h3 className="text-xl font-bold text-textDark text-center">Domestic Pro</h3>
-                <span className="text-xs bg-primary text-white font-bold px-2 py-0.5 rounded-full">Recommended</span>
-              </div>
-              <div className="w-10 h-0.5 bg-primary rounded-full mx-auto mb-6" />
-              <ul className="space-y-3">
-                {DOMESTIC_PRO.map((item) => (
-                  <li key={item} className="flex items-start gap-3 text-sm text-textLight">
-                    <span className="w-5 h-5 rounded-md bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <FontAwesomeIcon icon={faCheck} className="text-primary" style={{ fontSize: 10 }} />
-                    </span>
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </div>
-      </section> */}
-
-      {/* ── MISSION & VISION ── */}
-      <section className="py-24 bg-white overflow-hidden">
-        <div className="max-w-7xl mx-auto px-6 scroll-section">
-          <div className="mb-20">
-            <h2 className="text-5xl md:text-6xl font-bold text-gray-900 leading-tight">
-              Our Mission <br /> & Vision
-            </h2>
-            <div className="flex gap-1 mt-4">
-              <div className="w-16 h-1 bg-primary" />
-              <div className="w-16 h-1 bg-textDark" />
-            </div>
-          </div>
-          <div className="flex flex-col gap-16">
-            <div className="relative flex flex-col md:flex-row items-center">
-              <div className="relative z-20 w-64 h-64 md:w-80 md:h-80 flex-shrink-0 -mb-10 md:mb-0 md:-mr-16">
-                <div className="relative w-full h-full rounded-full border-[12px] border-white shadow-xl overflow-hidden bg-white">
-                  <img
-                    src="https://res.cloudinary.com/dhtzknkdr/image/upload/v1773031902/mission_vds4rn.jpg"
-                    alt="Mission"
-                    className="w-full h-full object-cover grayscale"
-                  />
-                  <div className="absolute inset-0 opacity-0 mix-blend-multiply" style={{ backgroundColor: "#EC5F36" }} />
-                </div>
-              </div>
-              <div className="relative z-10 bg-bgLight py-12 pl-12 pr-12 md:pl-24 md:pr-20 w-full rounded-r-full shadow-sm">
-                <h3 className="text-3xl font-bold text-textDark mb-4">Mission</h3>
-                <p className="text-textLight text-lg leading-relaxed max-w-xl">
-                  To provide trusted, verified, and professionally trained domestic helpers to families across India
-                  while ensuring dignity, fair opportunities, and long-term reliability for our workforce. We aim to
-                  simplify household staffing with transparency and care.
-                </p>
-              </div>
-            </div>
-            <div className="relative flex flex-col md:flex-row-reverse items-center">
-              <div className="relative z-20 w-64 h-64 md:w-80 md:h-80 flex-shrink-0 -mb-10 md:mb-0 md:-ml-16">
-                <div className="w-full h-full rounded-full border-[12px] border-white shadow-xl overflow-hidden">
-                  <img
-                    src="https://res.cloudinary.com/dhtzknkdr/image/upload/v1773031912/vision_tmoi0n.avif"
-                    alt="Vision"
-                    className="w-full h-full object-cover grayscale sepia-[.2] hue-rotate-[60deg] saturate-200"
-                  />
-                </div>
-              </div>
-              <div className="relative z-10 bg-bgLight py-12 pr-12 pl-12 md:pr-24 md:pl-20 w-full rounded-l-full shadow-sm text-right flex flex-col items-end">
-                <h3 className="text-3xl font-bold text-textDark mb-4">Vision</h3>
-                <p className="text-textLight text-lg leading-relaxed max-w-xl">
-                  To become India's most reliable and respected domestic staffing platform by building a structured
-                  ecosystem where households feel secure and domestic professionals receive recognition, stability,
-                  and growth opportunities.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── WHY FAMILIES TRUST US — solid filled circle icon like Maidvy ── */}
+      {/* ── WHY FAMILIES TRUST US ── */}
       <section className="py-24 bg-bgLight border-t border-borderLight">
         <div className="max-w-7xl mx-auto px-6 scroll-section">
           <div className="text-center mb-16">
@@ -300,7 +184,7 @@ export default function AboutUs() {
         </div>
       </section>
 
-      {/* ── SERVICE AREAS — pill badges + top colored border like Maidvy ── */}
+      {/* ── SERVICE AREAS ── */}
       <section className="py-24 bg-white border-t border-borderLight">
         <div className="max-w-7xl mx-auto px-6 scroll-section">
           <div className="text-center mb-16">
@@ -315,7 +199,6 @@ export default function AboutUs() {
                 <h3 className="font-bold text-textDark text-base mb-5 flex items-center gap-2">
                   <FontAwesomeIcon icon={icon} className="text-primary" style={{ fontSize: 16 }} /> {region}
                 </h3>
-                {/* cities as pill badges */}
                 <div className="flex flex-wrap gap-2">
                   {cities.map((city) => (
                     <span key={city} className="text-xs font-semibold text-textLight bg-bgLight border border-borderLight rounded-full px-3 py-1">
@@ -326,8 +209,6 @@ export default function AboutUs() {
               </div>
             ))}
           </div>
-
-          {/* expanding banner — left accent bar like Maidvy */}
           <div className="bg-[#FAFAF0] border border-[#E8E8D0] rounded-xl p-6 border-l-4 border-l-primary text-center">
             <p className="font-bold text-textDark text-lg mb-2">🚀 Expanding Rapidly!</p>
             <p className="text-sm text-textLight">
@@ -339,25 +220,168 @@ export default function AboutUs() {
         </div>
       </section>
 
-      {/* ── COMMITMENT — dark section like Maidvy ── */}
-      <section className="py-24 bg-textDark">
-        <div className="max-w-4xl mx-auto px-6 text-center scroll-section">
-          <h2 className="text-4xl md:text-5xl font-bold text-primary mb-6">Our Commitment to You</h2>
-          <p className="text-bgLight text-lg font-medium mb-8">
-            At Domestic Pro, we treat every home with respect, care, and responsibility.
-          </p>
-          <p className="text-white/70 text-base leading-relaxed mb-6">
-            We know that a well-managed home creates a stress-free and happy family life, and our
-            mission is to be your trusted partner in achieving that balance.
-          </p>
-          <p className="text-white/70 text-base leading-relaxed">
-            From daily household chores to specialized baby care or patient assistance, our helpers are
-            trained, reliable, and compassionate — so you can focus on what truly matters, your family
-            and your peace of mind.
-          </p>
+      {/* ── FOUNDER'S MESSAGE ── */}
+      <section className="py-24 bg-bgLight border-t border-borderLight">
+        <div className="max-w-7xl mx-auto px-6 scroll-section">
+
+          {/* Section heading — matches site pattern */}
+          <div className="text-center mb-16">
+            <span className="inline-block bg-primary/10 text-primary text-xs font-bold tracking-widest uppercase px-4 py-1.5 rounded-full mb-5">
+              ✍️ Founder's Message
+            </span>
+            <h2 className="text-4xl md:text-5xl font-bold text-textDark mb-4">
+              The Story Behind Domestic Pro
+            </h2>
+            <p className="text-textLight max-w-xl mx-auto">
+              Built from lived experience, designed for every home.
+            </p>
+          </div>
+
+          {/* Two-column layout — mirrors "Who We Are" pattern */}
+          <div className="grid lg:grid-cols-[360px_1fr] gap-14 items-start">
+
+            {/* LEFT — founder identity card, sticky on scroll */}
+            <div className="lg:sticky lg:top-28 self-start">
+              <div className="bg-white rounded-2xl border border-borderLight p-8 hover:border-primary hover:shadow-[0_8px_32px_rgba(236,95,54,0.10)] transition-all duration-300">
+
+                {/* Founder photo */}
+                <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-borderLight mb-5">
+                  <img
+                    src="https://res.cloudinary.com/dhtzknkdr/image/upload/v1773031893/about-hero_zhrrxa.webp"
+                    alt="Founder, Domestic Pro"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+
+                <h3 className="text-xl font-bold text-textDark mb-1" style={{ fontFamily: "'Fraunces', serif" }}>
+                  Gunjan Kapoor
+                </h3>
+                <p className="text-primary font-bold text-sm uppercase tracking-wider mb-5">
+                  Domestic Pro
+                </p>
+
+                <div className="h-px bg-borderLight mb-6" />
+
+                {/* Stats — same style used across the site */}
+                <div className="space-y-5 mb-6">
+                  {[
+                    { value: "20+", label: "Years combined in the services industry" },
+                    { value: "2021", label: "Founded in Gurgaon" },
+                    { value: "₹11K", label: "Transparent starting price" },
+                  ].map(({ value, label }) => (
+                    <div key={label}>
+                      <p className="text-2xl font-bold text-textDark leading-none mb-1" style={{ fontFamily: "'Fraunces', serif" }}>
+                        {value}
+                      </p>
+                      <p className="text-xs text-textLight font-medium leading-snug">{label}</p>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="h-px bg-borderLight mb-5" />
+
+                {/* Origin tag */}
+                <div className="flex items-start gap-3 text-sm text-textLight">
+                  <span className="w-5 h-5 rounded-md bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <FontAwesomeIcon icon={faHeart} className="text-primary" style={{ fontSize: 9 }} />
+                  </span>
+                  Rooted in Siliguri, building for every home in India
+                </div>
+              </div>
+            </div>
+
+            {/* RIGHT — letter body */}
+            <div>
+
+              {/* Opening blockquote — pull quote */}
+              <blockquote className="mb-8 pl-5 border-l-4 border-primary">
+                <p className="text-xl md:text-2xl font-bold text-textDark leading-snug" style={{ fontFamily: "'Fraunces', serif" }}>
+                  "Domestic Pro was not born out of a business idea — it was born out of a very real, very personal struggle."
+                </p>
+              </blockquote>
+
+              {/* Body copy */}
+              <div className="space-y-5 text-textLight text-base leading-relaxed mb-8">
+                <p>
+                  In 2021, when I became a mother, I experienced firsthand how challenging it is to find the right household
+                  support. The first two months were overwhelming, filled with uncertainty and constant adjustments. Then came
+                  someone who changed everything — reliable, sincere, and committed. She stayed with us for{" "}
+                  <span className="font-semibold text-textDark">four and a half years</span> and became an integral part of our home.
+                </p>
+                <p>
+                  When she had to leave due to a personal family situation — despite giving me three months' notice — I suddenly
+                  found myself in the same difficult position many others face. Despite multiple trials over several months,
+                  I couldn't find the right fit. In a span of six months, I went through{" "}
+                  <span className="font-semibold text-textDark">nearly ten changes</span>. It was exhausting, emotionally draining,
+                  and deeply unsettling.
+                </p>
+                <p>
+                  Through all of this, my husband <span className="font-semibold text-textDark">Nakul</span> stood by me as a
+                  constant support. As he witnessed these challenges unfold, he realized this wasn't just our personal struggle —
+                  it was something countless families must be going through every day. Together, we began to see this not as an
+                  isolated issue, but as a larger gap that needed to be addressed.
+                </p>
+                <p>
+                  Both of us come with over 20 years of experience in the services industry. Client servicing, understanding
+                  people's needs, and managing operational complexities have been at the core of our professional journeys —
+                  giving us the confidence to build something meaningful in a space that deeply needed structure, reliability,
+                  and empathy.
+                </p>
+              </div>
+
+              {/* Mission highlight card — matches the checklist pattern used in "Who We Are" */}
+              <div className="bg-white rounded-2xl border border-borderLight p-6 mb-8 hover:border-primary hover:shadow-[0_8px_32px_rgba(236,95,54,0.10)] transition-all duration-300">
+                <p className="text-primary font-bold text-xs uppercase tracking-widest mb-5">
+                  Our Clear Intention
+                </p>
+                <ul className="space-y-3">
+                  {FOUNDER_MISSION.map((item) => (
+                    <li key={item} className="flex items-start gap-3 text-sm text-textLight group">
+                      <span className="w-5 h-5 rounded-md bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0 mt-0.5 group-hover:bg-primary transition-colors duration-200">
+                        <FontAwesomeIcon icon={faCheck} className="text-primary group-hover:text-white transition-colors duration-200" style={{ fontSize: 9 }} />
+                      </span>
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Closing paragraphs */}
+              <div className="space-y-5 text-textLight text-base leading-relaxed mb-10">
+                <p>
+                  Starting from Gurgaon, we began building Domestic Pro with a simple yet meaningful vision — to create a
+                  reliable bridge between households and domestic workers, built on trust, fairness, and respect. Coming from
+                  Siliguri, with roots in the Northeast, I leveraged my personal networks to build a dependable database of
+                  domestic workers. The idea was simple —{" "}
+                  <span className="font-semibold text-textDark">start small, stay honest, and solve a real problem.</span>
+                </p>
+                <p>
+                  This is not just a service — it's a commitment to improving lives on both sides of the equation. As we grow,
+                  our focus remains clear: steady, thoughtful growth with strong foundations of trust, integrity, and accountability.
+                </p>
+                <p className="italic text-textDark font-medium">
+                  Because at the heart of every home is the support system that keeps it running — and that support deserves
+                  to be reliable, respected, and right.
+                </p>
+              </div>
+
+              {/* Signature block */}
+              <div className="pt-8 border-t border-borderLight flex items-center gap-4">
+                <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
+                  <span className="text-white font-bold text-sm" style={{ fontFamily: "'Fraunces', serif" }}>DP</span>
+                </div>
+                <div>
+                  <p className="font-bold text-textDark text-base" style={{ fontFamily: "'Fraunces', serif" }}>Warmly,</p>
+                  <p className="text-sm text-textLight">Gunjan Kapoor, Domestic Pro</p>
+                </div>
+              </div>
+
+            </div>
+          </div>
         </div>
       </section>
 
+      {/* ── CTA BANNER ── */}
       <section className="bg-primary px-6 py-12">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
           <div>
@@ -376,6 +400,7 @@ export default function AboutUs() {
           </a>
         </div>
       </section>
+
     </div>
   );
 }

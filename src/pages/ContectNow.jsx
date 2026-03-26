@@ -40,9 +40,9 @@ const contactChannels = [
   {
     icon: MapPin,
     label: "Visit Us",
-    value: "Unitech Trade Centre, Sector 43",
-    sub: "Gurugram – 122009",
-    action: "https://maps.app.goo.gl/EDqdP552cEA8Y3S77",
+    value: "LG-006, DLF Grand Mall, Mehrauli, Gurugram Road",
+    sub: "Gurugram – 122001",
+    action: "https://maps.app.goo.gl/3N9oreM2qpmUsjdE7",
     cta: "Get Directions",
   },
 ];
@@ -52,14 +52,13 @@ const reasons = [
   "Learn about our plans & pricing",
   "Get a replacement quickly",
   "Ask a question before signing up",
+  "Looking for a job",
   "Something else",
 ];
 
 const hours = [
   { day: "Monday – Friday", time: "9:00 am – 8:00 pm" },
   { day: "Saturday", time: "9:00 am – 6:00 pm" },
-  { day: "Sunday", time: "10:00 am – 3:00 pm" },
-  { day: "Public Holidays", time: "Closed" },
 ];
 
 const promises = [
@@ -432,7 +431,7 @@ export default function ContactPage() {
                   shadow-md hover:bg-bgLight transition-colors duration-200"
               >
                 <Phone size={15} />
-                +91 98765 43210
+                +91 92112 98139
               </a>
             </div>
           </div>

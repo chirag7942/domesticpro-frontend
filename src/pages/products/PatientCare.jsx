@@ -3,7 +3,19 @@ import HeroWizard from "../../components/HeroWizard";
 
 const PatientCare = () => {
   const [modalType, setModalType] = useState(null);
-  const openModal = (type) => setModalType(type);
+
+  const [modalConfig, setModalConfig] = useState({ service: null, format: null });
+
+  const openModal = (type) => {
+    if (type === "livein") {
+      setModalConfig({ service: "Patient Care", format: "Live-In" });
+    } else if (type === "substitute") {
+      setModalConfig({ service: "Patient Care", format: "Substitute" });
+    } else {
+      setModalConfig({ service: "Patient Care", format: null });
+    }
+    setModalType(type);
+  };
 
   useEffect(() => {
     const sections = document.querySelectorAll(".scroll-section");
@@ -129,7 +141,7 @@ const PatientCare = () => {
               </ul>
 
               <button
-                onClick={() => openModal("liveInCare")}
+                onClick={() => openModal("livein")}
                 className="bg-primary hover:bg-primaryHover text-white px-6 py-3 rounded-xl font-semibold transition"
               >
                 Hire Full-Time Caregiver
@@ -156,7 +168,7 @@ const PatientCare = () => {
               </ul>
 
               <button
-                onClick={() => openModal("substituteCare")}
+                onClick={() => openModal("substitute")}
                 className="bg-primary hover:bg-primaryHover text-white px-6 py-3 rounded-xl font-semibold transition"
               >
                 Request Substitute Caregiver
@@ -390,8 +402,10 @@ const PatientCare = () => {
 
       <HeroWizard
         asModal
-        isOpen={modalType}
-        onClose={() => setModalType(false)}
+        isOpen={!!modalType}
+        onClose={() => setModalType(null)}
+        initialService={modalConfig.service}
+        initialFormat={modalConfig.format}
       />
     </>
   );

@@ -4,8 +4,18 @@ import HeroWizard from "../../components/HeroWizard";
 const HouseHelp = () => {
   const [modalType, setModalType] = useState(null);
 
-  const openModal = (type) => setModalType(type);
-  const closeModal = () => setModalType(null);
+  const [modalConfig, setModalConfig] = useState({ service: null, format: null });
+
+  const openModal = (type) => {
+    if (type === "livein") {
+      setModalConfig({ service: "Live-in Support", format: "Live-In" });
+    } else if (type === "substitute") {
+      setModalConfig({ service: "Live-in Support", format: "Substitute" });
+    } else {
+      setModalConfig({ service: "Live-in Support", format: null });
+    }
+    setModalType(type);
+  };
 
   useEffect(() => {
     const sections = document.querySelectorAll(".scroll-section");
@@ -57,8 +67,8 @@ const HouseHelp = () => {
           {/* LEFT CONTENT */}
           <div className="animate-left">
             <h1 className="text-4xl md:text-5xl font-bold text-textDark leading-tight mb-6">
-              <span className="text-primary">24 Hours</span> Housekeepers <br />
-              You Can <span className="text-primary">Trust</span>
+              Trusted <span className="text-primary">Live-In Support</span>{" "}
+              <br /> for <span className="text-primary">Your Home & Family</span>
             </h1>
 
             <ul className="text-textLight mb-8 space-y-3">
@@ -728,8 +738,10 @@ const HouseHelp = () => {
 
       <HeroWizard
         asModal
-        isOpen={modalType}
-        onClose={() => setModalType(false)}
+        isOpen={!!modalType}
+        onClose={() => setModalType(null)}
+        initialService={modalConfig.service}
+        initialFormat={modalConfig.format}
       />
     </>
   );

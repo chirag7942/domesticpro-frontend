@@ -4,9 +4,18 @@ import HeroWizard from "../../components/HeroWizard";
 const Japa = () => {
   const [modalType, setModalType] = useState(null);
 
-  const openModal = (type) => setModalType(type);
-  const closeModal = () => setModalType(null);
+  const [modalConfig, setModalConfig] = useState({ service: null, format: null });
 
+  const openModal = (type) => {
+    if (type === "livein") {
+      setModalConfig({ service: "Japa", format: "Live-In" });
+    } else if (type === "substitute") {
+      setModalConfig({ service: "Japa", format: "Substitute" });
+    } else {
+      setModalConfig({ service: "Japa", format: null });
+    }
+    setModalType(type);
+  };
   useEffect(() => {
     const sections = document.querySelectorAll(".scroll-section");
 
@@ -58,8 +67,7 @@ const Japa = () => {
           <div className="animate-left">
             <h1 className="text-4xl md:text-5xl font-bold text-textDark leading-tight mb-6">
               Caring &{" "}
-              <span className="text-primary">Trusted Professional</span> Baby
-              Caretakers
+              <span className="text-primary">Trusted Professional</span> Japa Help
             </h1>
 
             <ul className="text-textLight mb-8 space-y-3">
@@ -105,7 +113,7 @@ const Japa = () => {
           {/* RIGHT IMAGE */}
           <div className="flex justify-center md:justify-end animate-right">
             <img
-              src="https://res.cloudinary.com/dhtzknkdr/image/upload/v1773031901/japa_w7jbfc.jpg"
+              src="https://res.cloudinary.com/dto7bji6b/image/upload/v1774428751/japa_zzkowa.png"
               alt="Domestic Pro Japa "
               className="rounded-2xl shadow-xl w-full h-[350px] md:h-[450px]  max-w-md object-cover"
             />
@@ -730,8 +738,10 @@ const Japa = () => {
 
       <HeroWizard
         asModal
-        isOpen={modalType}
-        onClose={() => setModalType(false)}
+        isOpen={!!modalType}
+        onClose={() => setModalType(null)}
+        initialService={modalConfig.service}
+        initialFormat={modalConfig.format}
       />
     </>
   );
