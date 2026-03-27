@@ -145,7 +145,6 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
       case "hometype": return !!form.HomeType;
       case "urgency": return !!form.Urgency;
       case "budget": return !!form.Budget;
-      case "japanewbornage": return !!form.JapaNewbornAge.trim();
       case "japaduties": return form.JapaDuties.length > 0;
       case "japamotherneeds": return form.JapaMotherNeeds.length > 0;
       case "contact":
@@ -160,7 +159,7 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
   const CONT_KEYS = new Set([
     "tasks", "mealtime", "cuisine", "childduties", "careneeded", "vehicletype", "contact", "housesize", "mealpref", "urgency",
     "budget", "patientage", "childage", "patientgender", "hometype", "plan",
-    "japanewbornage", "japaduties", "japamotherneeds",
+    "japaduties", "japamotherneeds",
   ]);
   const showContinue = CONT_KEYS.has(curKey);
 
@@ -185,12 +184,8 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
       Cuisine_Preference: f.CuisinePref.join(", "),
       Child_Age: f.ChildAge,
       Child_Duties: f.ChildDuties.join(", "),
-      Newborn_Age: f.JapaNewbornAge,
       Japa_Child_Duties: f.JapaDuties.join(", "),
       Japa_Mother_Duties: f.JapaMotherNeeds.join(", "),
-      // Japa_Newborn_Age: f.JapaNewbornAge,
-      // Japa_Duties: f.JapaDuties.join(", "),
-      // Japa_Mother_Needs: f.JapaMotherNeeds.join(", "),
       Patient_Age: f.PatientAge,
       Patient_Gender: f.PatientGender,
       Care_Needed: f.CareNeeded.join(", "),
@@ -487,7 +482,7 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
       <div>
         <QHead q="How old is the child?" />
         <div className="hw2-age-input-wrap">
-          <input className="hw2-finput hw2-age-input" type="text" placeholder="e.g. 2 years, 8 months…"
+          <input className="hw2-finput hw2-age-input" type="number" min={1} placeholder="e.g. 2 years, 8 months…"
             value={form.ChildAge} autoFocus onChange={(e) => setF("ChildAge", e.target.value)} />
           <p className="hw2-age-hint">Type freely, e.g. "3 years"</p>
         </div>
@@ -506,18 +501,6 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
           ))}
         </div>
         {form.ChildDuties.length === 0 && <p className="hw2-warn mt-2">Select at least one</p>}
-      </div>
-    );
-
-    // JAPA — NEWBORN AGE
-    if (curKey === "japanewbornage") return (
-      <div>
-        <QHead q="How old is the newborn?" hint="Helps us find the right Japa maid" />
-        <div className="hw2-age-input-wrap">
-          <input className="hw2-finput hw2-age-input" type="text" placeholder="e.g. 5 days, 2 weeks…"
-            value={form.JapaNewbornAge} autoFocus onChange={(e) => setF("JapaNewbornAge", e.target.value)} />
-          <p className="hw2-age-hint">Type freely, e.g. "10 days"</p>
-        </div>
       </div>
     );
 
@@ -556,7 +539,7 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
       <div>
         <QHead q="How old is the patient?" />
         <div className="hw2-age-input-wrap">
-          <input className="hw2-finput hw2-age-input" type="text" placeholder="e.g. 68 years…"
+          <input className="hw2-finput hw2-age-input" type="number" min={1} placeholder="e.g. 68 years…"
             value={form.PatientAge} autoFocus onChange={(e) => setF("PatientAge", e.target.value)} />
         </div>
       </div>
@@ -792,7 +775,6 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
               form.CuisinePref.length > 0 && { k: "Cuisine", v: form.CuisinePref.join(", ") },
               form.ChildAge && { k: "Child Age", v: form.ChildAge },
               form.ChildDuties.length > 0 && { k: "Child Duties", v: form.ChildDuties.join(", ") },
-              form.JapaNewbornAge && { k: "Newborn Age", v: form.JapaNewbornAge },
               form.JapaDuties?.length > 0 && { k: "Japa Duties", v: form.JapaDuties.join(", ") },
               form.JapaMotherNeeds?.length > 0 && { k: "Mother Needs", v: form.JapaMotherNeeds.join(", ") },
               form.PatientAge && { k: "Patient Age", v: form.PatientAge },

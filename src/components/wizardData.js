@@ -582,7 +582,6 @@ export const SERVICE_FLOWS = {
   Japa: [
     "service",
     "format",
-    "japanewbornage",
     "japaduties",
     "japamotherneeds",
     "budget",
@@ -646,7 +645,6 @@ export const PROG_META = {
   contact: { label: "Contact", icon: Phone },
   plan: { label: "Plan", icon: CreditCard },
   // Japa
-  japanewbornage: { label: "Baby Age", icon: Baby },
   japaduties: { label: "Duties", icon: HandHeart },
   japamotherneeds: { label: "Mother", icon: HeartPulse },
 };
@@ -678,7 +676,6 @@ export const INIT = {
   ChildAge: "",
   ChildDuties: [],
   // Japa
-  JapaNewbornAge: "",
   JapaDuties: [],
   JapaMotherNeeds: [],
   // Patient Care
