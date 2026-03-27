@@ -26,8 +26,8 @@ const CDN = "https://res.cloudinary.com/dhtzknkdr/image/upload";
 
 export const SERVICES = [
   {
-    id: "Live-in Support",
-    label: "Live-in Support",
+    id: "Live-In Support",
+    label: "Live-In Support",
     image: `${CDN}/v1773034359/house-manager_by4krx.png`,
     color: "#FBBF24",
     emoji: "🏡",
@@ -544,7 +544,7 @@ export const PLANS = {
 // ── SERVICE FLOWS ─────────────────────────────────────────────────────────────
 // NOTE: All keys must exactly match SERVICES[].id (case-sensitive)
 export const SERVICE_FLOWS = {
-  "Live-in Support": [
+  "Live-In Support": [
     "service",
     "format",
     "tasks",
