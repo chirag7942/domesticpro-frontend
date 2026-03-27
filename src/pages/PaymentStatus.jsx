@@ -317,7 +317,7 @@ export default function PaymentStatus() {
                         <span className="text-[11px] font-extrabold text-textDark truncate max-w-[180px]">{orderId}</span>
                       </div>
                     )}
-                    <a href={`https://wa.me/919876543210?text=Payment+issue+%E2%80%93+${pc.label}+%E2%80%93+Order+ID:+${orderId}`}
+                    <a href={`https://wa.me/919211298139?text=Payment+issue+%E2%80%93+${pc.label}+%E2%80%93+Order+ID:+${orderId}`}
                       target="_blank" rel="noopener noreferrer"
                       className="w-full flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#1ebe5d] text-white font-bold text-sm rounded-2xl py-3.5 transition hover:shadow-md">
                       <FontAwesomeIcon icon={faCommentDots} style={{ fontSize: 14 }} />
@@ -334,7 +334,7 @@ export default function PaymentStatus() {
               <div className="px-7 pb-5 border-t border-borderLight pt-4">
                 <p className="text-center text-[10.5px] text-textLight font-medium">
                   Need help?{" "}
-                  <a href="https://wa.me/919876543210" target="_blank" rel="noopener noreferrer"
+                  <a href="https://wa.me/919211298139" target="_blank" rel="noopener noreferrer"
                     className="font-bold hover:underline" style={{ color: pc.color }}>
                     Chat with us on WhatsApp
                   </a>
