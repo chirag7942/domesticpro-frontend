@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import PricingSection from "../components/PricingSection";
 import HowItWorks from "../components/HowItWorks";
 import { useNavigate } from "react-router-dom";
-import { ShieldCheck, Zap, RefreshCw, Headphones, ArrowRight, Check } from "lucide-react";
+import { ShieldCheck, Zap, RefreshCw, Headphones, ArrowRight, Check, ChevronDown } from "lucide-react";
 import MatchedProfilesPreview from "../components/MatchedProfilesPreview";
 
 const WHY_CARDS = [
@@ -30,44 +30,25 @@ const WHY_CARDS = [
   },
 ];
 
-const TERMS = [
-  {
-    text: (
-      <>
-        <strong className="text-textDark">Advance payment is for service initiation only,</strong>{" "}
-        and does not guarantee placement. It allows us to begin the sourcing and verification process.
-      </>
-    ),
-  },
-  {
-    text: (
-      <>
-        <strong className="text-textDark">The balance amount is payable</strong>{" "}
-        once a suitable candidate is finalized and confirmed by the client.
-      </>
-    ),
-  },
-  {
-    text: (
-      <>
-        <strong className="text-textDark">Salary is paid directly by the client</strong>{" "}
-        to the domestic professional. We do not handle monthly salary transactions.
-      </>
-    ),
-  },
-  {
-    text: (
-      <>
-        <strong className="text-textDark">No cash refunds are provided.</strong>{" "}
-        Service continuity is maintained through replacements within the scope of your selected plan.
-      </>
-    ),
-  },
+const faqs = [
+  { q: "Why should I hire through Domestic Pro instead of searching independently?", a: "Domestic Pro saves you time and uncertainty by shortlisting candidates that match your exact requirement. Instead of speaking with dozens of unsuitable profiles, you receive relevant candidates who are actively looking for work and ready to interview." },
+  { q: "How soon can I receive profiles?", a: "Once the registration or commitment process is completed, Domestic Pro begins shortlisting immediately. Depending on the plan selected, clients typically receive profiles within 24 hours to 3–5 working days." },
+  { q: "Can I speak to the candidate before finalizing?", a: "Yes. Clients can interview candidates over the phone or in person before making a decision. Many families also prefer arranging a trial day to ensure the candidate fits their household requirements." },
+  { q: "What if the candidate does not work out?", a: "Domestic Pro provides replacement assistance within the replacement window mentioned in the selected plan, helping ensure clients eventually find a suitable match." },
+  { q: "What kind of domestic staff can Domestic Pro help with?", a: "We assist with placements for Nannies / Babysitters, Female Cooks, All-Rounders (Cleaning + Kitchen support), Housekeepers, and 24-hour Live-in Staff." },
+  { q: "How is the salary decided?", a: "Salary depends on experience, skills, working hours, and job responsibilities. Domestic Pro helps guide both sides toward a fair and market-appropriate salary range." },
+  { q: "Why is a commitment or registration fee required?", a: "The commitment fee ensures that Domestic Pro dedicates resources to actively search, screen, and coordinate candidates for serious clients. It also helps prioritize your requirement and avoid unnecessary delays." },
+  { q: "Is Domestic Pro responsible for the worker after placement?", a: "Domestic Pro acts as a placement service connecting clients with domestic workers. The employment relationship is directly between the client and the worker." },
+  { q: "Can I hire a candidate immediately if I like them?", a: "Yes. Once both parties agree on salary, duties, and joining date, the placement can be finalized immediately and the candidate can join as mutually decided." },
+  { q: "What is the first step to start the hiring process?", a: "Simply share your requirement with our team and complete the registration or commitment process. Our team will then begin shortlisting suitable candidates and coordinating interviews." },
 ];
 
 export default function Home() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
+
+  const [openIndexes, setOpenIndexes] = useState([]);
+  const toggleFAQ = (i) => setOpenIndexes((prev) => prev.includes(i) ? prev.filter((x) => x !== i) : [...prev, i]);
 
   useEffect(() => {
     const sections = document.querySelectorAll(".scroll-section");
@@ -183,6 +164,47 @@ export default function Home() {
       <TestimonialCarousel />
 
       <MatchedProfilesPreview />
+
+      {/* ── FAQ ── */}
+      <section className="bg-bgLight py-24">
+        <div className="max-w-3xl mx-auto px-6">
+          <div className="text-center mb-14">
+            <span className="inline-block bg-primary/10 text-primary text-xs font-bold tracking-widest uppercase px-4 py-1.5 rounded-full mb-5">
+              Got Questions?
+            </span>
+            <h2 className="text-4xl font-bold text-textDark">
+              Frequently Asked Questions
+            </h2>
+          </div>
+          <div className="space-y-4">
+            {faqs.map((faq, i) => {
+              const isOpen = openIndexes.includes(i);
+              return (
+                <div key={i}
+                  className={`faq-card bg-white border rounded-2xl overflow-hidden transition-all duration-300 ${isOpen ? "border-primary shadow-[0_4px_20px_rgba(236,95,54,0.10)]" : "border-borderLight"}`}>
+                  <button
+                    onClick={() => toggleFAQ(i)}
+                    className="w-full flex items-center justify-between p-6 text-left"
+                  >
+                    <div className="flex items-start gap-4">
+                      <span className={`w-7 h-7 flex-shrink-0 rounded-lg flex items-center justify-center mt-0.5 transition-colors duration-200 ${isOpen ? "bg-primary" : "bg-primary/10"}`}>
+                        <span className={`font-bold text-xs ${isOpen ? "text-white" : "text-primary"}`}>Q</span>
+                      </span>
+                      <h3 className="font-bold text-textDark leading-snug text-sm md:text-base">{faq.q}</h3>
+                    </div>
+                    <ChevronDown size={20} className={`transition-transform duration-300 text-primary flex-shrink-0 ml-4 ${isOpen ? "rotate-180" : ""}`} />
+                  </button>
+                  <div className={`transition-all duration-400 ease-in-out overflow-hidden ${isOpen ? "max-h-40 opacity-100" : "max-h-0 opacity-0"}`}>
+                    <div className="px-6 pb-6 pl-[3.25rem]">
+                      <p className="text-textLight text-sm leading-relaxed">{faq.a}</p>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
 
       {/* ── CTA ── */}
       <section style={{ background: "linear-gradient(135deg, #EC5F36 0%, #C94520 100%)" }}>

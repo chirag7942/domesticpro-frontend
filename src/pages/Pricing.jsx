@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import HeroWizard from "../components/HeroWizard";
 import PricingSection from "../components/PricingSection";
-import { Check, ChevronDown } from "lucide-react";
+import { Check } from "lucide-react";
 
 /* ── only what Tailwind cannot do ── */
 const CSS = `
@@ -29,25 +29,6 @@ const tableRows = [
   { feature: "Periodic Check-ins", connect: false, care: false, complete: true },
 ];
 
-const faqs = [
-  {
-    q: "Are there any hidden charges?",
-    a: "No. All fees are clearly mentioned. GST is added as per government regulations — you'll always see the full amount before confirming.",
-  },
-  {
-    q: "What happens if the staff leaves?",
-    a: "Replacement is provided within the plan's validity period as per your selected package — up to 30 days with the Complete plan.",
-  },
-  {
-    q: "How long does hiring take?",
-    a: "Most clients receive suitable profiles within 24–48 hours of confirming their requirement.",
-  },
-  {
-    q: "Can I upgrade my plan later?",
-    a: "Yes. Role upgrade support is available within the validity of the Complete plan.",
-  },
-];
-
 function CellValue({ value }) {
   if (value === true)
     return (
@@ -62,7 +43,6 @@ function CellValue({ value }) {
 
 export default function PricingPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [openIndexes, setOpenIndexes] = useState([]);
 
   useEffect(() => {
     const sections = document.querySelectorAll(".scroll-section");
@@ -73,11 +53,6 @@ export default function PricingPage() {
     sections.forEach((s) => observer.observe(s));
     return () => sections.forEach((s) => observer.unobserve(s));
   }, []);
-
-  const toggleFAQ = (i) =>
-    setOpenIndexes((prev) =>
-      prev.includes(i) ? prev.filter((x) => x !== i) : [...prev, i]
-    );
 
   return (
     <>
@@ -148,48 +123,6 @@ export default function PricingPage() {
                 </div>
               ))}
             </div> */}
-          </div>
-        </section>
-
-        {/* ── FAQ ── */}
-        <section className="bg-bgLight py-24">
-          <div className="max-w-3xl mx-auto px-6">
-            <div className="text-center mb-14">
-              <span className="inline-block bg-primary/10 text-primary text-xs font-bold tracking-widest uppercase px-4 py-1.5 rounded-full mb-5">
-                Got Questions?
-              </span>
-              <h2 className="text-4xl font-bold text-textDark">
-                Frequently Asked Questions
-              </h2>
-            </div>
-
-            <div className="space-y-4">
-              {faqs.map((faq, i) => {
-                const isOpen = openIndexes.includes(i);
-                return (
-                  <div key={i}
-                    className={`faq-card bg-white border rounded-2xl overflow-hidden transition-all duration-300 ${isOpen ? "border-primary shadow-[0_4px_20px_rgba(236,95,54,0.10)]" : "border-borderLight"}`}>
-                    <button
-                      onClick={() => toggleFAQ(i)}
-                      className="w-full flex items-center justify-between p-6 text-left"
-                    >
-                      <div className="flex items-start gap-4">
-                        <span className={`w-7 h-7 flex-shrink-0 rounded-lg flex items-center justify-center mt-0.5 transition-colors duration-200 ${isOpen ? "bg-primary" : "bg-primary/10"}`}>
-                          <span className={`font-bold text-xs ${isOpen ? "text-white" : "text-primary"}`}>Q</span>
-                        </span>
-                        <h3 className="font-bold text-textDark leading-snug text-sm md:text-base">{faq.q}</h3>
-                      </div>
-                      <ChevronDown size={20} className={`transition-transform duration-300 text-primary flex-shrink-0 ml-4 ${isOpen ? "rotate-180" : ""}`} />
-                    </button>
-                    <div className={`transition-all duration-400 ease-in-out overflow-hidden ${isOpen ? "max-h-32 opacity-100" : "max-h-0 opacity-0"}`}>
-                      <div className="px-6 pb-6 pl-[3.25rem]">
-                        <p className="text-textLight text-sm leading-relaxed">{faq.a}</p>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
           </div>
         </section>
 
