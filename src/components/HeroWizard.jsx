@@ -11,7 +11,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import {
   SERVICES, SERVICE_FORMATS, GENDER_OPTIONS_DATA, TASKS, HOUSE_SIZES,
-  PETS_OPTIONS, MEAL_PREFS, MEALS_NEEDED, CUISINES, CHILD_DUTIES,
+  PETS_OPTIONS, MEAL_PREFS, CUISINES, CHILD_DUTIES,
   CARE_NEEDED, VEHICLE_TYPES, HOME_TYPES, BUDGETS, SUBSTITUTE_BUDGETS, URGENCY_OPTIONS, PLANS,
   SERVICE_FLOWS, DEFAULT_FLOW, PROG_META, INIT,
   JAPA_DUTIES, JAPA_MOTHER_NEEDS,
@@ -134,7 +134,6 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
       case "housesize": return !!form.HouseSize;
       case "pets": return !!form.PetsAtHome;
       case "mealpref": return !!form.MealPref;
-      case "mealtime": return form.MealsNeeded.length > 0;
       case "cuisine": return form.CuisinePref.length > 0;
       case "childage": return !!form.ChildAge.trim();
       case "childduties": return form.ChildDuties.length > 0;
@@ -157,7 +156,7 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
   };
 
   const CONT_KEYS = new Set([
-    "tasks", "mealtime", "cuisine", "childduties", "careneeded", "vehicletype", "contact", "housesize", "mealpref", "urgency",
+    "tasks", "cuisine", "childduties", "careneeded", "vehicletype", "contact", "housesize", "mealpref", "urgency",
     "budget", "patientage", "childage", "patientgender", "hometype", "plan",
     "japaduties", "japamotherneeds",
   ]);
@@ -180,7 +179,6 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
       People_At_Home: String(f.PeopleAtHome),
       Pets_At_Home: f.PetsAtHome,
       Meal_Preferences: f.MealPref,
-      Meals_Needed: f.MealsNeeded.join(", "),
       Cuisine_Preference: f.CuisinePref.join(", "),
       Child_Age: f.ChildAge,
       Child_Duties: f.ChildDuties.join(", "),
@@ -323,7 +321,7 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
     if (curKey === "service") return (
       <div>
         <QHead q="What type of house help do you need?" hint="Tap to select — we'll guide you from there" />
-        <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
+        <div className="grid grid-cols-3 gap-2.5 sm:gap-3">
           {SERVICES.map((svc, i) => (
             <SvcCard key={svc.id} svc={svc} selected={form.ServiceType === svc.id}
               className={SERVICES.length % 3 === 1 && i === SERVICES.length - 1 ? "col-start-2" : ""}
@@ -444,21 +442,6 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
               onClick={() => { setF("MealPref", m.id); after(); }} />
           ))}
         </div>
-      </div>
-    );
-
-    // MEAL TIME
-    if (curKey === "mealtime") return (
-      <div>
-        <QHead q="Which meals do you need cooked?" hint="Select all that apply" />
-        <div className="grid grid-cols-2 gap-2.5">
-          {MEALS_NEEDED.map((m) => (
-            <ImgChip key={m.id} label={m.label} image={m.image}
-              selected={form.MealsNeeded.includes(m.id)}
-              onClick={() => toggleArr("MealsNeeded", m.id)} />
-          ))}
-        </div>
-        {form.MealsNeeded.length === 0 && <p className="hw2-warn mt-2">Pick at least one</p>}
       </div>
     );
 
@@ -1009,10 +992,13 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
       <div className="mb-5 flex-shrink-0">
         {/* Header row */}
         <div className="flex items-center justify-between mb-4">
-          <h2 className="hw2-display text-base font-bold text-gray-900 leading-tight">Hire Trusted Help</h2>
+          <h2 className="hw2-display text-lg font-extrabold text-gray-900 leading-tight">
+            Start Here to Hire Trusted Help Instantly
+          </h2>
+
           {form.ServiceType && (
             <span className="flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full"
-              style={{ background: "#FFF2EE", color: "#EC5F36", border: "1.5px solid #F5D8CF" }}>
+              style={{ background: "#FFF2EE", color: "#EC5F36", border: "1.5px solid #F5D8CF", fontSize: "0.65rem" }}>
               {SERVICES.find((s) => s.id === form.ServiceType)?.emoji}{" "}
               {SERVICES.find((s) => s.id === form.ServiceType)?.label}
             </span>
@@ -1073,7 +1059,7 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
             })}
           </div>
         </div>
-      </div>
+      </div >
     );
   };
 
@@ -1151,7 +1137,7 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
 
   // FIX: fluid height — never clips on mobile, never overflows on desktop
   const Shell = (
-    <div className="hw2-root flex flex-col bg-white rounded-3xl p-5 sm:p-6 w-full max-w-[30rem]" style={{ height: "35rem" }}>
+    <div className="hw2-root flex flex-col bg-white rounded-3xl p-5 sm:p-6 w-full max-w-[35rem]" style={{ height: "30rem" }}>
       {renderProgress()}
       <div ref={bodyRef} className="hw2-body overflow-y-auto" style={{ flex: 1 }}>
         <AnimatePresence mode="wait" custom={dir}>

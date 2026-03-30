@@ -65,28 +65,29 @@ export default function Home() {
       {/* ── HERO ── */}
       <section className="bg-bgLight">
         <div className="flex flex-wrap justify-center">
-          {/* image + overlay + text */}
-          <div className="relative">
-            <img
-              src="https://res.cloudinary.com/dhtzknkdr/image/upload/v1773031900/hero_wfmtrh.png"
-              loading="eager"
-              alt="Home Services"
-              className="shadow-sm"
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-black/55 via-black/25 to-transparent" />
+          {/* image + overlay + text  style={{ background: "url(./hero-image.png) no-repeat center -128px / cover", height: "41rem", width: "100%" }}*/}
+          <div
+            className="relative w-full h-[32vh] sm:h-[70vh] lg:h-[41rem]"
+            style={{
+              backgroundImage: 'url("./hero-image.png")',
+              backgroundSize: 'cover',
+              backgroundRepeat: 'no-repeat',
+              backgroundPosition: 'center',
+            }}
+          >
 
             <div className="absolute lg:w-1/2 md:w-full top-0 lg:px-[4rem] px-4 py-8">
-              <h1 className="text-white text-3xl sm:text-4xl md:text-5xl font-bold leading-tight mb-4">
+              <div className="pt-4 hidden lg:block">
+                <HeroWizard />
+              </div>
+              <h1 className="text-white text-3xl sm:text-4xl md:hidden font-bold leading-tight mb-4">
                 Hire Verified
                 <span className="text-primary"> Domestic Professionals </span>
                 instantly
               </h1>
-              <p className="text-white text-sm sm:text-base opacity-90">
+              <p className="text-white text-sm sm:text-base md:hidden opacity-90">
                 Verified nanny, househelp, cooks and drivers. Fast hiring. Trusted professionals.
               </p>
-              <div className="pt-4 hidden lg:block">
-                <HeroWizard />
-              </div>
             </div>
           </div>
 

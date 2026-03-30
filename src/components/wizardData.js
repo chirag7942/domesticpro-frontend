@@ -169,25 +169,6 @@ export const MEAL_PREFS = [
   },
 ];
 
-export const MEALS_NEEDED = [
-  {
-    id: "Breakfast",
-    label: "Breakfast",
-    image: `${CDN}/v1773037713/breakfast_uufihz.png`,
-  },
-  { id: "Lunch", label: "Lunch", image: `${CDN}/v1773037720/lunch_duetlf.png` },
-  {
-    id: "Dinner",
-    label: "Dinner",
-    image: `${CDN}/v1773037718/dinner_omjj6q.png`,
-  },
-  {
-    id: "All Meals",
-    label: "All Meals",
-    image: `${CDN}/v1773037713/all-meals_zcgzng.png`,
-  },
-];
-
 export const CUISINES = [
   {
     id: "North Indian",
@@ -560,7 +541,6 @@ export const SERVICE_FLOWS = {
     "service",
     "format",
     "mealpref",
-    "mealtime",
     "cuisine",
     "budget",
     "urgency",

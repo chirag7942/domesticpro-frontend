@@ -256,7 +256,7 @@ html{
     .hw2-done-plan-badge { display: inline-flex; align-items: center; gap: 5px; padding: 5px 14px; border-radius: 20px; font-size: 12px; font-weight: 800; border: 1.5px solid; margin-top: 8px; }
     .hw2-body::-webkit-scrollbar       { width: 3px; }
     .hw2-body::-webkit-scrollbar-track { background: transparent; }
-    .hw2-body::-webkit-scrollbar-thumb { background: #F0E8E4; border-radius: 4px; }
+    .hw2-body::-webkit-scrollbar-thumb { background: #fc9778; border-radius: 4px; }
 
     /* SUBSTITUTE BUDGET */
 .hw2-sub-budget-card  { width: 100%; padding: 16px; border-radius: 14px; border: 2px solid; cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif; text-align: left; transition: all .22s; }
