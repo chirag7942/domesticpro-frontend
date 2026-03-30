@@ -233,8 +233,8 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
       return;
     }
 
-    if (planType === "free") {
-      const zohoFields = buildZohoFields({ ...form, PlanType: "free", PaymentStatus: "No Payment — Basic Access" });
+    if (planType === "nopay") {
+      const zohoFields = buildZohoFields({ ...form, PlanType: "nopay", PaymentStatus: "No Payment — Basic Access" });
       try {
         const result = await submitNoPay(zohoFields);
         onSubmit?.(zohoFields, result);
@@ -942,7 +942,7 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
               </p>
             </motion.div>
           )}
-          {form.PlanType === "free" && (
+          {form.PlanType === "nopay" && (
             <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="hw2-pbt-note mt-3"
               style={{ background: "#F9FAFB", borderColor: "#E5E7EB", color: "#6B7280" }}>
               <p>⚠️ Without payment there is <strong>no priority, no guaranteed timeline, and no replacement support</strong>.</p>
@@ -954,7 +954,7 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
 
     // DONE
     if (curKey === "done") {
-      const isNoPay = form.PlanType === "free";
+      const isNoPay = form.PlanType === "nopay";
       const bg = isNoPay ? "linear-gradient(135deg,#9CA3AF,#6B7280)" : "linear-gradient(135deg,#EC5F36,#D84E28)";
       return (
         <div className="flex flex-col items-center justify-center py-8 text-center">
@@ -1093,7 +1093,7 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
       if (paymentStage === "redirecting") return <><FontAwesomeIcon icon={faSpinner} spin style={{ marginRight: 7 }} />Redirecting to payment…</>;
       if (form.PlanType === "priority") return <><FontAwesomeIcon icon={faBolt} style={{ marginRight: 7 }} />Pay ₹{(PLANS.priority.amount + PLANS.priority.gst).toLocaleString()} — Continue</>;
       if (form.PlanType === "commitment") return <><FontAwesomeIcon icon={faBolt} style={{ marginRight: 7 }} />Pay ₹{(PLANS.commitment.amount + PLANS.commitment.gst).toLocaleString()} — Continue</>;
-      if (form.PlanType === "free") return <>Continue Without Paying →</>;
+      if (form.PlanType === "nopay") return <>Continue Without Paying →</>;
       return "Select a Plan to Continue";
     };
 
