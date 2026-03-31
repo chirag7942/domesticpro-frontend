@@ -5,6 +5,6 @@ import react from "@vitejs/plugin-react";
 export default defineConfig({
   plugins: [react()],
   preview: {
-    allowedHosts: ["domestic-pro.onrender.com"],
+    allowedHosts: ["www.domesticpro.in", "domestic-pro.onrender.com"],
   },
 });
