@@ -6,9 +6,9 @@ export default defineConfig({
   plugins: [react()],
   preview: {
     allowedHosts: [
+      "domesticpro.in",
       "www.domesticpro.in",
       "domestic-pro.onrender.com",
-      "domesticpro.in",
     ],
   },
 });
