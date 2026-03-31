@@ -60,10 +60,10 @@ export default function Navbar() {
 
           {/* RIGHT SIDE */}
           <div className="flex items-center gap-4">
-            <a href="#" className="hover:opacity-80 transition">
+            <a href="https://www.facebook.com/people/Domestic-Pro/61577498196758/" className="hover:opacity-80 transition">
               <Facebook size={16} />
             </a>
-            <a href="#" className="hover:opacity-80 transition">
+            <a href="https://www.instagram.com/domestic.pro" className="hover:opacity-80 transition">
               <Instagram size={16} />
             </a>
             <a href="#" className="hover:opacity-80 transition">

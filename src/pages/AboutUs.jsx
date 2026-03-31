@@ -247,7 +247,7 @@ export default function AboutUs() {
                 {/* Founder photo */}
                 <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-borderLight mb-5">
                   <img
-                    src="https://res.cloudinary.com/dhtzknkdr/image/upload/v1773031893/about-hero_zhrrxa.webp"
+                    src="./founder.jpeg"
                     alt="Founder, Domestic Pro"
                     className="w-full h-full object-cover"
                   />
