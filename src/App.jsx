@@ -46,7 +46,7 @@ const routes = [
   { path: "/contact", element: <ContectNow /> },
   { path: "/baby-caretaker", element: <Nanny /> },
   { path: "/cooking-help", element: <Cook /> },
-  { path: "payment-status", element: <PaymentStatus /> },
+  { path: "/payment-status", element: <PaymentStatus /> },
   { path: "/drivers", element: <Driver /> },
   { path: "/japa", element: <Japa /> },
   { path: "/live-in-support", element: <HouseHelp /> },
