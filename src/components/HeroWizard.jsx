@@ -463,7 +463,7 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
     // CHILD AGE
     if (curKey === "childage") return (
       <div>
-        <QHead q="How old is the child?" />
+        <QHead q="How old is the child (in years)?" />
         <div className="hw2-age-input-wrap">
           <input className="hw2-finput hw2-age-input" type="number" min={1} placeholder="e.g. 2 years, 8 months…"
             value={form.ChildAge} autoFocus onChange={(e) => setF("ChildAge", e.target.value)} />
@@ -997,7 +997,7 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
           </h2>
 
           {form.ServiceType && (
-            <span className="flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full"
+            <span className="flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full sm-hidden"
               style={{ background: "#FFF2EE", color: "#EC5F36", border: "1.5px solid #F5D8CF", fontSize: "0.65rem" }}>
               {SERVICES.find((s) => s.id === form.ServiceType)?.emoji}{" "}
               {SERVICES.find((s) => s.id === form.ServiceType)?.label}
