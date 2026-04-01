@@ -67,8 +67,8 @@ export default function Home() {
         <div className="flex flex-wrap justify-center">
           {/* image + overlay + text  style={{ background: "url(./hero-image.png) no-repeat center -128px / cover", height: "41rem", width: "100%" }}*/}
           <div
-            className="relative w-full h-[32vh] sm:h-[70vh] lg:h-[38rem] bg-[url('./hero-image.jpeg')] bg-cover bg-no-repeat lg:bg-[center_-144px] bg-[-94px_center]"
-            style={{ backgroundImage: 'url("./hero-image.jpeg")' }}
+            className="relative w-full h-[32vh] sm:h-[70vh] lg:h-[38rem] bg-[url('public/hero-image.jpeg')] bg-cover bg-no-repeat lg:bg-[center_-144px] bg-[-94px_center]"
+          // style={{ backgroundImage: 'url("./hero-image.jpeg")' }}
           >
 
             <div className="absolute lg:w-1/2 md:w-full top-0 lg:px-[4rem] px-4 py-8">
