@@ -412,7 +412,7 @@ export const PLANS = {
       },
       {
         icon: "id-card",
-        label: "5 Verified Profiles within 24 Hours",
+        label: "3 Verified Profiles within 24 Hours",
         desc: "Carefully shortlisted based on your requirement.",
       },
       {
@@ -460,6 +460,11 @@ export const PLANS = {
         icon: "credit-card",
         label: "Commitment Fee (Upfront)",
         desc: "Nominal fee before profiles — ensures serious intent.",
+      },
+      {
+        icon: "id-card",
+        label: "2 Verified Profiles within 24 Hours",
+        desc: "Carefully shortlisted based on your requirement.",
       },
       {
         icon: "address-card",
