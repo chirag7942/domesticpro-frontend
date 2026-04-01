@@ -69,7 +69,7 @@ export default function Home() {
           <div
             className="relative w-full h-[32vh] sm:h-[70vh] lg:h-[41rem]"
             style={{
-              backgroundImage: 'url("./hero-image.png")',
+              backgroundImage: 'url("./hero-image.jpeg")',
               backgroundSize: 'cover',
               backgroundRepeat: 'no-repeat',
               backgroundPosition: 'center',
