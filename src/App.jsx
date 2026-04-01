@@ -5,13 +5,14 @@ import {
   useLocation,
   matchRoutes,
 } from "react-router-dom";
-import { lazy, Suspense, useEffect } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import ScrollToTop from "./components/ScrollToTop";
 import Loader from "./components/Loader";
 import PaymentStatus from "./pages/PaymentStatus";
+import RibbonCutting from "./components/RibbonCutting";
 
 /* -------- Lazy Loaded Pages -------- */
 
@@ -60,12 +61,11 @@ const routes = [
 
 function Layout() {
   const location = useLocation();
+  const [showIntro, setShowIntro] = useState(true);
 
-  /* detect 404 route */
   const matchedRoute = matchRoutes(routes, location);
   const is404 = !matchedRoute;
 
-  /* Prefetch important pages in background */
   useEffect(() => {
     import("./pages/Pricing");
     import("./pages/ContectNow");
@@ -75,7 +75,7 @@ function Layout() {
   return (
     <>
       <ScrollToTop />
-
+      {showIntro && <RibbonCutting onComplete={() => setShowIntro(false)} />}
       {!is404 && <Navbar />}
 
       <Suspense fallback={<Loader />}>
@@ -83,7 +83,6 @@ function Layout() {
           {routes.map((route) => (
             <Route key={route.path} path={route.path} element={route.element} />
           ))}
-
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
