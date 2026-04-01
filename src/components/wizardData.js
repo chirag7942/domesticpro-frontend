@@ -463,7 +463,7 @@ export const PLANS = {
       },
       {
         icon: "id-card",
-        label: "2 Verified Profiles within 24 Hours",
+        label: "2 Verified Profiles between 24-48 Hours",
         desc: "Carefully shortlisted based on your requirement.",
       },
       {
