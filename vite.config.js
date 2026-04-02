@@ -8,7 +8,7 @@ export default defineConfig({
     allowedHosts: [
       "domesticpro.in",
       "www.domesticpro.in",
-      "domestic-pro.onrender.com",
+      "domesticpro-dev.vercel.app",
     ],
   },
 });
