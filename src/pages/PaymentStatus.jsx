@@ -19,7 +19,6 @@ import {
 const API_BASE = import.meta.env.VITE_REACT_APP_API;
 const MAX_POLLS = 10;
 
-// ── Plan config — drives all content differences ──────────────────────────────
 const PLAN_CONFIG = {
   priority: {
     label: "Priority Plan",
@@ -57,10 +56,11 @@ export default function PaymentStatus() {
   const [status, setStatus] = useState("loading");
   const [orderId, setOrderId] = useState("");
   const [pollCount, setPollCount] = useState(0);
-  const [plan, setPlan] = useState("priority"); // "priority" | "commitment"
+  const [plan, setPlan] = useState("priority");
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
+    // Cashfree appends ?order_id= (snake_case) to the return URL
     const oid = params.get("order_id") || sessionStorage.getItem("dp_order_id") || "";
     const savedPlan = sessionStorage.getItem("dp_plan") || "priority";
     setOrderId(oid);
@@ -71,32 +71,49 @@ export default function PaymentStatus() {
 
   const verify = async (oid, attempt, savedPlan) => {
     try {
-      let zohoFields = null;
-      try {
-        const stored = sessionStorage.getItem("dp_zoho_fields");
-        if (stored) zohoFields = JSON.parse(stored);
-      } catch (_) { }
-
       const res = await fetch(`${API_BASE}/payment-verify`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ order_id: oid, zohoFields, plan: savedPlan }),
+        // ── FIX 1: was { order_id: oid } — backend requires "orderId" (camelCase)
+        // ── FIX 2: removed zohoFields — backend retrieves them from orderStore by orderId now
+        body: JSON.stringify({ orderId: oid }),
       });
+
       const data = await res.json();
 
-      if (data.status === "PAID") {
+      // ── FIX 3: was checking data.status === "PAID"
+      // New backend returns { success: true } for any confirmed payment (webhook or fallback)
+      if (res.ok && data.success) {
         sessionStorage.removeItem("dp_order_id");
         sessionStorage.removeItem("dp_zoho_fields");
         sessionStorage.removeItem("dp_plan");
+        sessionStorage.removeItem("dp_customer_phone");
         setStatus("paid");
         return;
       }
-      if (data.status === "ACTIVE" && attempt < MAX_POLLS) {
+
+      // ── FIX 4: poll while Cashfree payment is still ACTIVE (bank processing)
+      // Backend returns 400 with an error message containing "ACTIVE" in this case
+      const isStillProcessing =
+        !res.ok &&
+        typeof data.error === "string" &&
+        data.error.includes("ACTIVE");
+
+      if (isStillProcessing && attempt < MAX_POLLS) {
         setPollCount(attempt + 1);
         setTimeout(() => verify(oid, attempt + 1, savedPlan), 3000);
         return;
       }
-      setStatus(data.status === "ACTIVE" ? "pending" : "failed");
+
+      // Polled MAX_POLLS times and still ACTIVE — show pending screen
+      if (isStillProcessing) {
+        setStatus("pending");
+        return;
+      }
+
+      // Any other non-ok (CANCELLED, EXPIRED, etc.) — failed
+      setStatus("failed");
+
     } catch {
       if (attempt < MAX_POLLS) {
         setTimeout(() => verify(oid, attempt + 1, savedPlan), 3000);
@@ -179,7 +196,11 @@ export default function PaymentStatus() {
                         }} />
                     ))}
                   </div>
-                  {pollCount > 3 && <p className="text-[11px] text-textLight font-medium">Checking with Cashfree… ({pollCount}/{MAX_POLLS})</p>}
+                  {pollCount > 3 && (
+                    <p className="text-[11px] text-textLight font-medium">
+                      Checking with Cashfree… ({pollCount}/{MAX_POLLS})
+                    </p>
+                  )}
                 </>
               )}
 
@@ -196,7 +217,6 @@ export default function PaymentStatus() {
                   </motion.div>
 
                   <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
-                    {/* Plan label pill */}
                     <div className="inline-flex items-center gap-1.5 text-[10px] font-extrabold tracking-widest uppercase rounded-full px-3 py-1 mb-3 border"
                       style={{ background: pc.accentBg, borderColor: pc.accentBorder, color: pc.accentText }}>
                       <FontAwesomeIcon icon={plan === "commitment" ? faCalendarCheck : faBolt} style={{ fontSize: 10 }} />
@@ -210,7 +230,6 @@ export default function PaymentStatus() {
                     </p>
                   </motion.div>
 
-                  {/* What happens next — plan specific */}
                   <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}
                     className="w-full rounded-2xl p-4 text-left flex flex-col gap-3 border"
                     style={{ background: pc.accentBg, borderColor: pc.accentBorder }}>
@@ -225,7 +244,6 @@ export default function PaymentStatus() {
                     ))}
                   </motion.div>
 
-                  {/* Order ID */}
                   {orderId && (
                     <div className="w-full rounded-xl px-4 py-2.5 flex items-center justify-between border"
                       style={{ background: pc.accentBg, borderColor: pc.accentBorder }}>
@@ -259,7 +277,8 @@ export default function PaymentStatus() {
                     <div className="bg-red-50 border border-red-100 rounded-2xl px-4 py-3 text-xs text-red-600 font-medium leading-relaxed text-left">
                       Your <strong>{pc.label}</strong> request was not processed. No charges were applied.
                     </div>
-                    <button onClick={() => { sessionStorage.removeItem("dp_order_id"); window.history.back(); }}
+                    <button
+                      onClick={() => { sessionStorage.removeItem("dp_order_id"); window.history.back(); }}
                       className="btn-primary w-full flex items-center justify-center gap-2 !rounded-2xl !py-3.5 text-sm">
                       <FontAwesomeIcon icon={faArrowLeft} style={{ fontSize: 13 }} />
                       Go back &amp; try again
@@ -317,7 +336,8 @@ export default function PaymentStatus() {
                         <span className="text-[11px] font-extrabold text-textDark truncate max-w-[180px]">{orderId}</span>
                       </div>
                     )}
-                    <a href={`https://wa.me/919211298139?text=Payment+issue+%E2%80%93+${pc.label}+%E2%80%93+Order+ID:+${orderId}`}
+                    <a
+                      href={`https://wa.me/919211298139?text=Payment+issue+%E2%80%93+${pc.label}+%E2%80%93+Order+ID:+${orderId}`}
                       target="_blank" rel="noopener noreferrer"
                       className="w-full flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#1ebe5d] text-white font-bold text-sm rounded-2xl py-3.5 transition hover:shadow-md">
                       <FontAwesomeIcon icon={faCommentDots} style={{ fontSize: 14 }} />
