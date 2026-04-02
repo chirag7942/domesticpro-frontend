@@ -61,7 +61,7 @@ const routes = [
 
 function Layout() {
   const location = useLocation();
-  const [showIntro, setShowIntro] = useState(true);
+  const [showIntro, setShowIntro] = useState(false);
 
   const matchedRoute = matchRoutes(routes, location);
   const is404 = !matchedRoute;
