@@ -17,7 +17,15 @@ import {
   JAPA_DUTIES, JAPA_MOTHER_NEEDS,
 } from "./wizardData";
 
-const API_BASE = import.meta.env.VITE_REACT_APP_API;
+// ─── FIX: use env var; falls back to empty string so errors are visible ───────
+// If you see ERR_CONNECTION_REFUSED on :5000, set VITE_REACT_APP_API in your
+// .env file (local) or Render env dashboard (production):
+//   VITE_REACT_APP_API=https://your-backend.onrender.com
+const API_BASE = import.meta.env.VITE_REACT_APP_API || "";
+
+// ─── FIX: internal secret for protected endpoints ─────────────────────────────
+// Add VITE_INTERNAL_SECRET to your .env — same value as INTERNAL_API_SECRET on backend
+const INTERNAL_SECRET = import.meta.env.VITE_INTERNAL_SECRET || "";
 
 const FA_ICON_MAP = {
   "bolt": faBolt, "id-card": faIdCard, "user-check": faUserCheck,
@@ -28,7 +36,12 @@ const FA_ICON_MAP = {
   "phone": faPhone, "users": faUsers, "ban": faBan,
 };
 
+// ─── FIX #4: /create-order now exists on backend (was missing) ────────────────
+// ─── FIX #6: we only pass orderId back from sessionStorage, not zohoFields ────
+// ─── FIX #2: cashfreeMode is returned by server, never hardcoded here ─────────
 const createCashfreeOrder = async ({ plan, customer, zohoFields }) => {
+  if (!API_BASE) throw new Error("VITE_REACT_APP_API is not set. Check your .env file.");
+
   const res = await fetch(`${API_BASE}/create-order`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -36,16 +49,26 @@ const createCashfreeOrder = async ({ plan, customer, zohoFields }) => {
   });
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || "Order creation failed");
+  // Returns: { order_id, payment_session_id, cashfreeMode, amount }
   return data;
 };
 
+// ─── FIX #4: /submit-nopay now exists on backend ──────────────────────────────
+// ─── FIX #17: returns a real error so caller can surface it to the user ───────
 const submitNoPay = async (zohoFields) => {
+  if (!API_BASE) throw new Error("VITE_REACT_APP_API is not set. Check your .env file.");
+
   const res = await fetch(`${API_BASE}/submit-nopay`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      "x-internal-secret": INTERNAL_SECRET,
+    },
     body: JSON.stringify({ zohoFields }),
   });
-  return res.json();
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || `Server error ${res.status}`);
+  return data;
 };
 
 export default function HeroWizard({ asModal = false, isOpen = true, onClose, onSubmit, initialService, initialFormat }) {
@@ -82,6 +105,8 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
   const [planSubmitting, setPlanSubmitting] = useState(false);
   const [paymentStage, setPaymentStage] = useState("idle");
   const [activeTab, setActiveTab] = useState("priority");
+  // ─── FIX #17: error state so no-pay failures are shown to the user ───────────
+  const [submitError, setSubmitError] = useState("");
   const bodyRef = useRef(null);
 
   useEffect(() => {
@@ -92,6 +117,7 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
       setPlanSubmitting(false);
       setPaymentStage("idle");
       setActiveTab("priority");
+      setSubmitError("");
     }
   }, [isOpen, initialService, initialFormat]);
 
@@ -125,6 +151,7 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
     setPlanSubmitting(false);
     setPaymentStage("idle");
     setActiveTab("priority");
+    setSubmitError("");
   };
 
   const isValid = () => {
@@ -199,58 +226,79 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
   const handlePlanSubmit = async (planType) => {
     if (!planType || planSubmitting) return;
     setF("PlanType", planType);
+    setSubmitError(""); // clear any previous error
     setPlanSubmitting(true);
 
+    // ─── PAID PLANS ────────────────────────────────────────────────────────────
     if (planType === "priority" || planType === "commitment") {
       try {
         setPaymentStage("creating_order");
         const zohoFields = buildZohoFields({ ...form, PlanType: planType });
+
+        // ─── FIX #4 / #6: zohoFields sent to server and stored there ────────
         const order = await createCashfreeOrder({
           plan: planType,
           customer: {
             name: `${form.FirstName} ${form.LastName}`.trim(),
             email: form.Email || `${form.Phone}@noemail.com`,
-            phone: `91${form.Phone}`,
+            phone: form.Phone,
           },
           zohoFields,
         });
+
+        // ─── FIX #6: only store orderId — zohoFields live on the server now ──
         sessionStorage.setItem("dp_order_id", order.order_id);
         sessionStorage.setItem("dp_plan", planType);
-        sessionStorage.setItem("dp_zoho_fields", JSON.stringify(zohoFields));
         sessionStorage.setItem("dp_customer_phone", form.Phone);
+        // DO NOT store dp_zoho_fields in sessionStorage anymore
+
         setPaymentStage("redirecting");
+
+        // ─── FIX #2: mode comes from server — never hardcoded "sandbox" ─────
         const { load } = await import("@cashfreepayments/cashfree-js");
-        const cashfree = await load({ mode: "sandbox" });
+        const cashfree = await load({ mode: order.cashfreeMode || "production" });
         await cashfree.checkout({ paymentSessionId: order.payment_session_id, redirectTarget: "_self" });
       } catch (err) {
         console.error("Cashfree error:", err);
         setPaymentStage("idle");
         setPlanSubmitting(false);
-        alert(`Payment failed to initialise: ${err.message}. Please try again.`);
+        // ─── FIX: show friendly error instead of raw alert when possible ────
+        if (err.message.includes("VITE_REACT_APP_API")) {
+          setSubmitError("Backend URL not configured. Set VITE_REACT_APP_API in your .env file.");
+        } else {
+          alert(`Payment failed to initialise: ${err.message}. Please try again.`);
+        }
       }
       return;
     }
 
+    // ─── NO-PAY PLAN ───────────────────────────────────────────────────────────
     if (planType === "nopay") {
       const zohoFields = buildZohoFields({ ...form, PlanType: "nopay", PaymentStatus: "No Payment — Basic Access" });
       try {
         const result = await submitNoPay(zohoFields);
         onSubmit?.(zohoFields, result);
+
+        // ─── FIX #18: only navigate to done on actual success ────────────────
+        const currentSteps = form.ServiceType
+          ? (SERVICE_FLOWS[form.ServiceType] || DEFAULT_FLOW)
+          : DEFAULT_FLOW;
+        setStepIdx(currentSteps.indexOf("done"));
       } catch (err) {
         console.error("Submit error:", err);
+        // ─── FIX #17: show error to user — never show done screen on failure ─
+        setSubmitError(
+          err.message.includes("VITE_REACT_APP_API")
+            ? "Backend URL not configured. Set VITE_REACT_APP_API in your .env file."
+            : "We couldn't save your request. Please check your connection and try again, or call us on +91 92112 98139."
+        );
       }
       setPlanSubmitting(false);
-      // FIX: use current flow, not stale closure
-      const currentSteps = form.ServiceType
-        ? (SERVICE_FLOWS[form.ServiceType] || DEFAULT_FLOW)
-        : DEFAULT_FLOW;
-      setStepIdx(currentSteps.indexOf("done"));
     }
   };
 
   // ── UI COMPONENTS ────────────────────────────────────────────────────────────
 
-  // FIX: Larger question text, better visual hierarchy
   const QHead = ({ q, hint }) => (
     <div className="mb-5">
       <p className="text-[15px] font-bold leading-snug text-[#181C2E] mb-1">{q}</p>
@@ -317,7 +365,6 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
   );
 
   const renderStep = () => {
-    // SERVICE
     if (curKey === "service") return (
       <div>
         <QHead q="What type of house help do you need?" hint="Tap to select — we'll guide you from there" />
@@ -331,7 +378,6 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
       </div>
     );
 
-    // FORMAT
     if (curKey === "format") return (
       <div>
         <QHead q="Choose Service Format" hint="How would you like the service provided?" />
@@ -371,7 +417,6 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
       </div>
     );
 
-    // TASKS
     if (curKey === "tasks") return (
       <div>
         <QHead q="Which tasks are needed?" hint="Select all that apply" />
@@ -385,7 +430,6 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
       </div>
     );
 
-    // HOUSE SIZE
     if (curKey === "housesize") return (
       <div>
         <QHead q="What's your home size?" hint="Helps us estimate effort & staff" />
@@ -403,7 +447,6 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
       </div>
     );
 
-    // PETS
     if (curKey === "pets") return (
       <div>
         <QHead q="Do you have pets at home?" hint="Some helpers prefer no pets" />
@@ -417,7 +460,6 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
       </div>
     );
 
-    // HOME TYPE
     if (curKey === "hometype") return (
       <div>
         <QHead q="What type of home?" />
@@ -431,7 +473,6 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
       </div>
     );
 
-    // MEAL PREF
     if (curKey === "mealpref") return (
       <div>
         <QHead q="Dietary preference?" hint="Helps match the right cook" />
@@ -445,7 +486,6 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
       </div>
     );
 
-    // CUISINE
     if (curKey === "cuisine") return (
       <div>
         <QHead q="Cuisine preference?" />
@@ -460,7 +500,6 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
       </div>
     );
 
-    // CHILD AGE
     if (curKey === "childage") return (
       <div>
         <QHead q="How old is the child (in years)?" />
@@ -472,7 +511,6 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
       </div>
     );
 
-    // CHILD DUTIES
     if (curKey === "childduties") return (
       <div>
         <QHead q="What duties are needed?" hint="Select all that apply" />
@@ -487,7 +525,6 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
       </div>
     );
 
-    // JAPA — DUTIES
     if (curKey === "japaduties") return (
       <div>
         <QHead q="What newborn duties are needed?" hint="Select all that apply" />
@@ -502,7 +539,6 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
       </div>
     );
 
-    // JAPA — MOTHER NEEDS
     if (curKey === "japamotherneeds") return (
       <div>
         <QHead q="What does the mother need?" hint="Select all that apply" />
@@ -517,7 +553,6 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
       </div>
     );
 
-    // PATIENT AGE
     if (curKey === "patientage") return (
       <div>
         <QHead q="How old is the patient?" />
@@ -528,7 +563,6 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
       </div>
     );
 
-    // PATIENT GENDER
     if (curKey === "patientgender") return (
       <div>
         <QHead q="Patient's gender?" />
@@ -541,7 +575,6 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
       </div>
     );
 
-    // CARE NEEDED
     if (curKey === "careneeded") return (
       <div>
         <QHead q="What care is required?" hint="Select all that apply" />
@@ -556,7 +589,6 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
       </div>
     );
 
-    // VEHICLE TYPE
     if (curKey === "vehicletype") return (
       <div>
         <QHead q="What vehicle(s) will the driver operate?" hint="Select all that apply" />
@@ -571,7 +603,6 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
       </div>
     );
 
-    // URGENCY
     if (curKey === "urgency") return (
       <div>
         <QHead q="How soon do you need placement?" />
@@ -585,9 +616,7 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
       </div>
     );
 
-    // BUDGET
     if (curKey === "budget") {
-      // FIX: Substitute pricing — async-safe state commit
       if (form.ServiceFormat === "Substitute") return (
         <div>
           <QHead q="Substitute Service Pricing" hint="Here's how our substitute service works" />
@@ -624,8 +653,6 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
                 </div>
               </div>
             </div>
-
-            {/* Fee summary row */}
             <div className="flex items-center justify-between rounded-2xl border border-[#F1E3DE] bg-white px-5 py-4">
               <div>
                 <p className="text-xs text-[#5B6475] font-semibold">Domestic Pro Fee</p>
@@ -637,8 +664,6 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
               </div>
             </div>
           </div>
-
-          {/* FIX: async-safe — commit state then navigate */}
           <button
             type="button"
             onClick={() => {
@@ -647,9 +672,7 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
             }}
             className="w-full rounded-2xl py-3.5 text-sm font-bold transition-all duration-200"
             style={{
-              background: form.Budget === "sub-5k"
-                ? "linear-gradient(135deg,#EC5F36,#D84E28)"
-                : "#fff",
+              background: form.Budget === "sub-5k" ? "linear-gradient(135deg,#EC5F36,#D84E28)" : "#fff",
               border: `2px solid ${form.Budget === "sub-5k" ? "#EC5F36" : "#F1E3DE"}`,
               color: form.Budget === "sub-5k" ? "#fff" : "#EC5F36",
             }}>
@@ -658,7 +681,6 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
         </div>
       );
 
-      // Standard budget
       return (
         <div>
           <QHead q="What's your monthly budget?" hint="We'll match staff within your budget" />
@@ -681,13 +703,11 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
       );
     }
 
-    // CONTACT
     if (curKey === "contact") {
       const phoneOk = form.Phone.length === 10 && /^[6-9]/.test(form.Phone);
       return (
         <div>
           <QHead q="Almost there! 🎉" hint="Share your details — our team will call you within 2 hours" />
-
           <div className="grid grid-cols-2 gap-2.5 mb-3">
             <div>
               <label className="hw2-flabel">First Name *</label>
@@ -700,7 +720,6 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
                 value={form.LastName} onChange={(e) => setF("LastName", e.target.value)} />
             </div>
           </div>
-
           <div className="mb-3">
             <label className="hw2-flabel">
               Phone * <span className="text-xs font-normal text-gray-400">(we'll call on this)</span>
@@ -718,7 +737,6 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
               </p>
             )}
           </div>
-
           <div className="mb-3">
             <label className="hw2-flabel">
               Email <span className="text-xs font-normal text-gray-400">(optional)</span>
@@ -726,7 +744,6 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
             <input className="hw2-finput" type="email" placeholder="rahul@example.com"
               value={form.Email} onChange={(e) => setF("Email", e.target.value)} />
           </div>
-
           <div className="mb-3">
             <label className="hw2-flabel">Your Area / City *</label>
             <div className="grid grid-cols-2 gap-2">
@@ -735,7 +752,6 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
               <CitySelect value={form.City} onChange={(city) => setF("City", city)} placeholder="Select city" />
             </div>
           </div>
-
           <div className="mb-4">
             <label className="hw2-flabel">
               Anything else? <span className="text-xs font-normal text-gray-400">(optional)</span>
@@ -744,7 +760,6 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
               value={form.Instructions} onChange={(e) => setF("Instructions", e.target.value)}
               className="hw2-textarea" />
           </div>
-
           <div className="hw2-summary">
             <p className="hw2-sum-head">📋 Your Request Summary</p>
             {[
@@ -765,7 +780,6 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
               form.CareNeeded.length > 0 && { k: "Care Needed", v: form.CareNeeded.join(", ") },
               form.HomeType && { k: "Home Type", v: form.HomeType },
               form.VehicleType.length > 0 && { k: "Vehicle", v: form.VehicleType.join(", ") },
-              // FIX: clean label for substitute clients
               form.Budget && {
                 k: form.ServiceFormat === "Substitute" ? "Service Fee" : "Budget",
                 v: form.ServiceFormat === "Substitute"
@@ -784,7 +798,6 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
       );
     }
 
-    // PLAN
     if (curKey === "plan") {
       const planList = Object.values(PLANS);
       const activePlan = planList.find((p) => p.id === activeTab) || planList[0];
@@ -830,7 +843,6 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
                 background: isSelected ? plan.accentLight : "#fff",
                 transition: "all .22s",
               }}>
-                {/* Header */}
                 <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 10, marginBottom: 4 }}>
                   <div>
                     <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap" }}>
@@ -864,7 +876,6 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
 
                 <div style={{ height: 1, background: isSelected ? plan.borderColor : "#F0F0F0", marginBottom: 12 }} />
 
-                {/* Inclusions */}
                 <ul style={{ listStyle: "none", padding: 0, margin: "0 0 12px", display: "flex", flexDirection: "column", gap: 9 }}>
                   {plan.inclusions.map((item, i) => (
                     <li key={i} style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
@@ -886,7 +897,6 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
                   </div>
                 )}
 
-                {/* Select button */}
                 <button type="button" onClick={() => setF("PlanType", plan.id)}
                   style={{
                     width: "100%", padding: "10px", borderRadius: 11,
@@ -931,11 +941,23 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
               <p>⚠️ Without payment there is <strong>no priority, no guaranteed timeline, and no replacement support</strong>.</p>
             </motion.div>
           )}
+
+          {/* ─── FIX #17: error banner — shown when nopay submission fails ──── */}
+          {submitError && (
+            <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
+              style={{
+                marginTop: 12, padding: "10px 14px",
+                background: "#FEF2F2", border: "1.5px solid #FECACA",
+                borderRadius: 10, color: "#991B1B",
+                fontSize: 12, fontWeight: 600, lineHeight: 1.5,
+              }}>
+              ⚠ {submitError}
+            </motion.div>
+          )}
         </div>
       );
     }
 
-    // DONE
     if (curKey === "done") {
       const isNoPay = form.PlanType === "nopay";
       const bg = isNoPay ? "linear-gradient(135deg,#9CA3AF,#6B7280)" : "linear-gradient(135deg,#EC5F36,#D84E28)";
@@ -985,17 +1007,14 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
 
   const renderProgress = () => {
     if (isDone) return null;
-    // FIX: hide labels on long flows (>6 steps) to prevent overflow
     const hideLabels = progKeys.length > 6;
 
     return (
       <div className="mb-5 flex-shrink-0">
-        {/* Header row */}
         <div className="flex items-center justify-between mb-4">
           <h2 className="hw2-display text-lg font-extrabold text-gray-900 leading-tight">
             Start Here to Hire Trusted Help Instantly
           </h2>
-
           {form.ServiceType && (
             <span className="flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full sm-hidden"
               style={{ background: "#FFF2EE", color: "#EC5F36", border: "1.5px solid #F5D8CF", fontSize: "0.65rem" }}>
@@ -1005,9 +1024,7 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
           )}
         </div>
 
-        {/* Track + dots */}
         <div className="relative">
-          {/* Track line */}
           <div className="absolute h-[2px] bg-gray-100 rounded-full"
             style={{
               top: hideLabels ? 12 : 13,
@@ -1022,7 +1039,6 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
               transition={{ duration: 0.4, ease: "easeInOut" }} />
           </div>
 
-          {/* Dots row */}
           <div className="relative flex justify-between" style={{ zIndex: 1 }}>
             {progKeys.map((key, i) => {
               const meta = PROG_META[key] ?? { label: key, icon: Briefcase };
@@ -1059,7 +1075,7 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
             })}
           </div>
         </div>
-      </div >
+      </div>
     );
   };
 
@@ -1086,8 +1102,6 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
     return (
       <div className="pt-3 mt-3 flex items-center justify-between gap-3 flex-shrink-0"
         style={{ borderTop: "1.5px solid #F0EBE8" }}>
-
-        {/* FIX: visible pill back button */}
         {showBack ? (
           <button type="button" disabled={planSubmitting} onClick={goBack}
             className="flex items-center gap-1.5 text-xs font-bold transition-all duration-150 px-3 py-2.5 rounded-xl flex-shrink-0"
@@ -1101,7 +1115,6 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
           </button>
         ) : <div />}
 
-        {/* FIX: full-width gradient CTA, proper disabled state */}
         {showContinue && (
           <button type="button"
             disabled={!valid || planSubmitting}
@@ -1135,7 +1148,6 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
 
   // ── SHELL ────────────────────────────────────────────────────────────────────
 
-  // FIX: fluid height — never clips on mobile, never overflows on desktop
   const Shell = (
     <div className="hw2-root flex flex-col bg-white rounded-3xl p-5 sm:p-6 w-full max-w-[35rem]" style={{ height: "30rem" }}>
       {renderProgress()}
