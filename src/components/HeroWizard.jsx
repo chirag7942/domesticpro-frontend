@@ -220,6 +220,7 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
         sessionStorage.setItem("dp_customer_phone", form.Phone);
         setPaymentStage("redirecting");
         const { load } = await import("@cashfreepayments/cashfree-js");
+        
         const cashfree = await load({ mode: "sandbox" });
         await cashfree.checkout({ paymentSessionId: order.payment_session_id, redirectTarget: "_self" });
       } catch (err) {
