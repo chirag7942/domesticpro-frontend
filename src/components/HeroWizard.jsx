@@ -105,6 +105,10 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
   const [planSubmitting, setPlanSubmitting] = useState(false);
   const [paymentStage, setPaymentStage] = useState("idle");
   const [activeTab, setActiveTab] = useState("priority");
+  const [dropLeadId, setDropLeadId] = useState(
+    // Restore from sessionStorage in case user returns from payment page
+    () => sessionStorage.getItem("dp_drop_lead_id") || ""
+  );
   // ─── FIX #17: error state so no-pay failures are shown to the user ───────────
   const [submitError, setSubmitError] = useState("");
   const bodyRef = useRef(null);
@@ -140,7 +144,13 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
 
   const setF = (k, v) => setForm((f) => ({ ...f, [k]: v }));
   const toggleArr = (k, v) => setForm((f) => ({ ...f, [k]: f[k].includes(v) ? f[k].filter((x) => x !== v) : [...f[k], v] }));
-  const goNext = () => { setDir(1); setStepIdx((i) => Math.min(i + 1, steps.length - 1)); };
+  const goNext = () => {
+    if (curKey === "contact" && isValid()) {
+      captureDrop(); // fire-and-forget, no await
+    }
+    setDir(1);
+    setStepIdx((i) => Math.min(i + 1, steps.length - 1));
+  };
   const goBack = () => { setDir(-1); setStepIdx((i) => Math.max(i - 1, 0)); };
   const after = (ms = 220) => setTimeout(goNext, ms);
 
@@ -152,6 +162,7 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
     setPaymentStage("idle");
     setActiveTab("priority");
     setSubmitError("");
+    setDropLeadId("");
   };
 
   const isValid = () => {
@@ -223,19 +234,71 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
     };
   }
 
+  const captureDrop = async () => {
+    // Only fire once — if we already have a dropLeadId, skip
+    if (dropLeadId) return;
+
+    try {
+      const zohoFields = buildZohoFields({
+        ...form,
+        PlanType: "cart_drop",
+        PaymentStatus: "Cart Drop — Dropped at Plan Step",
+      });
+
+      const res = await fetch(`${API_BASE}/capture-drop`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ zohoFields }),
+      });
+
+      const data = await res.json();
+
+      if (data.success && data.leadId) {
+        setDropLeadId(data.leadId);
+        sessionStorage.setItem("dp_drop_lead_id", data.leadId);
+        console.log("[CART-DROP] Captured lead:", data.leadId);
+      }
+    } catch (err) {
+      // Silent — never surface this to the user
+      console.warn("[CART-DROP] Capture failed (non-fatal):", err.message);
+    }
+  };
+
   const handlePlanSubmit = async (planType) => {
     if (!planType || planSubmitting) return;
     setF("PlanType", planType);
-    setSubmitError(""); // clear any previous error
+    setSubmitError("");
     setPlanSubmitting(true);
 
-    // ─── PAID PLANS ────────────────────────────────────────────────────────────
+    // Helper: upgrade the cart_drop record to the real plan
+    // Runs in background after payment/nopay — non-blocking
+    const upgradeDropLead = async (finalPlanType, paymentStatus, orderId = null) => {
+      const savedDropId = dropLeadId || sessionStorage.getItem("dp_drop_lead_id");
+      if (!savedDropId) return;
+      try {
+        await fetch(`${API_BASE}/update-lead/${savedDropId}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            Plan_Type: finalPlanType,
+            Payment_Status: paymentStatus,
+            ...(orderId ? { Order_ID: orderId } : {}),
+          }),
+        });
+        // Clean up sessionStorage once upgraded
+        sessionStorage.removeItem("dp_drop_lead_id");
+        setDropLeadId("");
+      } catch (err) {
+        console.warn("[CART-DROP] Upgrade failed (non-fatal):", err.message);
+      }
+    };
+
+    // ── PAID PLANS ──────────────────────────────────────────────────────────────
     if (planType === "priority" || planType === "commitment") {
       try {
         setPaymentStage("creating_order");
         const zohoFields = buildZohoFields({ ...form, PlanType: planType });
 
-        // ─── FIX #4 / #6: zohoFields sent to server and stored there ────────
         const order = await createCashfreeOrder({
           plan: planType,
           customer: {
@@ -244,17 +307,16 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
             phone: form.Phone,
           },
           zohoFields,
+          // Pass dropLeadId so backend can update instead of insert
+          dropLeadId: dropLeadId || sessionStorage.getItem("dp_drop_lead_id") || "",
         });
 
-        // ─── FIX #6: only store orderId — zohoFields live on the server now ──
         sessionStorage.setItem("dp_order_id", order.order_id);
         sessionStorage.setItem("dp_plan", planType);
         sessionStorage.setItem("dp_customer_phone", form.Phone);
-        // DO NOT store dp_zoho_fields in sessionStorage anymore
 
         setPaymentStage("redirecting");
 
-        // ─── FIX #2: mode comes from server — never hardcoded "sandbox" ─────
         const { load } = await import("@cashfreepayments/cashfree-js");
         const cashfree = await load({ mode: order.cashfreeMode || "production" });
         await cashfree.checkout({ paymentSessionId: order.payment_session_id, redirectTarget: "_self" });
@@ -262,7 +324,6 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
         console.error("Cashfree error:", err);
         setPaymentStage("idle");
         setPlanSubmitting(false);
-        // ─── FIX: show friendly error instead of raw alert when possible ────
         if (err.message.includes("VITE_REACT_APP_API")) {
           setSubmitError("Backend URL not configured. Set VITE_REACT_APP_API in your .env file.");
         } else {
@@ -272,25 +333,44 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
       return;
     }
 
-    // ─── NO-PAY PLAN ───────────────────────────────────────────────────────────
+    // ── NO-PAY PLAN ─────────────────────────────────────────────────────────────
     if (planType === "nopay") {
-      const zohoFields = buildZohoFields({ ...form, PlanType: "nopay", PaymentStatus: "No Payment — Basic Access" });
-      try {
-        const result = await submitNoPay(zohoFields);
-        onSubmit?.(zohoFields, result);
+      const savedDropId = dropLeadId || sessionStorage.getItem("dp_drop_lead_id");
 
-        // ─── FIX #18: only navigate to done on actual success ────────────────
+      try {
+        if (savedDropId) {
+          // Upgrade existing cart_drop record — don't create a new one
+          await fetch(`${API_BASE}/update-lead/${savedDropId}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              Plan_Type: "nopay",
+              Payment_Status: "No Payment — Basic Access",
+            }),
+          });
+          sessionStorage.removeItem("dp_drop_lead_id");
+          setDropLeadId("");
+        } else {
+          // No drop lead exists (edge case) — create fresh
+          const zohoFields = buildZohoFields({
+            ...form,
+            PlanType: "nopay",
+            PaymentStatus: "No Payment — Basic Access",
+          });
+          const result = await submitNoPay(zohoFields);
+          onSubmit?.(zohoFields, result);
+        }
+
         const currentSteps = form.ServiceType
           ? (SERVICE_FLOWS[form.ServiceType] || DEFAULT_FLOW)
           : DEFAULT_FLOW;
         setStepIdx(currentSteps.indexOf("done"));
       } catch (err) {
         console.error("Submit error:", err);
-        // ─── FIX #17: show error to user — never show done screen on failure ─
         setSubmitError(
           err.message.includes("VITE_REACT_APP_API")
             ? "Backend URL not configured. Set VITE_REACT_APP_API in your .env file."
-            : "We couldn't save your request. Please check your connection and try again, or call us on +91 92112 98139."
+            : "We couldn't save your request. Please try again or call us on +91 92112 98139."
         );
       }
       setPlanSubmitting(false);
