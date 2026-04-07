@@ -65,21 +65,20 @@ export default function Home() {
       {/* ── HERO ── */}
       <section className="bg-bgLight">
         <div className="flex flex-wrap justify-center">
-          {/* image */}
+          {/* image  bg-[center_center] md:bg-[-94rem_center]*/}
           <div
-            className="relative w-full h-[32vh] sm:h-[70vh] lg:h-[38rem] bg-[url('/hero-image.jpeg')]  bg-cover bg-no-repeat lg:bg-[center_-144px] bg-[-94px_center]"
+            className="relative w-full h-[32vh] sm:h-[19vh] md:h-[39vh] lg:h-[38rem] bg-[url('/hero-image.jpeg')] bg-[center_center] bg-cover"
           >
-
-            <div className="absolute lg:w-1/2 md:w-full top-0 lg:px-[4rem] px-4 py-8">
+            <div className="absolute lg:w-1/2 md:w-full top-0 lg:px-[4rem] px-4 pt-[3rem] pb-[2rem]">
               <div className="pt-4 hidden lg:block">
                 <HeroWizard />
               </div>
-              <h1 className="text-white text-3xl sm:text-4xl md:hidden font-bold leading-tight mb-4">
+              <h1 className="text-white text-3xl sm:text-4xl lg:hidden font-bold leading-tight mb-4">
                 Hire Verified
                 <span className="text-primary"> Domestic Professionals </span>
                 instantly
               </h1>
-              <p className="text-white text-sm sm:text-base md:hidden opacity-90">
+              <p className="text-white text-sm sm:text-base lg:hidden opacity-90">
                 Verified nanny, househelp, cooks and drivers. Fast hiring. Trusted professionals.
               </p>
             </div>

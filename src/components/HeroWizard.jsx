@@ -17,14 +17,7 @@ import {
   JAPA_DUTIES, JAPA_MOTHER_NEEDS,
 } from "./wizardData";
 
-// ─── FIX: use env var; falls back to empty string so errors are visible ───────
-// If you see ERR_CONNECTION_REFUSED on :5000, set VITE_REACT_APP_API in your
-// .env file (local) or Render env dashboard (production):
-//   VITE_REACT_APP_API=https://your-backend.onrender.com
 const API_BASE = import.meta.env.VITE_REACT_APP_API || "";
-
-// ─── FIX: internal secret for protected endpoints ─────────────────────────────
-// Add VITE_INTERNAL_SECRET to your .env — same value as INTERNAL_API_SECRET on backend
 const INTERNAL_SECRET = import.meta.env.VITE_INTERNAL_SECRET || "";
 
 const FA_ICON_MAP = {
@@ -36,25 +29,19 @@ const FA_ICON_MAP = {
   "phone": faPhone, "users": faUsers, "ban": faBan,
 };
 
-// ─── FIX #4: /create-order now exists on backend (was missing) ────────────────
-// ─── FIX #6: we only pass orderId back from sessionStorage, not zohoFields ────
-// ─── FIX #2: cashfreeMode is returned by server, never hardcoded here ─────────
-const createCashfreeOrder = async ({ plan, customer, zohoFields }) => {
+const createCashfreeOrder = async ({ plan, customer, zohoFields, dropLeadId }) => {
   if (!API_BASE) throw new Error("VITE_REACT_APP_API is not set. Check your .env file.");
 
   const res = await fetch(`${API_BASE}/create-order`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ plan, customer, zohoFields }),
+    body: JSON.stringify({ plan, customer, zohoFields, dropLeadId }),
   });
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || "Order creation failed");
-  // Returns: { order_id, payment_session_id, cashfreeMode, amount }
   return data;
 };
 
-// ─── FIX #4: /submit-nopay now exists on backend ──────────────────────────────
-// ─── FIX #17: returns a real error so caller can surface it to the user ───────
 const submitNoPay = async (zohoFields) => {
   if (!API_BASE) throw new Error("VITE_REACT_APP_API is not set. Check your .env file.");
 
@@ -106,10 +93,8 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
   const [paymentStage, setPaymentStage] = useState("idle");
   const [activeTab, setActiveTab] = useState("priority");
   const [dropLeadId, setDropLeadId] = useState(
-    // Restore from sessionStorage in case user returns from payment page
     () => sessionStorage.getItem("dp_drop_lead_id") || ""
   );
-  // ─── FIX #17: error state so no-pay failures are shown to the user ───────────
   const [submitError, setSubmitError] = useState("");
   const bodyRef = useRef(null);
 
@@ -146,7 +131,7 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
   const toggleArr = (k, v) => setForm((f) => ({ ...f, [k]: f[k].includes(v) ? f[k].filter((x) => x !== v) : [...f[k], v] }));
   const goNext = () => {
     if (curKey === "contact" && isValid()) {
-      captureDrop(); // fire-and-forget, no await
+      captureDrop(); // fire-and-forget
     }
     setDir(1);
     setStepIdx((i) => Math.min(i + 1, steps.length - 1));
@@ -163,6 +148,7 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
     setActiveTab("priority");
     setSubmitError("");
     setDropLeadId("");
+    sessionStorage.removeItem("dp_drop_lead_id");
   };
 
   const isValid = () => {
@@ -234,9 +220,10 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
     };
   }
 
+  // ── captureDrop: fires once when user moves from contact → plan step ─────────
+  // Creates a cart_drop lead in Zoho and stores the leadId for later upgrade.
   const captureDrop = async () => {
-    // Only fire once — if we already have a dropLeadId, skip
-    if (dropLeadId) return;
+    if (dropLeadId) return; // already captured this session
 
     try {
       const zohoFields = buildZohoFields({
@@ -259,8 +246,31 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
         console.log("[CART-DROP] Captured lead:", data.leadId);
       }
     } catch (err) {
-      // Silent — never surface this to the user
       console.warn("[CART-DROP] Capture failed (non-fatal):", err.message);
+    }
+  };
+
+  // ── upgradeDropLead: PATCH the cart_drop record to the real plan ─────────────
+  // This prevents a second Zoho record from being created.
+  // Called explicitly before redirecting to Cashfree (paid plans).
+  const upgradeDropLead = async (finalPlanType, paymentStatus, orderId = null) => {
+    const savedDropId = dropLeadId || sessionStorage.getItem("dp_drop_lead_id");
+    if (!savedDropId) return;
+    try {
+      await fetch(`${API_BASE}/update-lead/${savedDropId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          Plan_Type: finalPlanType,
+          Payment_Status: paymentStatus,
+          ...(orderId ? { Order_ID: orderId } : {}),
+        }),
+      });
+      console.log(`[CART-DROP] Upgraded lead ${savedDropId} → plan=${finalPlanType}`);
+      sessionStorage.removeItem("dp_drop_lead_id");
+      setDropLeadId("");
+    } catch (err) {
+      console.warn("[CART-DROP] Upgrade failed (non-fatal):", err.message);
     }
   };
 
@@ -270,35 +280,19 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
     setSubmitError("");
     setPlanSubmitting(true);
 
-    // Helper: upgrade the cart_drop record to the real plan
-    // Runs in background after payment/nopay — non-blocking
-    const upgradeDropLead = async (finalPlanType, paymentStatus, orderId = null) => {
-      const savedDropId = dropLeadId || sessionStorage.getItem("dp_drop_lead_id");
-      if (!savedDropId) return;
-      try {
-        await fetch(`${API_BASE}/update-lead/${savedDropId}`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            Plan_Type: finalPlanType,
-            Payment_Status: paymentStatus,
-            ...(orderId ? { Order_ID: orderId } : {}),
-          }),
-        });
-        // Clean up sessionStorage once upgraded
-        sessionStorage.removeItem("dp_drop_lead_id");
-        setDropLeadId("");
-      } catch (err) {
-        console.warn("[CART-DROP] Upgrade failed (non-fatal):", err.message);
-      }
-    };
-
     // ── PAID PLANS ──────────────────────────────────────────────────────────────
     if (planType === "priority" || planType === "commitment") {
       try {
         setPaymentStage("creating_order");
+
+        const savedDropId = dropLeadId || sessionStorage.getItem("dp_drop_lead_id");
         const zohoFields = buildZohoFields({ ...form, PlanType: planType });
 
+        // FIX: Pass dropLeadId to /create-order.
+        // The backend will PATCH the existing cart_drop record with
+        // _existingLeadId embedded in zohoFields stored in orderStore.
+        // When the webhook/verify fires, pushToZoho() will UPDATE that
+        // record instead of creating a new one → NO DUPLICATE LEADS.
         const order = await createCashfreeOrder({
           plan: planType,
           customer: {
@@ -307,9 +301,16 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
             phone: form.Phone,
           },
           zohoFields,
-          // Pass dropLeadId so backend can update instead of insert
-          dropLeadId: dropLeadId || sessionStorage.getItem("dp_drop_lead_id") || "",
+          dropLeadId: savedDropId,
         });
+
+        // FIX: Mark the drop lead as "Payment Initiated" immediately.
+        // This updates the Zoho record status so if the user abandons
+        // the payment page, the record shows the correct state.
+        // upgradeDropLead is now ACTUALLY CALLED (was defined but never called before).
+        if (savedDropId) {
+          await upgradeDropLead(planType, "Payment Initiated", order.order_id);
+        }
 
         sessionStorage.setItem("dp_order_id", order.order_id);
         sessionStorage.setItem("dp_plan", planType);
@@ -320,6 +321,7 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
         const { load } = await import("@cashfreepayments/cashfree-js");
         const cashfree = await load({ mode: order.cashfreeMode || "production" });
         await cashfree.checkout({ paymentSessionId: order.payment_session_id, redirectTarget: "_self" });
+
       } catch (err) {
         console.error("Cashfree error:", err);
         setPaymentStage("idle");
@@ -327,7 +329,7 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
         if (err.message.includes("VITE_REACT_APP_API")) {
           setSubmitError("Backend URL not configured. Set VITE_REACT_APP_API in your .env file.");
         } else {
-          alert(`Payment failed to initialise: ${err.message}. Please try again.`);
+          setSubmitError(`Payment failed to initialise: ${err.message}. Please try again.`);
         }
       }
       return;
@@ -339,19 +341,11 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
 
       try {
         if (savedDropId) {
-          // Upgrade existing cart_drop record — don't create a new one
-          await fetch(`${API_BASE}/update-lead/${savedDropId}`, {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              Plan_Type: "nopay",
-              Payment_Status: "No Payment — Basic Access",
-            }),
-          });
-          sessionStorage.removeItem("dp_drop_lead_id");
-          setDropLeadId("");
+          // FIX: upgradeDropLead is now ACTUALLY CALLED for nopay too.
+          // Upgrades the existing cart_drop record → no duplicate created.
+          await upgradeDropLead("nopay", "No Payment — Basic Access");
         } else {
-          // No drop lead exists (edge case) — create fresh
+          // Edge case: no drop lead exists — create fresh record
           const zohoFields = buildZohoFields({
             ...form,
             PlanType: "nopay",
@@ -996,7 +990,6 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
             );
           })()}
 
-          {/* Plan notes */}
           {form.PlanType === "priority" && (
             <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="hw2-pbt-note mt-3"
               style={{ background: "#FFF7F4", borderColor: "#F5D8CF", color: "#7C2D12" }}>
@@ -1022,7 +1015,6 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
             </motion.div>
           )}
 
-          {/* ─── FIX #17: error banner — shown when nopay submission fails ──── */}
           {submitError && (
             <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
               style={{
@@ -1082,8 +1074,6 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
 
     return null;
   };
-
-  // ── PROGRESS BAR ─────────────────────────────────────────────────────────────
 
   const renderProgress = () => {
     if (isDone) return null;
@@ -1159,8 +1149,6 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
     );
   };
 
-  // ── FOOTER ───────────────────────────────────────────────────────────────────
-
   const renderFooter = () => {
     if (isDone) return null;
     const showBack = stepIdx > 0;
@@ -1225,8 +1213,6 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
       </div>
     );
   };
-
-  // ── SHELL ────────────────────────────────────────────────────────────────────
 
   const Shell = (
     <div className="hw2-root flex flex-col bg-white rounded-3xl p-5 sm:p-6 w-full max-w-[35rem]" style={{ height: "30rem" }}>
