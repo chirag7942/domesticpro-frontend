@@ -125,7 +125,7 @@ export default function Navbar() {
               >
                 <div className="flex flex-col py-3 text-sm">
                   <NavLink
-                    to="/live-in-support"
+                    to="/services/live-in-support"
                     onClick={closeServices}
                     className={({ isActive }) =>
                       `px-4 py-2 transition-all duration-300 
@@ -145,7 +145,7 @@ export default function Navbar() {
                   </NavLink>
 
                   <NavLink
-                    to="/baby-caretaker"
+                    to="/services/baby-caretaker"
                     onClick={closeServices}
                     className={({ isActive }) =>
                       `px-4 py-2 transition-all duration-300 
@@ -165,7 +165,7 @@ export default function Navbar() {
                   </NavLink>
 
                   <NavLink
-                    to="/japa"
+                    to="/services/japa"
                     onClick={closeServices}
                     className={({ isActive }) =>
                       `px-4 py-2 transition-all duration-300 
@@ -185,7 +185,7 @@ export default function Navbar() {
                   </NavLink>
 
                   <NavLink
-                    to="/cooking-help"
+                    to="/services/cooking-help"
                     onClick={closeServices}
                     className={({ isActive }) =>
                       `px-4 py-2 transition-all duration-300 
@@ -205,7 +205,7 @@ export default function Navbar() {
                   </NavLink>
 
                   <NavLink
-                    to="/patient-care"
+                    to="/services/patient-care"
                     onClick={closeServices}
                     className={({ isActive }) =>
                       `px-4 py-2 transition-all duration-300 
@@ -225,7 +225,7 @@ export default function Navbar() {
                   </NavLink>
 
                   <NavLink
-                    to="/drivers"
+                    to="/services/drivers"
                     onClick={closeServices}
                     className={({ isActive }) =>
                       `px-4 py-2 transition-all duration-300 
@@ -393,7 +393,7 @@ export default function Navbar() {
                 {servicesOpen && (
                   <div className="ml-4 mt-3 flex flex-col space-y-3 text-sm">
                     <NavLink
-                      to="/live-in-support"
+                      to="/services/live-in-support"
                       onClick={() => setOpen(false)}
                       className={({ isActive }) =>
                         `flex items-center gap-2 transition-colors duration-300 ${isActive
@@ -407,7 +407,7 @@ export default function Navbar() {
                     </NavLink>
 
                     <NavLink
-                      to="/baby-caretaker"
+                      to="/services/baby-caretaker"
                       onClick={() => setOpen(false)}
                       className={({ isActive }) =>
                         `flex items-center gap-2 transition-colors duration-300 ${isActive
@@ -421,7 +421,7 @@ export default function Navbar() {
                     </NavLink>
 
                     <NavLink
-                      to="/japa"
+                      to="/services/japa"
                       onClick={() => setOpen(false)}
                       className={({ isActive }) =>
                         `flex items-center gap-2 transition-colors duration-300 ${isActive
@@ -435,7 +435,7 @@ export default function Navbar() {
                     </NavLink>
 
                     <NavLink
-                      to="/cooking-help"
+                      to="/services/cooking-help"
                       onClick={() => setOpen(false)}
                       className={({ isActive }) =>
                         `flex items-center gap-2 transition-colors duration-300 ${isActive
@@ -449,7 +449,7 @@ export default function Navbar() {
                     </NavLink>
 
                     <NavLink
-                      to="/patient-care"
+                      to="/services/patient-care"
                       onClick={() => setOpen(false)}
                       className={({ isActive }) =>
                         `flex items-center gap-2 transition-colors duration-300 ${isActive
@@ -463,7 +463,7 @@ export default function Navbar() {
                     </NavLink>
 
                     <NavLink
-                      to="/drivers"
+                      to="/services/drivers"
                       onClick={() => setOpen(false)}
                       className={({ isActive }) =>
                         `flex items-center gap-2 transition-colors duration-300 ${isActive

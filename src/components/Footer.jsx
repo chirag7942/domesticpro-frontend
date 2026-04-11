@@ -37,7 +37,7 @@ export default function Footer() {
             <ul className="space-y-3 text-sm text-gray-300">
               <li>
                 <Link
-                  to="baby-caretaker"
+                  to="/services/baby-caretaker"
                   className="hover:text-primary transition"
                 >
                   Baby Caretaker
@@ -46,7 +46,7 @@ export default function Footer() {
 
               <li>
                 <Link
-                  to="/live-in-support"
+                  to="/services/live-in-support"
                   className="hover:text-primary transition"
                 >
                   Live-in Support
@@ -55,7 +55,7 @@ export default function Footer() {
 
               <li>
                 <Link
-                  to="cooking-help"
+                  to="/services/cooking-help"
                   className="hover:text-primary transition"
                 >
                   Cooking Help
@@ -63,13 +63,13 @@ export default function Footer() {
               </li>
 
               <li>
-                <Link to="/drivers" className="hover:text-primary transition">
+                <Link to="/services/drivers" className="hover:text-primary transition">
                   Drivers
                 </Link>
               </li>
               <li>
                 <Link
-                  to="/patient-care"
+                  to="/services/patient-care"
                   className="hover:text-primary transition"
                 >
                   Patient Care
@@ -77,7 +77,7 @@ export default function Footer() {
               </li>
               <li>
                 <Link
-                  to="japa"
+                  to="/services/japa"
                   className="hover:text-primary transition"
                 >
                   Japa
@@ -123,7 +123,7 @@ export default function Footer() {
 
               <li>
                 <Link
-                  to="/terms&condition"
+                  to="/terms-and-conditions"
                   className="hover:text-primary transition"
                 >
                   Terms & Conditions
@@ -188,7 +188,7 @@ export default function Footer() {
                 Refund Policy
               </Link>
               <Link
-                to="/terms&condition"
+                to="/terms-and-conditions"
                 className="hover:text-primary transition"
               >
                 Terms & Condition

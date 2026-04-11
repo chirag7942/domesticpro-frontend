@@ -1,12 +1,12 @@
 import { Link } from "react-router-dom";
 
 const quickLinks = [
-  { icon: "🏠", label: "House Help", href: "/live-in-support" },
-  { icon: "👨‍🍳", label: "Cook", href: "/cooking-help" },
-  { icon: "👶", label: "Baby Care", href: "/baby-caretaker" },
-  { icon: "🧓", label: "Patient Care", href: "/patient-care" },
-  { icon: "🚗", label: "Driver", href: "/drivers" },
-  { icon: "📞", label: "Contact", href: "/contact" },
+  { icon: "🏠", label: "House Help", href: "/services/live-in-support" },
+  { icon: "👨‍🍳", label: "Cook", href: "/services/cooking-help" },
+  { icon: "👶", label: "Baby Care", href: "/services/baby-caretaker" },
+  { icon: "🧓", label: "Patient Care", href: "/services/patient-care" },
+  { icon: "🚗", label: "Driver", href: "/services/drivers" },
+  { icon: "📞", label: "Contact", href: "/services/contact" },
 ];
 
 export default function NotFound() {

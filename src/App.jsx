@@ -38,21 +38,21 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 
 /* -------- Route Config -------- */
 
-const routes = [
+export const routes = [
   { path: "/", element: <Home /> },
   { path: "/about", element: <AboutUs /> },
   { path: "/refer-a-helper", element: <ReferHelper /> },
   { path: "/refer-a-household", element: <ReferHousehold /> },
   { path: "/pricing", element: <Pricing /> },
   { path: "/contact", element: <ContectNow /> },
-  { path: "/baby-caretaker", element: <Nanny /> },
-  { path: "/cooking-help", element: <Cook /> },
-  { path: "/payment-status", element: <PaymentStatus /> },
-  { path: "/drivers", element: <Driver /> },
-  { path: "/japa", element: <Japa /> },
-  { path: "/live-in-support", element: <HouseHelp /> },
-  { path: "/patient-care", element: <PatientCare /> },
-  { path: "/terms&condition", element: <TermstAndCondition /> },
+  { path: "/services/baby-caretaker", element: <Nanny /> },
+  { path: "/services/cooking-help", element: <Cook /> },
+  { path: "/services/payment-status", element: <PaymentStatus /> },
+  { path: "/services/drivers", element: <Driver /> },
+  { path: "/services/japa", element: <Japa /> },
+  { path: "/services/live-in-support", element: <HouseHelp /> },
+  { path: "/services/patient-care", element: <PatientCare /> },
+  { path: "/terms-and-conditions", element: <TermstAndCondition /> },
   { path: "/refund-policy", element: <RefundPolicy /> },
   { path: "/privacy-policy", element: <PrivacyPolicy /> },
 ];
@@ -79,15 +79,17 @@ function Layout() {
       {!is404 && <Navbar />}
 
       <Suspense fallback={<Loader />}>
+        {/* <Suspense fallback={<div>Loading...</div>}> */}
         <Routes>
           {routes.map((route) => (
             <Route key={route.path} path={route.path} element={route.element} />
           ))}
           <Route path="*" element={<NotFound />} />
         </Routes>
-      </Suspense>
+      </Suspense >
 
-      {!is404 && <Footer />}
+      {!is404 && <Footer />
+      }
     </>
   );
 }

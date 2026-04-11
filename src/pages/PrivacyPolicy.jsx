@@ -371,7 +371,7 @@ export default function PrivacyPolicy() {
                     className="bg-white text-primary px-6 py-3 rounded-xl text-sm font-bold hover:bg-bgLight transition-colors duration-200 shadow-md">
                     Contact Us
                   </button>
-                  <button onClick={() => navigate("/terms&condition")}
+                  <button onClick={() => navigate("/terms-and-conditions")}
                     className="border-2 border-white/40 text-white px-6 py-3 rounded-xl text-sm font-bold hover:border-white transition-colors duration-200">
                     View Terms & Conditions
                   </button>
