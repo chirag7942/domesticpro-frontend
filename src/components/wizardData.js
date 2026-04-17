@@ -98,6 +98,11 @@ export const GENDER_OPTIONS_DATA = [
     label: "Female",
     image: `${CDN}/v1773031900/female_zo7iwn.png`,
   },
+  {
+    id: "Any",
+    label: "Any",
+    image: `${CDN}/v1773031900/any_cvq417.png`,
+  },
 ];
 
 export const TASKS = [
@@ -220,11 +225,31 @@ export const CHILD_DUTIES = [
     image: `${CDN}/v1773038058/playtime_udha2d.png`,
   },
   {
-    id: "Putting to Sleep",
-    label: "Putting to Sleep",
+    id: "Putting to sleep",
+    label: "Putting to sleep",
     image: `${CDN}/v1773038061/sleeping_uk5vqm.png`,
   },
   { id: "Other", label: "Other", image: `${CDN}/v1773034370/other_s1pon0.png` },
+];
+
+// Add this export near CHILD_DUTIES:
+export const CHILD_AGE_RANGES = [
+  {
+    id: "0 - 1 Year",
+    label: "0 - 1 Year",
+  },
+  {
+    id: "2 - 5 Years",
+    label: "2 - 5 Years",
+  },
+  {
+    id: "6 - 12 Years",
+    label: "6 - 12 Years",
+  },
+  {
+    id: "13 + Years",
+    label: "13 + Years",
+  },
 ];
 
 export const CARE_NEEDED = [
@@ -393,7 +418,7 @@ export const JAPA_MOTHER_NEEDS = [
 // ── PLANS ─────────────────────────────────────────────────────────────────────
 export const PLANS = {
   priority: {
-    id: "priority",
+    id: "Priority",
     name: "Priority Pay",
     tag: "Fast-Track Hiring",
     subtitle: "Pay Before Trial",
@@ -444,7 +469,7 @@ export const PLANS = {
     bonus: "One free replacement within 15 days if required.",
   },
   commitment: {
-    id: "commitment",
+    id: "Commitment",
     name: "Commitment Plan",
     tag: "Standard Hiring",
     subtitle: "Commitment-Based Start",
@@ -495,7 +520,7 @@ export const PLANS = {
     bonus: null,
   },
   noPay: {
-    id: "nopay",
+    id: "No Pay",
     name: "Continue Without Pay",
     tag: "Basic Access",
     subtitle: "No upfront payment",
@@ -536,6 +561,7 @@ export const SERVICE_FLOWS = {
     "tasks",
     "housesize",
     "pets",
+    "helpergender",
     "budget",
     "urgency",
     "contact",
@@ -547,6 +573,8 @@ export const SERVICE_FLOWS = {
     "format",
     "mealpref",
     "cuisine",
+    "cookmembers",
+    "helpergender",
     "budget",
     "urgency",
     "contact",
@@ -558,6 +586,7 @@ export const SERVICE_FLOWS = {
     "format",
     "childage",
     "childduties",
+    "helpergender",
     "budget",
     "urgency",
     "contact",
@@ -569,6 +598,7 @@ export const SERVICE_FLOWS = {
     "format",
     "japaduties",
     "japamotherneeds",
+    "helpergender",
     "budget",
     "urgency",
     "contact",
@@ -581,6 +611,7 @@ export const SERVICE_FLOWS = {
     "patientage",
     "patientgender",
     "careneeded",
+    "helpergender",
     "budget",
     "urgency",
     "contact",
@@ -591,6 +622,7 @@ export const SERVICE_FLOWS = {
     "service",
     "format",
     "vehicletype",
+    "helpergender",
     "budget",
     "urgency",
     "contact",
@@ -602,6 +634,7 @@ export const SERVICE_FLOWS = {
 export const DEFAULT_FLOW = [
   "service",
   "urgency",
+  "helpergender",
   "budget",
   "contact",
   "plan",
@@ -617,6 +650,8 @@ export const PROG_META = {
   mealpref: { label: "Diet", icon: Utensils },
   mealtime: { label: "Meals", icon: Coffee },
   cuisine: { label: "Cuisine", icon: ChefHat },
+  cookmembers: { label: "Members", icon: Users },
+  helpergender: { label: "Helper", icon: ChefHat },
   childage: { label: "Child", icon: Baby },
   childduties: { label: "Duties", icon: ClipboardList },
   patientage: { label: "Patient", icon: HeartPulse },
@@ -657,6 +692,8 @@ export const INIT = {
   MealPref: "",
   MealsNeeded: [],
   CuisinePref: [],
+  HelperGender: "",
+  CookMembers: 0,
   // Baby Caretaker
   ChildAge: "",
   ChildDuties: [],

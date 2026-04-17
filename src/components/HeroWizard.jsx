@@ -14,11 +14,12 @@ import {
   PETS_OPTIONS, MEAL_PREFS, CUISINES, CHILD_DUTIES,
   CARE_NEEDED, VEHICLE_TYPES, HOME_TYPES, BUDGETS, SUBSTITUTE_BUDGETS, URGENCY_OPTIONS, PLANS,
   SERVICE_FLOWS, DEFAULT_FLOW, PROG_META, INIT,
-  JAPA_DUTIES, JAPA_MOTHER_NEEDS,
+  JAPA_DUTIES, JAPA_MOTHER_NEEDS, CHILD_AGE_RANGES
 } from "./wizardData";
 
 const API_BASE = import.meta.env.VITE_REACT_APP_API || "";
 const INTERNAL_SECRET = import.meta.env.VITE_INTERNAL_SECRET || "";
+const ENABLE_PAYMENT = import.meta.env.VITE_ENABLE_PAYMENT === "true";
 
 const FA_ICON_MAP = {
   "bolt": faBolt, "id-card": faIdCard, "user-check": faUserCheck,
@@ -120,7 +121,14 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
     setStepIdx(1);
   };
 
-  const steps = form.ServiceType ? (SERVICE_FLOWS[form.ServiceType] || DEFAULT_FLOW) : DEFAULT_FLOW;
+  const steps = (() => {
+    const base = form.ServiceType
+      ? SERVICE_FLOWS[form.ServiceType] || DEFAULT_FLOW
+      : DEFAULT_FLOW;
+    if (ENABLE_PAYMENT) return base;
+    // When payment is disabled, remove the "plan" step
+    return base.filter((k) => k !== "plan");
+  })();
   const curKey = steps[stepIdx] ?? "service";
   const isDone = curKey === "done";
   const progKeys = steps.filter((k) => k !== "done");
@@ -131,13 +139,46 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
   const toggleArr = (k, v) => setForm((f) => ({ ...f, [k]: f[k].includes(v) ? f[k].filter((x) => x !== v) : [...f[k], v] }));
   const goNext = () => {
     if (curKey === "contact" && isValid()) {
-      captureDrop(); // fire-and-forget
+      if (!ENABLE_PAYMENT) {
+        // Payment disabled — submit nopay immediately and go to done
+        handleNopayDirectSubmit();
+        return;
+      }
+      captureDrop(); // fire-and-forget (payment enabled path)
     }
     setDir(1);
     setStepIdx((i) => Math.min(i + 1, steps.length - 1));
   };
   const goBack = () => { setDir(-1); setStepIdx((i) => Math.max(i - 1, 0)); };
   const after = (ms = 220) => setTimeout(goNext, ms);
+  // 4. Add handleNopayDirectSubmit — place right after the goNext definition
+
+  const handleNopayDirectSubmit = async () => {
+    setPlanSubmitting(true);
+    setSubmitError("");
+    try {
+      const zohoFields = buildZohoFields({
+        ...form,
+        PlanType: "Priority",
+        PaymentStatus: "Paid",
+      });
+      const result = await submitNoPay(zohoFields);
+      onSubmit?.(zohoFields, result);
+      const currentSteps = form.ServiceType
+        ? SERVICE_FLOWS[form.ServiceType] || DEFAULT_FLOW
+        : DEFAULT_FLOW;
+      const doneIdx = steps.indexOf("done");
+      setDir(1);
+      setStepIdx(doneIdx);
+    } catch (err) {
+      setSubmitError(
+        err.message.includes("VITE_REACT_APP_API")
+          ? "Backend URL not configured. Set VITE_REACT_APP_API in your .env file."
+          : "We couldn't save your request. Please try again or call us on +91 92112 98139."
+      );
+    }
+    setPlanSubmitting(false);
+  };
 
   const resetWizard = () => {
     setStepIdx(getInitialStep());
@@ -158,7 +199,9 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
       case "housesize": return !!form.HouseSize;
       case "pets": return !!form.PetsAtHome;
       case "mealpref": return !!form.MealPref;
+      case "cookmembers": return form.CookMembers > 0;
       case "cuisine": return form.CuisinePref.length > 0;
+      case "helpergender": return !!form.HelperGender;
       case "childage": return !!form.ChildAge.trim();
       case "childduties": return form.ChildDuties.length > 0;
       case "patientage": return !!form.PatientAge.trim();
@@ -171,7 +214,7 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
       case "japaduties": return form.JapaDuties.length > 0;
       case "japamotherneeds": return form.JapaMotherNeeds.length > 0;
       case "contact":
-        return form.FirstName.trim() !== "" && form.LastName.trim() !== "" &&
+        return form.FirstName.trim() !== "" &&
           form.Phone.length === 10 && /^[6-9]/.test(form.Phone) &&
           form.Street.trim() !== "" && form.City.trim() !== "";
       case "plan": return !!form.PlanType;
@@ -180,11 +223,16 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
   };
 
   const CONT_KEYS = new Set([
-    "tasks", "cuisine", "childduties", "careneeded", "vehicletype", "contact", "housesize", "mealpref", "urgency",
+    "tasks", "cuisine", "childduties", "careneeded", "vehicletype", "contact", "housesize", "mealpref", "cookmembers", "helpergender", "urgency",
     "budget", "patientage", "childage", "patientgender", "hometype", "plan",
     "japaduties", "japamotherneeds",
   ]);
   const showContinue = CONT_KEYS.has(curKey);
+
+  // Find buildZohoFields and change these lines only:
+  // BEFORE: f.Tasks.join(", ")      → AFTER: f.Tasks
+  // BEFORE: f.CuisinePref.join(", ") → AFTER: f.CuisinePref
+  // etc.
 
   function buildZohoFields(f) {
     return {
@@ -196,22 +244,23 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
       Street_Address: f.Street,
       City: f.City,
       Service_Type: f.ServiceType,
-      Service_Label: f.ServiceLabel,
       Service_Format: f.ServiceFormat,
-      Tasks_Needed: f.Tasks.join(", "),
+      Tasks_Needed: f.Tasks,                    // ← array, not join
       House_Size: f.HouseSize,
-      People_At_Home: String(f.PeopleAtHome),
+      People_At_Home: f.PeopleAtHome,
       Pets_At_Home: f.PetsAtHome,
       Meal_Preferences: f.MealPref,
-      Cuisine_Preference: f.CuisinePref.join(", "),
+      Cuisine_Preference: f.CuisinePref,        // ← array
+      Helper_s_Gender: f.HelperGender,
+      Cook_Members: String(f.CookMembers),
       Child_Age: f.ChildAge,
-      Child_Duties: f.ChildDuties.join(", "),
-      Japa_Child_Duties: f.JapaDuties.join(", "),
-      Japa_Mother_Duties: f.JapaMotherNeeds.join(", "),
+      Child_Duties: f.ChildDuties,              // ← array
+      Japa_Child_Duties: f.JapaDuties,          // ← array
+      Japa_Mother_Duties: f.JapaMotherNeeds,    // ← array
       Patient_Age: f.PatientAge,
       Patient_Gender: f.PatientGender,
-      Care_Needed: f.CareNeeded.join(", "),
-      Vehicle_Type: f.VehicleType.join(", "),
+      Care_Needed: f.CareNeeded,                // ← array
+      Vehicle_Type: f.VehicleType,              // ← array
       Monthly_Budget: f.Budget,
       Urgency: f.Urgency,
       Special_Instructions: f.Instructions,
@@ -219,7 +268,6 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
       Payment_Status: f.PaymentStatus,
     };
   }
-
   // ── captureDrop: fires once when user moves from contact → plan step ─────────
   // Creates a cart_drop lead in Zoho and stores the leadId for later upgrade.
   const captureDrop = async () => {
@@ -281,7 +329,7 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
     setPlanSubmitting(true);
 
     // ── PAID PLANS ──────────────────────────────────────────────────────────────
-    if (planType === "priority" || planType === "commitment") {
+    if (planType === "Priority" || planType === "Commitment") {
       try {
         setPaymentStage("creating_order");
 
@@ -303,11 +351,6 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
           zohoFields,
           dropLeadId: savedDropId,
         });
-
-        // FIX: Mark the drop lead as "Payment Initiated" immediately.
-        // This updates the Zoho record status so if the user abandons
-        // the payment page, the record shows the correct state.
-        // upgradeDropLead is now ACTUALLY CALLED (was defined but never called before).
         if (savedDropId) {
           await upgradeDropLead(planType, "Payment Initiated", order.order_id);
         }
@@ -336,19 +379,19 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
     }
 
     // ── NO-PAY PLAN ─────────────────────────────────────────────────────────────
-    if (planType === "nopay") {
+    if (planType === "No Pay") {
       const savedDropId = dropLeadId || sessionStorage.getItem("dp_drop_lead_id");
 
       try {
         if (savedDropId) {
           // FIX: upgradeDropLead is now ACTUALLY CALLED for nopay too.
           // Upgrades the existing cart_drop record → no duplicate created.
-          await upgradeDropLead("nopay", "No Payment — Basic Access");
+          await upgradeDropLead("No Pay", "No Payment — Basic Access");
         } else {
           // Edge case: no drop lead exists — create fresh record
           const zohoFields = buildZohoFields({
             ...form,
-            PlanType: "nopay",
+            PlanType: "No Pay",
             PaymentStatus: "No Payment — Basic Access",
           });
           const result = await submitNoPay(zohoFields);
@@ -513,11 +556,6 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
               selected={form.HouseSize === h.id} onClick={() => setF("HouseSize", h.id)} />
           ))}
         </div>
-        <div className="mt-3">
-          <Stepper label="People at home" value={form.PeopleAtHome}
-            onDec={() => setF("PeopleAtHome", Math.max(1, form.PeopleAtHome - 1))}
-            onInc={() => setF("PeopleAtHome", Math.min(20, form.PeopleAtHome + 1))} />
-        </div>
       </div>
     );
 
@@ -574,13 +612,167 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
       </div>
     );
 
+    if (curKey === "helpergender") return (
+      <div>
+        <QHead q="Helper's preferences" />
+        <p className="text-[13px] font-bold text-[#181C2E] mb-3">
+          Preferred {form.ServiceType.toLowerCase()}'s gender
+        </p>
+        <div className="grid grid-cols-3 gap-3">
+          {GENDER_OPTIONS_DATA.map((g) => {
+            const sel = form.HelperGender === g.id;
+            return (
+              <button
+                key={g.id}
+                type="button"
+                aria-pressed={sel}
+                onClick={() => { setF("HelperGender", g.id); after(); }}
+                className="relative overflow-hidden rounded-2xl border-2 transition-all duration-200"
+                style={{
+                  borderColor: sel ? "#EC5F36" : "#E5E2DE",
+                  boxShadow: sel ? "0 6px 20px rgba(236,95,54,0.25)" : "0 2px 8px rgba(0,0,0,0.05)",
+                  aspectRatio: "1 / 1",
+                  padding: 0,
+                }}
+              >
+                {/* Full-cover image */}
+                <img
+                  src={g.image}
+                  alt={g.label}
+                  loading="lazy"
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                    display: "block",
+                  }}
+                />
+
+                {/* Dark overlay always present, stronger when selected */}
+                <div
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    background: sel
+                      ? "rgba(236,95,54,0.22)"
+                      : "rgba(0,0,0,0.08)",
+                    transition: "background .2s",
+                  }}
+                />
+
+                {/* Label at bottom */}
+                <div
+                  style={{
+                    position: "absolute",
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    padding: "6px 4px",
+                    background: sel
+                      ? "rgba(236,95,54,0.82)"
+                      : "rgba(0,0,0,0.45)",
+                    textAlign: "center",
+                  }}
+                >
+                  <span
+                    style={{
+                      fontSize: 12,
+                      fontWeight: 800,
+                      color: "#fff",
+                      letterSpacing: ".01em",
+                    }}
+                  >
+                    {g.label}
+                  </span>
+                </div>
+
+                {/* Check badge */}
+                {sel && (
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: 7,
+                      right: 7,
+                      width: 20,
+                      height: 20,
+                      borderRadius: "50%",
+                      background: "#EC5F36",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      boxShadow: "0 2px 6px rgba(0,0,0,0.25)",
+                    }}
+                  >
+                    <Check size={10} strokeWidth={3} color="#fff" />
+                  </div>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    );
+
+    if (curKey === "cookmembers") return (
+      <div>
+        <QHead
+          q="How many members to cook for?"
+        />
+        <div className="grid grid-cols-4 gap-3 mt-2">
+          {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => {
+            const sel = form.CookMembers === n;
+            return (
+              <button
+                key={n}
+                type="button"
+                onClick={() => { setF("CookMembers", n); after(220); }}
+                className="rounded-2xl border-2 py-4 text-lg font-extrabold transition-all duration-200"
+                style={{
+                  borderColor: sel ? "#EC5F36" : "#E5E2DE",
+                  background: sel
+                    ? "linear-gradient(135deg,#EC5F36,#D84E28)"
+                    : "#fff",
+                  color: sel ? "#fff" : "#1a1a2e",
+                  boxShadow: sel
+                    ? "0 6px 18px rgba(236,95,54,0.30)"
+                    : "0 1px 4px rgba(0,0,0,0.04)",
+                }}
+              >
+                {n}
+              </button>
+            );
+          })}
+        </div>
+        <div className="mt-4">
+          <QHead q="More than 8?" hint="" />
+          <Stepper
+            label="Custom count"
+            value={form.CookMembers > 8 ? form.CookMembers : 9}
+            onDec={() => setF("CookMembers", Math.max(9, form.CookMembers - 1))}
+            onInc={() => setF("CookMembers", Math.min(20, form.CookMembers + 1))}
+          />
+        </div>
+      </div>
+    );
+
     if (curKey === "childage") return (
       <div>
-        <QHead q="How old is the child (in years)?" />
-        <div className="hw2-age-input-wrap">
-          <input className="hw2-finput hw2-age-input" type="number" min={1} placeholder="e.g. 2 years, 8 months…"
-            value={form.ChildAge} autoFocus onChange={(e) => setF("ChildAge", e.target.value)} />
-          <p className="hw2-age-hint">Type freely, e.g. "3 years"</p>
+        <QHead q="How old is the child?" hint="Select the age range" />
+        <div className="grid grid-cols-2 gap-3">
+          {CHILD_AGE_RANGES.map((r) => (
+            <button key={r.id} type="button"
+              onClick={() => { setF("ChildAge", r.id); after(); }}
+              className="hw2-budget-row"
+              style={{
+                background: form.ChildAge === r.id ? "#EC5F36" : "#fff",
+                borderColor: form.ChildAge === r.id ? "#EC5F36" : "#E5E2DE",
+              }}>
+              <span className="hw2-budget-label" style={{ color: form.ChildAge === r.id ? "#fff" : "#1a1a2e" }}>{r.label}</span>
+              {form.ChildAge === r.id && <Check size={16} strokeWidth={2.5} color="#fff" className="ml-auto flex-shrink-0" />}
+            </button>
+          ))}
         </div>
       </div>
     );
@@ -789,7 +981,7 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
                 value={form.FirstName} onChange={(e) => setF("FirstName", e.target.value)} />
             </div>
             <div>
-              <label className="hw2-flabel">Last Name *</label>
+              <label className="hw2-flabel">Last Name </label>
               <input className="hw2-finput" type="text" placeholder="Sharma"
                 value={form.LastName} onChange={(e) => setF("LastName", e.target.value)} />
             </div>
@@ -845,6 +1037,8 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
               form.MealPref && { k: "Diet", v: form.MealPref },
               form.MealsNeeded.length > 0 && { k: "Meals", v: form.MealsNeeded.join(", ") },
               form.CuisinePref.length > 0 && { k: "Cuisine", v: form.CuisinePref.join(", ") },
+              form.CookMembers && { k: "Family Members", v: form.CookMembers },
+              form.HelperGender && { k: "Helper's Gender", v: form.HelperGender },
               form.ChildAge && { k: "Child Age", v: form.ChildAge },
               form.ChildDuties.length > 0 && { k: "Child Duties", v: form.ChildDuties.join(", ") },
               form.JapaDuties?.length > 0 && { k: "Japa Duties", v: form.JapaDuties.join(", ") },
@@ -990,7 +1184,7 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
             );
           })()}
 
-          {form.PlanType === "priority" && (
+          {form.PlanType === "Priority" && (
             <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="hw2-pbt-note mt-3"
               style={{ background: "#FFF7F4", borderColor: "#F5D8CF", color: "#7C2D12" }}>
               <p><FontAwesomeIcon icon={faBolt} style={{ marginRight: 6 }} />
@@ -998,7 +1192,7 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
               </p>
             </motion.div>
           )}
-          {form.PlanType === "commitment" && (
+          {form.PlanType === "Commitment" && (
             <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="hw2-pbt-note mt-3">
               <p><FontAwesomeIcon icon={faCircleCheck} style={{ marginRight: 6 }} />
                 <strong>Pay ₹{(PLANS.commitment.amount + PLANS.commitment.gst).toLocaleString()}</strong> now. Profiles within <strong>3 working days</strong>.
@@ -1008,7 +1202,7 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
               </p>
             </motion.div>
           )}
-          {form.PlanType === "nopay" && (
+          {form.PlanType === "No Pay" && (
             <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="hw2-pbt-note mt-3"
               style={{ background: "#F9FAFB", borderColor: "#E5E7EB", color: "#6B7280" }}>
               <p>⚠️ Without payment there is <strong>no priority, no guaranteed timeline, and no replacement support</strong>.</p>
@@ -1031,7 +1225,7 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
     }
 
     if (curKey === "done") {
-      const isNoPay = form.PlanType === "nopay";
+      const isNoPay = form.PlanType === "No Pay";
       const bg = isNoPay ? "linear-gradient(135deg,#9CA3AF,#6B7280)" : "linear-gradient(135deg,#EC5F36,#D84E28)";
       return (
         <div className="flex flex-col items-center justify-center py-8 text-center">
@@ -1044,29 +1238,47 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
           </motion.div>
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
             <h3 className="hw2-display text-xl font-bold text-gray-900 mb-2">
-              {isNoPay ? "Request Noted 👋" : "Request Submitted! 🎉"}
+              Profiles Sent Successfully ✅
             </h3>
+
             <p className="text-sm text-gray-500 max-w-[280px] mx-auto leading-relaxed mb-1">
-              {isNoPay
-                ? "No payment was made. You may be contacted when capacity allows on"
-                : "Your request has been submitted. Our team will be in touch on"}
+              We've shared matching helper profiles on your phone
             </p>
+
             <p className="font-bold text-gray-900 text-base mb-1">+91 {form.Phone}</p>
-            {form.Email && <p className="text-xs text-gray-400 mb-3">{form.Email}</p>}
-            <div className="hw2-done-plan-badge"
+
+            {form.Email && (
+              <p className="text-xs text-gray-400 mb-3">{form.Email}</p>
+            )}
+
+            {/* 🔥 New: CTA Hint */}
+            <p className="text-xs text-gray-500 mb-3">
+              Please check your WhatsApp for details
+            </p>
+
+            {/* 🔥 Improved badge */}
+            <div
+              className="hw2-done-plan-badge"
               style={{
                 background: isNoPay ? "#F9FAFB" : "#FFF2EE",
                 color: isNoPay ? "#6B7280" : "#EC5F36",
                 borderColor: isNoPay ? "#E5E7EB" : "#F5D8CF",
-              }}>
+              }}
+            >
               {isNoPay
-                ? <>No Commitment — Basic Access</>
-                : <><FontAwesomeIcon icon={faBolt} style={{ marginRight: 5 }} />Request submitted</>
-              }
+                ? <>Basic Access — Profiles Shared</>
+                : (
+                  <>
+                    <FontAwesomeIcon icon={faBolt} style={{ marginRight: 5 }} />
+                    Priority Profiles Delivered
+                  </>
+                )}
             </div>
-            <button className="hw2-btn mx-auto mt-5" style={{ background: bg }} onClick={resetWizard}>
-              <Sparkles size={14} /> Submit Another Request
-            </button>
+
+            {/* 🔥 Optional small reassurance */}
+            <p className="text-[11px] text-gray-400 mt-3">
+              Didn’t receive it? Our team may reach out shortly.
+            </p>
           </motion.div>
         </div>
       );
@@ -1161,9 +1373,9 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
       if (!form.PlanType) return "Select a Plan to Continue";
       if (paymentStage === "creating_order") return <><FontAwesomeIcon icon={faSpinner} spin style={{ marginRight: 7 }} />Creating order…</>;
       if (paymentStage === "redirecting") return <><FontAwesomeIcon icon={faSpinner} spin style={{ marginRight: 7 }} />Redirecting to payment…</>;
-      if (form.PlanType === "priority") return <><FontAwesomeIcon icon={faBolt} style={{ marginRight: 7 }} />Pay ₹{(PLANS.priority.amount + PLANS.priority.gst).toLocaleString()} — Continue</>;
-      if (form.PlanType === "commitment") return <><FontAwesomeIcon icon={faBolt} style={{ marginRight: 7 }} />Pay ₹{(PLANS.commitment.amount + PLANS.commitment.gst).toLocaleString()} — Continue</>;
-      if (form.PlanType === "nopay") return <>Continue Without Paying →</>;
+      if (form.PlanType === "Priority") return <><FontAwesomeIcon icon={faBolt} style={{ marginRight: 7 }} />Pay ₹{(PLANS.priority.amount + PLANS.priority.gst).toLocaleString()} — Continue</>;
+      if (form.PlanType === "Commitment") return <><FontAwesomeIcon icon={faBolt} style={{ marginRight: 7 }} />Pay ₹{(PLANS.commitment.amount + PLANS.commitment.gst).toLocaleString()} — Continue</>;
+      if (form.PlanType === "No Pay") return <>Continue Without Paying →</>;
       return "Select a Plan to Continue";
     };
 
@@ -1201,12 +1413,20 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
               border: "none",
             }}>
             {isPlan ? planBtnLabel() : (
-              <>
-                Continue
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M5 12h14M12 5l7 7-7 7" />
-                </svg>
-              </>
+              curKey === "contact" && !ENABLE_PAYMENT ? (
+                planSubmitting ? (
+                  <><FontAwesomeIcon icon={faSpinner} spin style={{ marginRight: 7 }} />Submitting…</>
+                ) : (
+                  <>Submit</>
+                )
+              ) : (
+                <>
+                  Continue
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M5 12h14M12 5l7 7-7 7" />
+                  </svg>
+                </>
+              )
             )}
           </button>
         )}
