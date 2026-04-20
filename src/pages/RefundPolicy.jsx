@@ -283,7 +283,7 @@ export default function RefundPolicy() {
                     features: [
                       "Requirement understanding (role, hours, expectations)",
                       "ID & address verification",
-                      "7-day trial period",
+                      "3-day trial period",
                       "5-day free lookup period",
                       "Profile finalization assistance (Audio/Video interview)",
                       "One-time placement support",
@@ -299,7 +299,7 @@ export default function RefundPolicy() {
                     badge: null,
                     features: [
                       "Includes everything in Connect",
-                      "10-day trial period",
+                      "5-day trial period",
                       "7-day free lookup period",
                       "1 Replacement in 11 months",
                       "Police verification",
@@ -316,7 +316,7 @@ export default function RefundPolicy() {
                     badge: { label: "✦ Recommended", style: "bg-primary text-white" },
                     features: [
                       "Includes everything in Care",
-                      "15-day trial period",
+                      "10-day trial period",
                       "10-day free lookup period",
                       "2 Replacement in 11 months",
                       "Priority matching",
@@ -331,8 +331,8 @@ export default function RefundPolicy() {
                   <div
                     key={plan.name}
                     className={`bg-white rounded-2xl p-7 relative flex flex-col border transition-all duration-200 ${plan.highlighted
-                        ? "border-2 border-primary shadow-[0_12px_40px_rgba(236,95,54,0.18)]"
-                        : "border-borderLight hover:border-primary/40 hover:shadow-sm"
+                      ? "border-2 border-primary shadow-[0_12px_40px_rgba(236,95,54,0.18)]"
+                      : "border-borderLight hover:border-primary/40 hover:shadow-sm"
                       }`}
                   >
                     {/* Badge */}
@@ -382,8 +382,8 @@ export default function RefundPolicy() {
                     <button
                       onClick={() => setIsModalOpen(true)}
                       className={`w-full py-3 rounded-xl font-bold text-sm transition-all duration-200 ${plan.highlighted
-                          ? "bg-primary hover:bg-primaryHover text-white shadow-[0_4px_14px_rgba(236,95,54,0.30)]"
-                          : "border-2 border-primary text-primary hover:bg-primary hover:text-white"
+                        ? "bg-primary hover:bg-primaryHover text-white shadow-[0_4px_14px_rgba(236,95,54,0.30)]"
+                        : "border-2 border-primary text-primary hover:bg-primary hover:text-white"
                         }`}
                     >
                       Choose {plan.name} →

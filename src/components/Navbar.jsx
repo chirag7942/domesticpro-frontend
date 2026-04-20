@@ -66,7 +66,7 @@ export default function Navbar() {
             <a href="https://www.instagram.com/domestic.pro" className="hover:opacity-80 transition">
               <Instagram size={16} />
             </a>
-            <a href="#" className="hover:opacity-80 transition">
+            <a href="https://www.linkedin.com/company/domestic-pro/" className="hover:opacity-80 transition">
               <Linkedin size={16} />
             </a>
           </div>

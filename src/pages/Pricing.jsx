@@ -20,7 +20,7 @@ const tableRows = [
   { feature: "Verified Profiles", connect: "5", care: "7", complete: "10" },
   { feature: "ID & Address Check", connect: true, care: true, complete: true },
   { feature: "Police Verification", connect: false, care: true, complete: true },
-  { feature: "Trial Period", connect: "7 Days", care: "10 Days", complete: "15 Days" },
+  { feature: "Trial Period", connect: "3 Days", care: "5 Days", complete: "10 Days" },
   { feature: "Free Lookup Period", connect: "5 Days", care: "7 Days", complete: "10 Days" },
   { feature: "Replacement Window", connect: false, care: "1 Replacement", complete: "2 Replacements" },
   { feature: "Priority Matching", connect: false, care: false, complete: true },

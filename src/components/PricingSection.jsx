@@ -30,7 +30,7 @@ const plans = [
     features: [
       "Requirement understanding (role, hours, expectations)",
       "ID & address verification",
-      "7-day trial period",
+      "3-day trial period",
       "5-day free lookup period",
       "Profile finalization assistance (Audio/Video interview)",
       "One-time placement support",
@@ -47,7 +47,7 @@ const plans = [
     features: [
       "Includes everything in Connect",
       "10-day trial period",
-      "7-day free lookup period",
+      "5-day free lookup period",
       "1 Replacement in 11 months",
       "Police verification",
       "Enhanced screening review",

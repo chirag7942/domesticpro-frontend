@@ -323,9 +323,7 @@ const Driver = () => {
           {/* Heading */}
           <div className="text-center mb-14">
             <h2 className="text-3xl md:text-4xl font-bold text-textDark mb-3">
-              <h2 className="text-3xl md:text-4xl font-bold text-textDark mb-3">
-                Why Choose Domestic Pro for Drivers?
-              </h2>
+              Why Choose Domestic Pro for Drivers?
             </h2>
 
             <p className="text-textLight max-w-2xl mx-auto">
