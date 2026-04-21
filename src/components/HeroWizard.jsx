@@ -1,14 +1,11 @@
 import { useState, useRef, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import CitySelect from "./CitySelect";
-import { Check, ArrowLeft, X, CheckCircle2, Minus, Plus, Sparkles, Briefcase } from "lucide-react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Check, ArrowLeft, X, CheckCircle2, Minus, Plus, Briefcase } from "lucide-react";
 import {
-  faBolt, faIdCard, faUserCheck, faHeadset, faHandshake, faRotate,
-  faGaugeHigh, faCreditCard, faAddressCard, faFilter, faBullseye,
-  faClock, faGift, faCheck, faCircleCheck, faPhone,
-  faUsers, faBan, faSpinner,
-} from "@fortawesome/free-solid-svg-icons";
+  Zap, IdCard, UserCheck, Headphones, Handshake, RotateCcw,
+  Gauge, CreditCard, ContactRound, Filter, Target,
+  Clock, Gift, CircleCheck, Phone, Users, Ban, Loader2,
+} from "lucide-react";
 import {
   SERVICES, SERVICE_FORMATS, GENDER_OPTIONS_DATA, TASKS, HOUSE_SIZES,
   PETS_OPTIONS, MEAL_PREFS, CUISINES, CHILD_DUTIES,
@@ -21,18 +18,18 @@ const API_BASE = import.meta.env.VITE_REACT_APP_API || "";
 const INTERNAL_SECRET = import.meta.env.VITE_INTERNAL_SECRET || "";
 const ENABLE_PAYMENT = import.meta.env.VITE_ENABLE_PAYMENT === "true";
 
-const FA_ICON_MAP = {
-  "bolt": faBolt, "id-card": faIdCard, "user-check": faUserCheck,
-  "headset": faHeadset, "handshake": faHandshake, "rotate": faRotate,
-  "gauge-high": faGaugeHigh, "credit-card": faCreditCard, "address-card": faAddressCard,
-  "filter": faFilter, "bullseye": faBullseye, "clock": faClock,
-  "gift": faGift, "check": faCheck, "circle-check": faCircleCheck,
-  "phone": faPhone, "users": faUsers, "ban": faBan,
+// Maps the string keys from wizardData plan inclusions to Lucide components
+const ICON_MAP = {
+  "bolt": Zap, "id-card": IdCard, "user-check": UserCheck,
+  "headset": Headphones, "handshake": Handshake, "rotate": RotateCcw,
+  "gauge-high": Gauge, "credit-card": CreditCard, "address-card": ContactRound,
+  "filter": Filter, "bullseye": Target, "clock": Clock,
+  "gift": Gift, "check": Check, "circle-check": CircleCheck,
+  "phone": Phone, "users": Users, "ban": Ban,
 };
 
 const createCashfreeOrder = async ({ plan, customer, zohoFields, dropLeadId }) => {
   if (!API_BASE) throw new Error("VITE_REACT_APP_API is not set. Check your .env file.");
-
   const res = await fetch(`${API_BASE}/create-order`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -45,7 +42,6 @@ const createCashfreeOrder = async ({ plan, customer, zohoFields, dropLeadId }) =
 
 const submitNoPay = async (zohoFields) => {
   if (!API_BASE) throw new Error("VITE_REACT_APP_API is not set. Check your .env file.");
-
   const res = await fetch(`${API_BASE}/submit-nopay`, {
     method: "POST",
     headers: {
@@ -126,9 +122,9 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
       ? SERVICE_FLOWS[form.ServiceType] || DEFAULT_FLOW
       : DEFAULT_FLOW;
     if (ENABLE_PAYMENT) return base;
-    // When payment is disabled, remove the "plan" step
     return base.filter((k) => k !== "plan");
   })();
+
   const curKey = steps[stepIdx] ?? "service";
   const isDone = curKey === "done";
   const progKeys = steps.filter((k) => k !== "done");
@@ -136,22 +132,25 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
   const progPct = progKeys.length <= 1 ? 0 : Math.round((Math.max(0, progIdx) / (progKeys.length - 1)) * 100);
 
   const setF = (k, v) => setForm((f) => ({ ...f, [k]: v }));
-  const toggleArr = (k, v) => setForm((f) => ({ ...f, [k]: f[k].includes(v) ? f[k].filter((x) => x !== v) : [...f[k], v] }));
+  const toggleArr = (k, v) => setForm((f) => ({
+    ...f,
+    [k]: f[k].includes(v) ? f[k].filter((x) => x !== v) : [...f[k], v],
+  }));
+
   const goNext = () => {
     if (curKey === "contact" && isValid()) {
       if (!ENABLE_PAYMENT) {
-        // Payment disabled — submit nopay immediately and go to done
         handleNopayDirectSubmit();
         return;
       }
-      captureDrop(); // fire-and-forget (payment enabled path)
+      captureDrop();
     }
     setDir(1);
     setStepIdx((i) => Math.min(i + 1, steps.length - 1));
   };
+
   const goBack = () => { setDir(-1); setStepIdx((i) => Math.max(i - 1, 0)); };
   const after = (ms = 220) => setTimeout(goNext, ms);
-  // 4. Add handleNopayDirectSubmit — place right after the goNext definition
 
   const handleNopayDirectSubmit = async () => {
     setPlanSubmitting(true);
@@ -164,9 +163,6 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
       });
       const result = await submitNoPay(zohoFields);
       onSubmit?.(zohoFields, result);
-      const currentSteps = form.ServiceType
-        ? SERVICE_FLOWS[form.ServiceType] || DEFAULT_FLOW
-        : DEFAULT_FLOW;
       const doneIdx = steps.indexOf("done");
       setDir(1);
       setStepIdx(doneIdx);
@@ -223,16 +219,12 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
   };
 
   const CONT_KEYS = new Set([
-    "tasks", "cuisine", "childduties", "careneeded", "vehicletype", "contact", "housesize", "mealpref", "cookmembers", "helpergender", "urgency",
+    "tasks", "cuisine", "childduties", "careneeded", "vehicletype", "contact",
+    "housesize", "mealpref", "cookmembers", "helpergender", "urgency",
     "budget", "patientage", "childage", "patientgender", "hometype", "plan",
     "japaduties", "japamotherneeds",
   ]);
   const showContinue = CONT_KEYS.has(curKey);
-
-  // Find buildZohoFields and change these lines only:
-  // BEFORE: f.Tasks.join(", ")      → AFTER: f.Tasks
-  // BEFORE: f.CuisinePref.join(", ") → AFTER: f.CuisinePref
-  // etc.
 
   function buildZohoFields(f) {
     return {
@@ -245,22 +237,22 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
       City: f.City,
       Service_Type: f.ServiceType,
       Service_Format: f.ServiceFormat,
-      Tasks_Needed: f.Tasks,                    // ← array, not join
+      Tasks_Needed: f.Tasks,
       House_Size: f.HouseSize,
       People_At_Home: f.PeopleAtHome,
       Pets_At_Home: f.PetsAtHome,
       Meal_Preferences: f.MealPref,
-      Cuisine_Preference: f.CuisinePref,        // ← array
+      Cuisine_Preference: f.CuisinePref,
       Helper_s_Gender: f.HelperGender,
       Cook_Members: String(f.CookMembers),
       Child_Age: f.ChildAge,
-      Child_Duties: f.ChildDuties,              // ← array
-      Japa_Child_Duties: f.JapaDuties,          // ← array
-      Japa_Mother_Duties: f.JapaMotherNeeds,    // ← array
+      Child_Duties: f.ChildDuties,
+      Japa_Child_Duties: f.JapaDuties,
+      Japa_Mother_Duties: f.JapaMotherNeeds,
       Patient_Age: f.PatientAge,
       Patient_Gender: f.PatientGender,
-      Care_Needed: f.CareNeeded,                // ← array
-      Vehicle_Type: f.VehicleType,              // ← array
+      Care_Needed: f.CareNeeded,
+      Vehicle_Type: f.VehicleType,
       Monthly_Budget: f.Budget,
       Urgency: f.Urgency,
       Special_Instructions: f.Instructions,
@@ -268,39 +260,30 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
       Payment_Status: f.PaymentStatus,
     };
   }
-  // ── captureDrop: fires once when user moves from contact → plan step ─────────
-  // Creates a cart_drop lead in Zoho and stores the leadId for later upgrade.
-  const captureDrop = async () => {
-    if (dropLeadId) return; // already captured this session
 
+  const captureDrop = async () => {
+    if (dropLeadId) return;
     try {
       const zohoFields = buildZohoFields({
         ...form,
         PlanType: "cart_drop",
         PaymentStatus: "Cart Drop — Dropped at Plan Step",
       });
-
       const res = await fetch(`${API_BASE}/capture-drop`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ zohoFields }),
       });
-
       const data = await res.json();
-
       if (data.success && data.leadId) {
         setDropLeadId(data.leadId);
         sessionStorage.setItem("dp_drop_lead_id", data.leadId);
-        console.log("[CART-DROP] Captured lead:", data.leadId);
       }
     } catch (err) {
       console.warn("[CART-DROP] Capture failed (non-fatal):", err.message);
     }
   };
 
-  // ── upgradeDropLead: PATCH the cart_drop record to the real plan ─────────────
-  // This prevents a second Zoho record from being created.
-  // Called explicitly before redirecting to Cashfree (paid plans).
   const upgradeDropLead = async (finalPlanType, paymentStatus, orderId = null) => {
     const savedDropId = dropLeadId || sessionStorage.getItem("dp_drop_lead_id");
     if (!savedDropId) return;
@@ -314,7 +297,6 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
           ...(orderId ? { Order_ID: orderId } : {}),
         }),
       });
-      console.log(`[CART-DROP] Upgraded lead ${savedDropId} → plan=${finalPlanType}`);
       sessionStorage.removeItem("dp_drop_lead_id");
       setDropLeadId("");
     } catch (err) {
@@ -328,19 +310,11 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
     setSubmitError("");
     setPlanSubmitting(true);
 
-    // ── PAID PLANS ──────────────────────────────────────────────────────────────
     if (planType === "Priority" || planType === "Commitment") {
       try {
         setPaymentStage("creating_order");
-
         const savedDropId = dropLeadId || sessionStorage.getItem("dp_drop_lead_id");
         const zohoFields = buildZohoFields({ ...form, PlanType: planType });
-
-        // FIX: Pass dropLeadId to /create-order.
-        // The backend will PATCH the existing cart_drop record with
-        // _existingLeadId embedded in zohoFields stored in orderStore.
-        // When the webhook/verify fires, pushToZoho() will UPDATE that
-        // record instead of creating a new one → NO DUPLICATE LEADS.
         const order = await createCashfreeOrder({
           plan: planType,
           customer: {
@@ -354,41 +328,31 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
         if (savedDropId) {
           await upgradeDropLead(planType, "Payment Initiated", order.order_id);
         }
-
         sessionStorage.setItem("dp_order_id", order.order_id);
         sessionStorage.setItem("dp_plan", planType);
         sessionStorage.setItem("dp_customer_phone", form.Phone);
-
         setPaymentStage("redirecting");
-
         const { load } = await import("@cashfreepayments/cashfree-js");
         const cashfree = await load({ mode: order.cashfreeMode || "production" });
         await cashfree.checkout({ paymentSessionId: order.payment_session_id, redirectTarget: "_self" });
-
       } catch (err) {
-        console.error("Cashfree error:", err);
         setPaymentStage("idle");
         setPlanSubmitting(false);
-        if (err.message.includes("VITE_REACT_APP_API")) {
-          setSubmitError("Backend URL not configured. Set VITE_REACT_APP_API in your .env file.");
-        } else {
-          setSubmitError(`Payment failed to initialise: ${err.message}. Please try again.`);
-        }
+        setSubmitError(
+          err.message.includes("VITE_REACT_APP_API")
+            ? "Backend URL not configured. Set VITE_REACT_APP_API in your .env file."
+            : `Payment failed to initialise: ${err.message}. Please try again.`
+        );
       }
       return;
     }
 
-    // ── NO-PAY PLAN ─────────────────────────────────────────────────────────────
     if (planType === "No Pay") {
       const savedDropId = dropLeadId || sessionStorage.getItem("dp_drop_lead_id");
-
       try {
         if (savedDropId) {
-          // FIX: upgradeDropLead is now ACTUALLY CALLED for nopay too.
-          // Upgrades the existing cart_drop record → no duplicate created.
           await upgradeDropLead("No Pay", "No Payment — Basic Access");
         } else {
-          // Edge case: no drop lead exists — create fresh record
           const zohoFields = buildZohoFields({
             ...form,
             PlanType: "No Pay",
@@ -397,13 +361,11 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
           const result = await submitNoPay(zohoFields);
           onSubmit?.(zohoFields, result);
         }
-
         const currentSteps = form.ServiceType
           ? (SERVICE_FLOWS[form.ServiceType] || DEFAULT_FLOW)
           : DEFAULT_FLOW;
         setStepIdx(currentSteps.indexOf("done"));
       } catch (err) {
-        console.error("Submit error:", err);
         setSubmitError(
           err.message.includes("VITE_REACT_APP_API")
             ? "Backend URL not configured. Set VITE_REACT_APP_API in your .env file."
@@ -633,78 +595,15 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
                   boxShadow: sel ? "0 6px 20px rgba(236,95,54,0.25)" : "0 2px 8px rgba(0,0,0,0.05)",
                   aspectRatio: "1 / 1",
                   padding: 0,
-                }}
-              >
-                {/* Full-cover image */}
-                <img
-                  src={g.image}
-                  alt={g.label}
-                  loading="lazy"
-                  style={{
-                    position: "absolute",
-                    inset: 0,
-                    width: "100%",
-                    height: "100%",
-                    objectFit: "cover",
-                    display: "block",
-                  }}
-                />
-
-                {/* Dark overlay always present, stronger when selected */}
-                <div
-                  style={{
-                    position: "absolute",
-                    inset: 0,
-                    background: sel
-                      ? "rgba(236,95,54,0.22)"
-                      : "rgba(0,0,0,0.08)",
-                    transition: "background .2s",
-                  }}
-                />
-
-                {/* Label at bottom */}
-                <div
-                  style={{
-                    position: "absolute",
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    padding: "6px 4px",
-                    background: sel
-                      ? "rgba(236,95,54,0.82)"
-                      : "rgba(0,0,0,0.45)",
-                    textAlign: "center",
-                  }}
-                >
-                  <span
-                    style={{
-                      fontSize: 12,
-                      fontWeight: 800,
-                      color: "#fff",
-                      letterSpacing: ".01em",
-                    }}
-                  >
-                    {g.label}
-                  </span>
+                }}>
+                <img src={g.image} alt={g.label} loading="lazy"
+                  style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                <div style={{ position: "absolute", inset: 0, background: sel ? "rgba(236,95,54,0.22)" : "rgba(0,0,0,0.08)", transition: "background .2s" }} />
+                <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "6px 4px", background: sel ? "rgba(236,95,54,0.82)" : "rgba(0,0,0,0.45)", textAlign: "center" }}>
+                  <span style={{ fontSize: 12, fontWeight: 800, color: "#fff", letterSpacing: ".01em" }}>{g.label}</span>
                 </div>
-
-                {/* Check badge */}
                 {sel && (
-                  <div
-                    style={{
-                      position: "absolute",
-                      top: 7,
-                      right: 7,
-                      width: 20,
-                      height: 20,
-                      borderRadius: "50%",
-                      background: "#EC5F36",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      boxShadow: "0 2px 6px rgba(0,0,0,0.25)",
-                    }}
-                  >
+                  <div style={{ position: "absolute", top: 7, right: 7, width: 20, height: 20, borderRadius: "50%", background: "#EC5F36", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 6px rgba(0,0,0,0.25)" }}>
                     <Check size={10} strokeWidth={3} color="#fff" />
                   </div>
                 )}
@@ -717,29 +616,20 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
 
     if (curKey === "cookmembers") return (
       <div>
-        <QHead
-          q="How many members to cook for?"
-        />
+        <QHead q="How many members to cook for?" />
         <div className="grid grid-cols-4 gap-3 mt-2">
           {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => {
             const sel = form.CookMembers === n;
             return (
-              <button
-                key={n}
-                type="button"
+              <button key={n} type="button"
                 onClick={() => { setF("CookMembers", n); after(220); }}
                 className="rounded-2xl border-2 py-4 text-lg font-extrabold transition-all duration-200"
                 style={{
                   borderColor: sel ? "#EC5F36" : "#E5E2DE",
-                  background: sel
-                    ? "linear-gradient(135deg,#EC5F36,#D84E28)"
-                    : "#fff",
+                  background: sel ? "linear-gradient(135deg,#EC5F36,#D84E28)" : "#fff",
                   color: sel ? "#fff" : "#1a1a2e",
-                  boxShadow: sel
-                    ? "0 6px 18px rgba(236,95,54,0.30)"
-                    : "0 1px 4px rgba(0,0,0,0.04)",
-                }}
-              >
+                  boxShadow: sel ? "0 6px 18px rgba(236,95,54,0.30)" : "0 1px 4px rgba(0,0,0,0.04)",
+                }}>
                 {n}
               </button>
             );
@@ -765,10 +655,7 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
             <button key={r.id} type="button"
               onClick={() => { setF("ChildAge", r.id); after(); }}
               className="hw2-budget-row"
-              style={{
-                background: form.ChildAge === r.id ? "#EC5F36" : "#fff",
-                borderColor: form.ChildAge === r.id ? "#EC5F36" : "#E5E2DE",
-              }}>
+              style={{ background: form.ChildAge === r.id ? "#EC5F36" : "#fff", borderColor: form.ChildAge === r.id ? "#EC5F36" : "#E5E2DE" }}>
               <span className="hw2-budget-label" style={{ color: form.ChildAge === r.id ? "#fff" : "#1a1a2e" }}>{r.label}</span>
               {form.ChildAge === r.id && <Check size={16} strokeWidth={2.5} color="#fff" className="ml-auto flex-shrink-0" />}
             </button>
@@ -897,9 +784,7 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
                   <div>
                     <p className="text-sm font-bold text-[#181C2E]">Domestic Pro Placement Fee</p>
                     <p className="text-xs text-[#5B6475] leading-relaxed mt-0.5">
-                      We charge a one-time fee of{" "}
-                      <span className="font-bold text-[#181C2E]">₹5,000</span>{" "}
-                      for sourcing, verifying, and deploying a suitable substitute helper at your home.
+                      We charge a one-time fee of <span className="font-bold text-[#181C2E]">₹5,000</span> for sourcing, verifying, and deploying a suitable substitute helper at your home.
                     </p>
                   </div>
                 </div>
@@ -911,9 +796,7 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
                   <div>
                     <p className="text-sm font-bold text-[#181C2E]">Helper's Salary — Separate</p>
                     <p className="text-xs text-[#5B6475] leading-relaxed mt-0.5">
-                      The helper's salary is{" "}
-                      <span className="font-bold text-[#181C2E]">not included</span>{" "}
-                      in our fee. It is agreed directly between you and the helper based on duration and duties.
+                      The helper's salary is <span className="font-bold text-[#181C2E]">not included</span> in our fee. It is agreed directly between you and the helper.
                     </p>
                   </div>
                 </div>
@@ -930,12 +813,8 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
               </div>
             </div>
           </div>
-          <button
-            type="button"
-            onClick={() => {
-              setForm((f) => ({ ...f, Budget: "sub-5k" }));
-              setTimeout(goNext, 220);
-            }}
+          <button type="button"
+            onClick={() => { setForm((f) => ({ ...f, Budget: "sub-5k" })); setTimeout(goNext, 220); }}
             className="w-full rounded-2xl py-3.5 text-sm font-bold transition-all duration-200"
             style={{
               background: form.Budget === "sub-5k" ? "linear-gradient(135deg,#EC5F36,#D84E28)" : "#fff",
@@ -955,10 +834,7 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
               <button key={b.id} type="button"
                 onClick={() => { setF("Budget", b.id); after(); }}
                 className="hw2-budget-row"
-                style={{
-                  background: form.Budget === b.id ? "#EC5F36" : "#fff",
-                  borderColor: form.Budget === b.id ? "#EC5F36" : "#E5E2DE",
-                }}>
+                style={{ background: form.Budget === b.id ? "#EC5F36" : "#fff", borderColor: form.Budget === b.id ? "#EC5F36" : "#E5E2DE" }}>
                 <span className="hw2-budget-label" style={{ color: form.Budget === b.id ? "#fff" : "#1a1a2e" }}>{b.label}</span>
                 <span className="hw2-budget-desc" style={{ color: form.Budget === b.id ? "rgba(255,255,255,0.8)" : "#888" }}>{b.desc}</span>
                 {form.Budget === b.id && <Check size={16} strokeWidth={2.5} color="#fff" className="ml-auto flex-shrink-0" />}
@@ -981,15 +857,13 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
                 value={form.FirstName} onChange={(e) => setF("FirstName", e.target.value)} />
             </div>
             <div>
-              <label className="hw2-flabel">Last Name </label>
+              <label className="hw2-flabel">Last Name</label>
               <input className="hw2-finput" type="text" placeholder="Sharma"
                 value={form.LastName} onChange={(e) => setF("LastName", e.target.value)} />
             </div>
           </div>
           <div className="mb-3">
-            <label className="hw2-flabel">
-              Phone * <span className="text-xs font-normal text-gray-400">(we'll call on this)</span>
-            </label>
+            <label className="hw2-flabel">Phone * <span className="text-xs font-normal text-gray-400">(we'll call on this)</span></label>
             <div className="hw2-phone-wrap" style={{ borderColor: phoneOk ? "#16a34a" : undefined }}>
               <div className="hw2-phone-pre">+91</div>
               <input type="tel" inputMode="numeric" maxLength={10} className="hw2-phone-inp"
@@ -998,15 +872,11 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
               {phoneOk && <CheckCircle2 size={18} color="#16a34a" strokeWidth={2} className="mr-3 flex-shrink-0" />}
             </div>
             {form.Phone.length > 0 && form.Phone.length < 10 && (
-              <p className="hw2-warn">
-                {10 - form.Phone.length} more digit{10 - form.Phone.length !== 1 ? "s" : ""} needed
-              </p>
+              <p className="hw2-warn">{10 - form.Phone.length} more digit{10 - form.Phone.length !== 1 ? "s" : ""} needed</p>
             )}
           </div>
           <div className="mb-3">
-            <label className="hw2-flabel">
-              Email <span className="text-xs font-normal text-gray-400">(optional)</span>
-            </label>
+            <label className="hw2-flabel">Email <span className="text-xs font-normal text-gray-400">(optional)</span></label>
             <input className="hw2-finput" type="email" placeholder="rahul@example.com"
               value={form.Email} onChange={(e) => setF("Email", e.target.value)} />
           </div>
@@ -1019,9 +889,7 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
             </div>
           </div>
           <div className="mb-4">
-            <label className="hw2-flabel">
-              Anything else? <span className="text-xs font-normal text-gray-400">(optional)</span>
-            </label>
+            <label className="hw2-flabel">Anything else? <span className="text-xs font-normal text-gray-400">(optional)</span></label>
             <textarea rows={2} maxLength={500} placeholder="Specific timing, languages, requirements…"
               value={form.Instructions} onChange={(e) => setF("Instructions", e.target.value)}
               className="hw2-textarea" />
@@ -1035,7 +903,6 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
               form.HouseSize && { k: "Household", v: `${form.PeopleAtHome} people` },
               form.Tasks.length > 0 && { k: "Tasks", v: form.Tasks.join(", ") },
               form.MealPref && { k: "Diet", v: form.MealPref },
-              form.MealsNeeded.length > 0 && { k: "Meals", v: form.MealsNeeded.join(", ") },
               form.CuisinePref.length > 0 && { k: "Cuisine", v: form.CuisinePref.join(", ") },
               form.CookMembers && { k: "Family Members", v: form.CookMembers },
               form.HelperGender && { k: "Helper's Gender", v: form.HelperGender },
@@ -1104,13 +971,9 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
             const plan = activePlan;
             const total = plan.amount + plan.gst;
             const isSelected = form.PlanType === plan.id;
+            const PlanIcon = ICON_MAP["check"];
             return (
-              <div style={{
-                border: `2px solid ${isSelected ? plan.color : "#EBEBEB"}`,
-                borderRadius: 16, padding: "14px 15px",
-                background: isSelected ? plan.accentLight : "#fff",
-                transition: "all .22s",
-              }}>
+              <div style={{ border: `2px solid ${isSelected ? plan.color : "#EBEBEB"}`, borderRadius: 16, padding: "14px 15px", background: isSelected ? plan.accentLight : "#fff", transition: "all .22s" }}>
                 <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 10, marginBottom: 4 }}>
                   <div>
                     <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap" }}>
@@ -1145,38 +1008,33 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
                 <div style={{ height: 1, background: isSelected ? plan.borderColor : "#F0F0F0", marginBottom: 12 }} />
 
                 <ul style={{ listStyle: "none", padding: 0, margin: "0 0 12px", display: "flex", flexDirection: "column", gap: 9 }}>
-                  {plan.inclusions.map((item, i) => (
-                    <li key={i} style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
-                      <span style={{ width: 27, height: 27, borderRadius: 8, background: isSelected ? "rgba(255,255,255,0.65)" : plan.accentLight, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 1 }}>
-                        <FontAwesomeIcon icon={FA_ICON_MAP[item.icon] || faCheck} style={{ color: plan.color, fontSize: 11, width: 11 }} />
-                      </span>
-                      <div style={{ display: "flex", flexDirection: "column", gap: 1, flex: 1, minWidth: 0 }}>
-                        <span style={{ fontSize: 12.5, fontWeight: 700, color: "#1a1a2e", lineHeight: 1.3, fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{item.label}</span>
-                        <span style={{ fontSize: 11, color: "#6b7280", fontWeight: 500, lineHeight: 1.4 }}>{item.desc}</span>
-                      </div>
-                    </li>
-                  ))}
+                  {plan.inclusions.map((item, i) => {
+                    const IncIcon = ICON_MAP[item.icon] || Check;
+                    return (
+                      <li key={i} style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
+                        <span style={{ width: 27, height: 27, borderRadius: 8, background: isSelected ? "rgba(255,255,255,0.65)" : plan.accentLight, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 1 }}>
+                          <IncIcon size={11} color={plan.color} />
+                        </span>
+                        <div style={{ display: "flex", flexDirection: "column", gap: 1, flex: 1, minWidth: 0 }}>
+                          <span style={{ fontSize: 12.5, fontWeight: 700, color: "#1a1a2e", lineHeight: 1.3, fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{item.label}</span>
+                          <span style={{ fontSize: 11, color: "#6b7280", fontWeight: 500, lineHeight: 1.4 }}>{item.desc}</span>
+                        </div>
+                      </li>
+                    );
+                  })}
                 </ul>
 
                 {plan.bonus && (
                   <div style={{ display: "flex", alignItems: "center", gap: 8, border: `1.5px solid ${plan.borderColor}`, borderRadius: 10, padding: "7px 12px", fontSize: 12, fontWeight: 700, color: plan.color, background: isSelected ? "rgba(255,255,255,0.55)" : plan.accentLight, marginBottom: 12, fontFamily: "'Plus Jakarta Sans', sans-serif", lineHeight: 1.4 }}>
-                    <FontAwesomeIcon icon={faGift} style={{ fontSize: 11, flexShrink: 0 }} />
+                    <Gift size={11} color={plan.color} style={{ flexShrink: 0 }} />
                     <span>{plan.bonus}</span>
                   </div>
                 )}
 
                 <button type="button" onClick={() => setF("PlanType", plan.id)}
-                  style={{
-                    width: "100%", padding: "10px", borderRadius: 11,
-                    border: `2px solid ${isSelected ? plan.color : "#E5E2DE"}`,
-                    background: isSelected ? plan.badgeBg : "#fff",
-                    color: isSelected ? "#fff" : plan.color,
-                    fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 13, fontWeight: 800,
-                    cursor: "pointer", transition: "all .2s",
-                    display: "flex", alignItems: "center", justifyContent: "center", gap: 7,
-                  }}>
+                  style={{ width: "100%", padding: "10px", borderRadius: 11, border: `2px solid ${isSelected ? plan.color : "#E5E2DE"}`, background: isSelected ? plan.badgeBg : "#fff", color: isSelected ? "#fff" : plan.color, fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 13, fontWeight: 800, cursor: "pointer", transition: "all .2s", display: "flex", alignItems: "center", justifyContent: "center", gap: 7 }}>
                   {isSelected
-                    ? <><FontAwesomeIcon icon={faCheck} style={{ fontSize: 12 }} /> Selected — tap Continue below</>
+                    ? <><Check size={12} /> Selected — tap Continue below</>
                     : <>Select {plan.name}</>
                   }
                 </button>
@@ -1185,40 +1043,32 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
           })()}
 
           {form.PlanType === "Priority" && (
-            <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="hw2-pbt-note mt-3"
-              style={{ background: "#FFF7F4", borderColor: "#F5D8CF", color: "#7C2D12" }}>
-              <p><FontAwesomeIcon icon={faBolt} style={{ marginRight: 6 }} />
+            <div className="hw2-pbt-note mt-3 anim-fade-up" style={{ background: "#FFF7F4", borderColor: "#F5D8CF", color: "#7C2D12" }}>
+              <p><Zap size={12} style={{ marginRight: 6, display: "inline" }} />
                 <strong>You'll be redirected to a secure Cashfree payment page.</strong> Profiles shared within <strong>24 hours</strong>.
               </p>
-            </motion.div>
+            </div>
           )}
           {form.PlanType === "Commitment" && (
-            <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="hw2-pbt-note mt-3">
-              <p><FontAwesomeIcon icon={faCircleCheck} style={{ marginRight: 6 }} />
+            <div className="hw2-pbt-note mt-3 anim-fade-up">
+              <p><CircleCheck size={12} style={{ marginRight: 6, display: "inline" }} />
                 <strong>Pay ₹{(PLANS.commitment.amount + PLANS.commitment.gst).toLocaleString()}</strong> now. Profiles within <strong>3 working days</strong>.
               </p>
               <p style={{ marginTop: 5 }}>
-                <FontAwesomeIcon icon={faPhone} style={{ marginRight: 6 }} />You'll be redirected to a secure Cashfree payment page.
+                <Phone size={12} style={{ marginRight: 6, display: "inline" }} />You'll be redirected to a secure Cashfree payment page.
               </p>
-            </motion.div>
+            </div>
           )}
           {form.PlanType === "No Pay" && (
-            <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="hw2-pbt-note mt-3"
-              style={{ background: "#F9FAFB", borderColor: "#E5E7EB", color: "#6B7280" }}>
+            <div className="hw2-pbt-note mt-3 anim-fade-up" style={{ background: "#F9FAFB", borderColor: "#E5E7EB", color: "#6B7280" }}>
               <p>⚠️ Without payment there is <strong>no priority, no guaranteed timeline, and no replacement support</strong>.</p>
-            </motion.div>
+            </div>
           )}
 
           {submitError && (
-            <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
-              style={{
-                marginTop: 12, padding: "10px 14px",
-                background: "#FEF2F2", border: "1.5px solid #FECACA",
-                borderRadius: 10, color: "#991B1B",
-                fontSize: 12, fontWeight: 600, lineHeight: 1.5,
-              }}>
+            <div className="anim-fade-up" style={{ marginTop: 12, padding: "10px 14px", background: "#FEF2F2", border: "1.5px solid #FECACA", borderRadius: 10, color: "#991B1B", fontSize: 12, fontWeight: 600, lineHeight: 1.5 }}>
               ⚠ {submitError}
-            </motion.div>
+            </div>
           )}
         </div>
       );
@@ -1229,57 +1079,31 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
       const bg = isNoPay ? "linear-gradient(135deg,#9CA3AF,#6B7280)" : "linear-gradient(135deg,#EC5F36,#D84E28)";
       return (
         <div className="flex flex-col items-center justify-center py-8 text-center">
-          <motion.div
-            initial={{ scale: 0, rotate: -20 }} animate={{ scale: 1, rotate: 0 }}
-            transition={{ type: "spring", stiffness: 280, damping: 16 }}
-            className="w-20 h-20 rounded-full flex items-center justify-center mb-5"
+          {/* Spring pop animation via CSS — no framer-motion needed */}
+          <div className="anim-spring-pop w-20 h-20 rounded-full flex items-center justify-center mb-5"
             style={{ background: bg, boxShadow: "0 10px 36px rgba(0,0,0,.20)" }}>
             <Check size={36} color="#fff" strokeWidth={3} />
-          </motion.div>
-          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
+          </div>
+          <div className="anim-fade-up" style={{ animationDelay: "0.25s" }}>
             <h3 className="hw2-display text-xl font-bold text-gray-900 mb-2">
               Profiles Sent Successfully ✅
             </h3>
-
             <p className="text-sm text-gray-500 max-w-[280px] mx-auto leading-relaxed mb-1">
               We've shared matching helper profiles on your phone
             </p>
-
             <p className="font-bold text-gray-900 text-base mb-1">+91 {form.Phone}</p>
-
-            {form.Email && (
-              <p className="text-xs text-gray-400 mb-3">{form.Email}</p>
-            )}
-
-            {/* 🔥 New: CTA Hint */}
-            <p className="text-xs text-gray-500 mb-3">
-              Please check your WhatsApp for details
-            </p>
-
-            {/* 🔥 Improved badge */}
-            <div
-              className="hw2-done-plan-badge"
-              style={{
-                background: isNoPay ? "#F9FAFB" : "#FFF2EE",
-                color: isNoPay ? "#6B7280" : "#EC5F36",
-                borderColor: isNoPay ? "#E5E7EB" : "#F5D8CF",
-              }}
-            >
+            {form.Email && <p className="text-xs text-gray-400 mb-3">{form.Email}</p>}
+            <p className="text-xs text-gray-500 mb-3">Please check your WhatsApp for details</p>
+            <div className="hw2-done-plan-badge" style={{ background: isNoPay ? "#F9FAFB" : "#FFF2EE", color: isNoPay ? "#6B7280" : "#EC5F36", borderColor: isNoPay ? "#E5E7EB" : "#F5D8CF" }}>
               {isNoPay
                 ? <>Basic Access — Profiles Shared</>
-                : (
-                  <>
-                    <FontAwesomeIcon icon={faBolt} style={{ marginRight: 5 }} />
-                    Priority Profiles Delivered
-                  </>
-                )}
+                : <><Zap size={12} style={{ marginRight: 5, display: "inline" }} />Priority Profiles Delivered</>
+              }
             </div>
-
-            {/* 🔥 Optional small reassurance */}
             <p className="text-[11px] text-gray-400 mt-3">
-              Didn’t receive it? Our team may reach out shortly.
+              Didn't receive it? Our team may reach out shortly.
             </p>
-          </motion.div>
+          </div>
         </div>
       );
     }
@@ -1308,17 +1132,12 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
 
         <div className="relative">
           <div className="absolute h-[2px] bg-gray-100 rounded-full"
-            style={{
-              top: hideLabels ? 12 : 13,
-              left: `calc(${100 / (2 * progKeys.length)}%)`,
-              right: `calc(${100 / (2 * progKeys.length)}%)`,
-              zIndex: 0,
-            }}>
-            <motion.div
-              className="h-full origin-left rounded-full"
-              style={{ background: "linear-gradient(90deg,#EC5F36,#D84E28)" }}
-              animate={{ width: `${progPct}%` }}
-              transition={{ duration: 0.4, ease: "easeInOut" }} />
+            style={{ top: hideLabels ? 12 : 13, left: `calc(${100 / (2 * progKeys.length)}%)`, right: `calc(${100 / (2 * progKeys.length)}%)`, zIndex: 0 }}>
+            {/* CSS animated progress bar — replaces motion.div */}
+            <div
+              className="h-full origin-left rounded-full transition-all duration-500 ease-in-out"
+              style={{ width: `${progPct}%`, background: "linear-gradient(90deg,#EC5F36,#D84E28)" }}
+            />
           </div>
 
           <div className="relative flex justify-between" style={{ zIndex: 1 }}>
@@ -1329,9 +1148,8 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
               const active = progIdx === i;
               return (
                 <div key={`${key}-${i}`} className="flex flex-col items-center gap-1 flex-1 min-w-0">
-                  <motion.div
-                    animate={{ scale: active ? 1.18 : 1 }}
-                    transition={{ duration: 0.2 }}
+                  {/* CSS scale on active — replaces motion.div animate scale */}
+                  <div
                     className="flex items-center justify-center flex-shrink-0 rounded-full border-2 transition-all duration-300"
                     style={{
                       width: hideLabels ? 24 : 28,
@@ -1339,15 +1157,15 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
                       background: done ? "#EC5F36" : active ? "#FFF2EE" : "#fff",
                       borderColor: done || active ? "#EC5F36" : "#E5E2DE",
                       boxShadow: active ? "0 0 0 4px rgba(236,95,54,0.15)" : "none",
+                      transform: active ? "scale(1.18)" : "scale(1)",
                     }}>
                     {done
                       ? <Check size={10} color="#fff" strokeWidth={3} />
                       : <Icon size={hideLabels ? 10 : 12} color={active ? "#EC5F36" : "#ccc"} strokeWidth={1.8} />
                     }
-                  </motion.div>
+                  </div>
                   {!hideLabels && (
-                    <span
-                      className="text-[8px] font-semibold truncate max-w-[36px] text-center leading-none"
+                    <span className="text-[8px] font-semibold truncate max-w-[36px] text-center leading-none"
                       style={{ color: active ? "#EC5F36" : done ? "#EC5F36" : "#ccc" }}>
                       {meta.label}
                     </span>
@@ -1371,10 +1189,10 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
 
     const planBtnLabel = () => {
       if (!form.PlanType) return "Select a Plan to Continue";
-      if (paymentStage === "creating_order") return <><FontAwesomeIcon icon={faSpinner} spin style={{ marginRight: 7 }} />Creating order…</>;
-      if (paymentStage === "redirecting") return <><FontAwesomeIcon icon={faSpinner} spin style={{ marginRight: 7 }} />Redirecting to payment…</>;
-      if (form.PlanType === "Priority") return <><FontAwesomeIcon icon={faBolt} style={{ marginRight: 7 }} />Pay ₹{(PLANS.priority.amount + PLANS.priority.gst).toLocaleString()} — Continue</>;
-      if (form.PlanType === "Commitment") return <><FontAwesomeIcon icon={faBolt} style={{ marginRight: 7 }} />Pay ₹{(PLANS.commitment.amount + PLANS.commitment.gst).toLocaleString()} — Continue</>;
+      if (paymentStage === "creating_order") return <><Loader2 size={13} className="animate-spin mr-1.5 inline" />Creating order…</>;
+      if (paymentStage === "redirecting") return <><Loader2 size={13} className="animate-spin mr-1.5 inline" />Redirecting to payment…</>;
+      if (form.PlanType === "Priority") return <><Zap size={13} className="inline mr-1.5" />Pay ₹{(PLANS.priority.amount + PLANS.priority.gst).toLocaleString()} — Continue</>;
+      if (form.PlanType === "Commitment") return <><Zap size={13} className="inline mr-1.5" />Pay ₹{(PLANS.commitment.amount + PLANS.commitment.gst).toLocaleString()} — Continue</>;
       if (form.PlanType === "No Pay") return <>Continue Without Paying →</>;
       return "Select a Plan to Continue";
     };
@@ -1385,12 +1203,7 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
         {showBack ? (
           <button type="button" disabled={planSubmitting} onClick={goBack}
             className="flex items-center gap-1.5 text-xs font-bold transition-all duration-150 px-3 py-2.5 rounded-xl flex-shrink-0"
-            style={{
-              color: planSubmitting ? "#ccc" : "#5B6475",
-              background: planSubmitting ? "transparent" : "#F5F0ED",
-              border: "1.5px solid #EDE8E4",
-              cursor: planSubmitting ? "not-allowed" : "pointer",
-            }}>
+            style={{ color: planSubmitting ? "#ccc" : "#5B6475", background: planSubmitting ? "transparent" : "#F5F0ED", border: "1.5px solid #EDE8E4", cursor: planSubmitting ? "not-allowed" : "pointer" }}>
             <ArrowLeft size={13} strokeWidth={2.5} /> Back
           </button>
         ) : <div />}
@@ -1404,9 +1217,7 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
               flex: 1,
               maxWidth: showBack ? "68%" : "100%",
               padding: "11px 20px",
-              background: !valid || planSubmitting
-                ? "#F0EDE9"
-                : "linear-gradient(135deg,#EC5F36,#D84E28)",
+              background: !valid || planSubmitting ? "#F0EDE9" : "linear-gradient(135deg,#EC5F36,#D84E28)",
               color: !valid || planSubmitting ? "#C4B8B2" : "#fff",
               cursor: !valid || planSubmitting ? "not-allowed" : "pointer",
               boxShadow: valid && !planSubmitting ? "0 4px 14px rgba(236,95,54,0.35)" : "none",
@@ -1414,11 +1225,9 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
             }}>
             {isPlan ? planBtnLabel() : (
               curKey === "contact" && !ENABLE_PAYMENT ? (
-                planSubmitting ? (
-                  <><FontAwesomeIcon icon={faSpinner} spin style={{ marginRight: 7 }} />Submitting…</>
-                ) : (
-                  <>Submit</>
-                )
+                planSubmitting
+                  ? <><Loader2 size={13} className="animate-spin mr-1.5 inline" />Submitting…</>
+                  : <>Submit</>
               ) : (
                 <>
                   Continue
@@ -1437,21 +1246,13 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
   const Shell = (
     <div className="hw2-root flex flex-col bg-white rounded-3xl p-5 sm:p-6 w-full max-w-[35rem]" style={{ height: "30rem" }}>
       {renderProgress()}
-      <div ref={bodyRef} className="hw2-body overflow-y-auto" style={{ flex: 1 }}>
-        <AnimatePresence mode="wait" custom={dir}>
-          <motion.div
-            key={`${form.ServiceType || "svc"}-${stepIdx}`}
-            custom={dir}
-            variants={{
-              enter: (d) => ({ opacity: 0, x: d > 0 ? 30 : -30 }),
-              center: { opacity: 1, x: 0 },
-              exit: (d) => ({ opacity: 0, x: d > 0 ? -30 : 30 }),
-            }}
-            initial="enter" animate="center" exit="exit"
-            transition={{ duration: 0.2, ease: "easeInOut" }}>
-            {renderStep()}
-          </motion.div>
-        </AnimatePresence>
+      <div ref={bodyRef} className="hw2-body overflow-y-auto overflow-x-hidden" style={{ flex: 1 }}>
+        {/* CSS direction-aware slide animation — replaces AnimatePresence + motion.div */}
+        <div
+          key={`${form.ServiceType || "svc"}-${stepIdx}`}
+          className={dir > 0 ? curKey == "contact" ? "" : "step-enter-right" : "step-enter-left"}>
+          {renderStep()}
+        </div>
       </div>
       {renderFooter()}
     </div>
@@ -1463,12 +1264,8 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
       <div
         className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
         onClick={(e) => { if (e.target === e.currentTarget) { resetWizard(); onClose?.(); } }}>
-        <motion.div
-          className="relative w-full max-w-xl"
-          initial={{ opacity: 0, scale: 0.94, y: 20 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.94, y: 20 }}
-          transition={{ duration: 0.22 }}>
+        {/* CSS modal enter animation — replaces motion.div */}
+        <div className="relative w-full max-w-xl anim-status-enter">
           {onClose && (
             <button type="button" aria-label="Close"
               onClick={() => { resetWizard(); onClose?.(); }}
@@ -1478,7 +1275,7 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
             </button>
           )}
           {Shell}
-        </motion.div>
+        </div>
       </div>
     );
   }

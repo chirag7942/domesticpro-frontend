@@ -1,28 +1,14 @@
-// PaymentStatus.jsx — FIXED
-//
-// FIX 1 (refresh creates new lead): Added "dp_payment_done" sessionStorage guard.
-//   When status becomes PAID, we store the orderId in dp_payment_done.
-//   On any page refresh, useEffect checks this first and immediately shows
-//   the success screen — never calling /payment-verify again.
-//   This is the core fix for "new lead on every refresh".
-//
-// FIX 2: /payment-verify only sends order_id + plan — no zohoFields.
-//   Backend retrieves zohoFields from orderStore. zohoFields=null was the
-//   original cause of the 500 error.
-
 import { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  faCircleCheck,
-  faCircleXmark,
-  faClock,
-  faTriangleExclamation,
-  faBolt,
-  faArrowLeft,
-  faCommentDots,
-  faCalendarCheck,
-} from "@fortawesome/free-solid-svg-icons";
+  CircleCheck,
+  CircleX,
+  Clock,
+  TriangleAlert,
+  Zap,
+  ArrowLeft,
+  MessageSquare,
+  CalendarCheck,
+} from "lucide-react";
 
 const API_BASE = import.meta.env.VITE_REACT_APP_API;
 const MAX_POLLS = 10;
@@ -77,10 +63,6 @@ export default function PaymentStatus() {
       return;
     }
 
-    // ── FIX: Check if this order was already confirmed paid ────────────────
-    // dp_payment_done is set to the orderId when we first get PAID status.
-    // On all subsequent loads/refreshes for this order, we skip calling
-    // /payment-verify completely — no backend call, no new Zoho lead.
     const alreadyPaid = sessionStorage.getItem("dp_payment_done");
     if (alreadyPaid === oid) {
       console.log("[VERIFY] Already confirmed paid — skipping verify call");
@@ -96,27 +78,17 @@ export default function PaymentStatus() {
       const res = await fetch(`${API_BASE}/payment-verify`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          order_id: oid,
-          plan: savedPlan,
-          // zohoFields intentionally NOT sent — backend uses orderStore
-        }),
+        body: JSON.stringify({ order_id: oid, plan: savedPlan }),
       });
 
       const data = await res.json();
 
       if (data.status === "PAID") {
-        // ── Store paid guard BEFORE updating React state ───────────────────
-        // This ensures any race condition on re-render can't cause a second
-        // verify call before the component unmounts/redirects.
         sessionStorage.setItem("dp_payment_done", oid);
-
-        // Clean up order tracking keys (but keep dp_payment_done)
         sessionStorage.removeItem("dp_order_id");
         sessionStorage.removeItem("dp_plan");
         sessionStorage.removeItem("dp_customer_phone");
         sessionStorage.removeItem("dp_drop_lead_id");
-
         setStatus("paid");
         return;
       }
@@ -158,6 +130,7 @@ export default function PaymentStatus() {
       className="min-h-screen bg-gray-50 flex items-center justify-center p-4"
       style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
     >
+      {/* Background blobs — pure CSS, no motion needed */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <div className="absolute -top-40 -right-40 w-[480px] h-[480px] rounded-full"
           style={{ background: `${pc.color}0D` }} />
@@ -165,245 +138,245 @@ export default function PaymentStatus() {
           style={{ background: `${pc.color}08` }} />
       </div>
 
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={status}
-          initial={{ opacity: 0, y: 22, scale: 0.97 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: -14, scale: 0.97 }}
-          transition={{ duration: 0.26, ease: "easeOut" }}
-          className="relative w-full max-w-sm"
-        >
-          <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
-            <div className={`h-1 w-full ${stripColor}`} />
+      <div
+        key={status}
+        className="anim-status-enter relative w-full max-w-sm"
+      >
+        <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
+          <div className={`h-1 w-full ${stripColor}`} />
 
-            <div className="px-7 pt-7 pb-6 flex flex-col items-center text-center gap-5">
+          <div className="px-7 pt-7 pb-6 flex flex-col items-center text-center gap-5">
 
-              {/* ══════════ LOADING ══════════ */}
-              {status === "loading" && (
-                <>
-                  <div className="relative w-16 h-16">
-                    <div className="absolute inset-0 rounded-full border-4 border-gray-100" />
-                    <div
-                      className="absolute inset-0 rounded-full border-4 border-b-transparent border-l-transparent animate-spin"
-                      style={{ borderTopColor: pc.color, borderRightColor: pc.color }}
-                    />
-                    <div className="absolute inset-3 rounded-full flex items-center justify-center"
-                      style={{ background: pc.accentBg }}>
-                      <FontAwesomeIcon
-                        icon={plan === "commitment" ? faCalendarCheck : faBolt}
-                        style={{ fontSize: 14, color: pc.color }}
-                      />
-                    </div>
+            {/* ══════════ LOADING ══════════ */}
+            {status === "loading" && (
+              <>
+                <div className="relative w-16 h-16">
+                  <div className="absolute inset-0 rounded-full border-4 border-gray-100" />
+                  <div
+                    className="absolute inset-0 rounded-full border-4 border-b-transparent border-l-transparent animate-spin"
+                    style={{ borderTopColor: pc.color, borderRightColor: pc.color }}
+                  />
+                  <div className="absolute inset-3 rounded-full flex items-center justify-center"
+                    style={{ background: pc.accentBg }}>
+                    {plan === "commitment"
+                      ? <CalendarCheck size={14} color={pc.color} />
+                      : <Zap size={14} color={pc.color} />
+                    }
                   </div>
+                </div>
 
-                  <div>
-                    <p className="text-[10px] font-extrabold tracking-widest uppercase mb-2"
-                      style={{ color: pc.color }}>{pc.label}</p>
-                    <p className="text-xl font-bold text-gray-900 mb-1.5" style={{ fontFamily: "'Fraunces', serif" }}>
-                      Verifying payment…
-                    </p>
-                    <p className="text-xs text-gray-500 font-medium leading-relaxed">
-                      Please wait. Do not close or refresh this tab.
-                    </p>
-                  </div>
-
-                  <div className="flex gap-1.5 items-center">
-                    {Array.from({ length: MAX_POLLS }).map((_, i) => (
-                      <div key={i} className="h-1.5 rounded-full transition-all duration-500"
-                        style={{
-                          width: i < pollCount ? 16 : 6,
-                          background: i < pollCount ? pc.color : "#F1E3DE",
-                        }} />
-                    ))}
-                  </div>
-                  {pollCount > 3 && (
-                    <p className="text-[11px] text-gray-400 font-medium">
-                      Checking with Cashfree… ({pollCount}/{MAX_POLLS})
-                    </p>
-                  )}
-                </>
-              )}
-
-              {/* ══════════ PAID ══════════ */}
-              {status === "paid" && (
-                <>
-                  <motion.div
-                    initial={{ scale: 0, rotate: -15 }} animate={{ scale: 1, rotate: 0 }}
-                    transition={{ type: "spring", stiffness: 280, damping: 18 }}
-                    className="w-16 h-16 rounded-full flex items-center justify-center"
-                    style={{ background: "#f0fdf4", boxShadow: "0 0 0 8px #bbf7d040" }}
-                  >
-                    <FontAwesomeIcon icon={faCircleCheck} className="text-green-500" style={{ fontSize: 30 }} />
-                  </motion.div>
-
-                  <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
-                    <div className="inline-flex items-center gap-1.5 text-[10px] font-extrabold tracking-widest uppercase rounded-full px-3 py-1 mb-3 border"
-                      style={{ background: pc.accentBg, borderColor: pc.accentBorder, color: pc.accentText }}>
-                      <FontAwesomeIcon icon={plan === "commitment" ? faCalendarCheck : faBolt} style={{ fontSize: 10 }} />
-                      {pc.label}
-                    </div>
-                    <p className="text-xl font-bold text-gray-900 mb-1" style={{ fontFamily: "'Fraunces', serif" }}>
-                      {pc.successTitle}
-                    </p>
-                    <p className="text-xs text-gray-500 font-medium leading-relaxed">
-                      {pc.successSub}
-                    </p>
-                  </motion.div>
-
-                  <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}
-                    className="w-full rounded-2xl p-4 text-left flex flex-col gap-3 border"
-                    style={{ background: pc.accentBg, borderColor: pc.accentBorder }}>
-                    <p className="text-[10px] font-extrabold text-gray-400 tracking-widest uppercase">
-                      What happens next
-                    </p>
-                    {pc.steps.map((item, i) => (
-                      <div key={i} className="flex items-center gap-2.5">
-                        <div className={`w-2 h-2 rounded-full flex-shrink-0 ${item.dot}`} />
-                        <span className="text-xs font-semibold text-gray-800">{item.label}</span>
-                      </div>
-                    ))}
-                  </motion.div>
-
-                  {orderId && (
-                    <div className="w-full rounded-xl px-4 py-2.5 flex items-center justify-between border"
-                      style={{ background: pc.accentBg, borderColor: pc.accentBorder }}>
-                      <span className="text-[10px] font-extrabold text-gray-400 uppercase tracking-wider">Order ID</span>
-                      <span className="text-[11px] font-extrabold truncate max-w-[180px]"
-                        style={{ color: pc.color }}>{orderId}</span>
-                    </div>
-                  )}
-
-                  <p className="text-[11px] text-gray-400 font-medium">
-                    You can safely close this tab. We'll call you shortly.
+                <div>
+                  <p className="text-[10px] font-extrabold tracking-widest uppercase mb-2"
+                    style={{ color: pc.color }}>{pc.label}</p>
+                  <p className="text-xl font-bold text-gray-900 mb-1.5" style={{ fontFamily: "'Fraunces', serif" }}>
+                    Verifying payment…
                   </p>
-                </>
-              )}
+                  <p className="text-xs text-gray-500 font-medium leading-relaxed">
+                    Please wait. Do not close or refresh this tab.
+                  </p>
+                </div>
 
-              {/* ══════════ FAILED ══════════ */}
-              {status === "failed" && (
-                <>
-                  <motion.div initial={{ scale: 0, rotate: -15 }} animate={{ scale: 1, rotate: 0 }}
-                    transition={{ type: "spring", stiffness: 280, damping: 18 }}
-                    className="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center"
-                    style={{ boxShadow: "0 0 0 8px #fee2e240" }}>
-                    <FontAwesomeIcon icon={faCircleXmark} className="text-red-400" style={{ fontSize: 30 }} />
-                  </motion.div>
-                  <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
-                    <p className="text-xl font-bold text-gray-900 mb-1" style={{ fontFamily: "'Fraunces', serif" }}>
-                      Payment Failed
-                    </p>
-                    <p className="text-xs text-gray-500 font-medium leading-relaxed">
-                      No amount was deducted. Please try again.
-                    </p>
-                  </motion.div>
-                  <div className="w-full flex flex-col gap-3">
-                    <div className="bg-red-50 border border-red-100 rounded-2xl px-4 py-3 text-xs text-red-600 font-medium leading-relaxed text-left">
-                      Your <strong>{pc.label}</strong> request was not processed. No charges were applied.
+                <div className="flex gap-1.5 items-center">
+                  {Array.from({ length: MAX_POLLS }).map((_, i) => (
+                    <div key={i} className="h-1.5 rounded-full transition-all duration-500"
+                      style={{ width: i < pollCount ? 16 : 6, background: i < pollCount ? pc.color : "#F1E3DE" }} />
+                  ))}
+                </div>
+                {pollCount > 3 && (
+                  <p className="text-[11px] text-gray-400 font-medium">
+                    Checking with Cashfree… ({pollCount}/{MAX_POLLS})
+                  </p>
+                )}
+              </>
+            )}
+
+            {/* ══════════ PAID ══════════ */}
+            {status === "paid" && (
+              <>
+                {/* Spring pop — CSS animation replaces motion spring */}
+                <div
+                  className="anim-spring-pop w-16 h-16 rounded-full flex items-center justify-center"
+                  style={{ background: "#f0fdf4", boxShadow: "0 0 0 8px #bbf7d040" }}
+                >
+                  <CircleCheck size={30} className="text-green-500" />
+                </div>
+
+                {/* Fade up with delay — replaces motion initial/animate + delay:0.15 */}
+                <div className="anim-fade-up" style={{ animationDelay: "0.15s" }}>
+                  <div className="inline-flex items-center gap-1.5 text-[10px] font-extrabold tracking-widest uppercase rounded-full px-3 py-1 mb-3 border"
+                    style={{ background: pc.accentBg, borderColor: pc.accentBorder, color: pc.accentText }}>
+                    {plan === "commitment" ? <CalendarCheck size={10} /> : <Zap size={10} />}
+                    {pc.label}
+                  </div>
+                  <p className="text-xl font-bold text-gray-900 mb-1" style={{ fontFamily: "'Fraunces', serif" }}>
+                    {pc.successTitle}
+                  </p>
+                  <p className="text-xs text-gray-500 font-medium leading-relaxed">
+                    {pc.successSub}
+                  </p>
+                </div>
+
+                {/* Fade up with delay — replaces motion delay:0.25 */}
+                <div className="anim-fade-up w-full rounded-2xl p-4 text-left flex flex-col gap-3 border"
+                  style={{ animationDelay: "0.25s", background: pc.accentBg, borderColor: pc.accentBorder }}>
+                  <p className="text-[10px] font-extrabold text-gray-400 tracking-widest uppercase">
+                    What happens next
+                  </p>
+                  {pc.steps.map((item, i) => (
+                    <div key={i} className="flex items-center gap-2.5">
+                      <div className={`w-2 h-2 rounded-full flex-shrink-0 ${item.dot}`} />
+                      <span className="text-xs font-semibold text-gray-800">{item.label}</span>
                     </div>
-                    <button
-                      onClick={() => {
-                        sessionStorage.removeItem("dp_order_id");
-                        window.history.back();
-                      }}
-                      className="w-full flex items-center justify-center gap-2 font-bold text-sm rounded-2xl py-3.5 text-white transition"
-                      style={{ background: "linear-gradient(135deg,#EC5F36,#D84E28)" }}>
-                      <FontAwesomeIcon icon={faArrowLeft} style={{ fontSize: 13 }} />
-                      Go back &amp; try again
-                    </button>
-                  </div>
-                </>
-              )}
+                  ))}
+                </div>
 
-              {/* ══════════ PENDING ══════════ */}
-              {status === "pending" && (
-                <>
-                  <motion.div initial={{ scale: 0, rotate: -15 }} animate={{ scale: 1, rotate: 0 }}
-                    transition={{ type: "spring", stiffness: 280, damping: 18 }}
-                    className="w-16 h-16 rounded-full bg-amber-50 flex items-center justify-center"
-                    style={{ boxShadow: "0 0 0 8px #fef3c740" }}>
-                    <FontAwesomeIcon icon={faClock} className="text-amber-400" style={{ fontSize: 28 }} />
-                  </motion.div>
-                  <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
-                    <p className="text-xl font-bold text-gray-900 mb-1" style={{ fontFamily: "'Fraunces', serif" }}>
-                      Payment Processing
-                    </p>
-                    <p className="text-xs text-gray-500 font-medium leading-relaxed">
-                      Your bank is still confirming. This can take a few minutes.
-                    </p>
-                  </motion.div>
-                  <div className="w-full flex flex-col gap-3">
-                    <div className="bg-amber-50 border border-amber-100 rounded-2xl px-4 py-3 text-xs text-amber-700 font-medium leading-relaxed text-left">
-                      If money was deducted, your <strong>{pc.label}</strong> request will be activated automatically.
-                      Our team will call you within 2 hours.
-                    </div>
-                    {orderId && (
-                      <div className="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-2.5 flex items-center justify-between">
-                        <span className="text-[10px] font-extrabold text-gray-400 uppercase tracking-wider">Order ID</span>
-                        <span className="text-[11px] font-extrabold text-gray-800 truncate max-w-[180px]">{orderId}</span>
-                      </div>
-                    )}
+                {orderId && (
+                  <div className="w-full rounded-xl px-4 py-2.5 flex items-center justify-between border"
+                    style={{ background: pc.accentBg, borderColor: pc.accentBorder }}>
+                    <span className="text-[10px] font-extrabold text-gray-400 uppercase tracking-wider">Order ID</span>
+                    <span className="text-[11px] font-extrabold truncate max-w-[180px]"
+                      style={{ color: pc.color }}>{orderId}</span>
                   </div>
-                </>
-              )}
+                )}
 
-              {/* ══════════ ERROR ══════════ */}
-              {status === "error" && (
-                <>
-                  <motion.div initial={{ scale: 0, rotate: -15 }} animate={{ scale: 1, rotate: 0 }}
-                    transition={{ type: "spring", stiffness: 280, damping: 18 }}
-                    className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center"
-                    style={{ boxShadow: "0 0 0 8px #f3f4f640" }}>
-                    <FontAwesomeIcon icon={faTriangleExclamation} className="text-gray-400" style={{ fontSize: 26 }} />
-                  </motion.div>
-                  <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
-                    <p className="text-xl font-bold text-gray-900 mb-1" style={{ fontFamily: "'Fraunces', serif" }}>
-                      Something went wrong
-                    </p>
-                    <p className="text-xs text-gray-500 font-medium leading-relaxed">
-                      We couldn't verify your payment. Contact support if money was deducted.
-                    </p>
-                  </motion.div>
-                  <div className="w-full flex flex-col gap-3">
-                    {orderId && (
-                      <div className="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-2.5 flex items-center justify-between">
-                        <span className="text-[10px] font-extrabold text-gray-400 uppercase tracking-wider">Order ID</span>
-                        <span className="text-[11px] font-extrabold text-gray-800 truncate max-w-[180px]">{orderId}</span>
-                      </div>
-                    )}
-                    <a
-                      href={`https://wa.me/919211298139?text=Payment+issue+%E2%80%93+${pc.label}+%E2%80%93+Order+ID:+${orderId}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="w-full flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#1ebe5d] text-white font-bold text-sm rounded-2xl py-3.5 transition hover:shadow-md">
-                      <FontAwesomeIcon icon={faCommentDots} style={{ fontSize: 14 }} />
-                      WhatsApp Support
-                    </a>
-                  </div>
-                </>
-              )}
-            </div>
-
-            {["failed", "pending", "error"].includes(status) && (
-              <div className="px-7 pb-5 border-t border-gray-100 pt-4">
-                <p className="text-center text-[10.5px] text-gray-400 font-medium">
-                  Need help?{" "}
-                  <a href="https://wa.me/919211298139" target="_blank" rel="noopener noreferrer"
-                    className="font-bold hover:underline" style={{ color: pc.color }}>
-                    Chat with us on WhatsApp
-                  </a>
+                <p className="text-[11px] text-gray-400 font-medium">
+                  You can safely close this tab. We'll call you shortly.
                 </p>
-              </div>
+              </>
+            )}
+
+            {/* ══════════ FAILED ══════════ */}
+            {status === "failed" && (
+              <>
+                {/* Spring pop replaces motion spring */}
+                <div
+                  className="anim-spring-pop w-16 h-16 rounded-full bg-red-50 flex items-center justify-center"
+                  style={{ boxShadow: "0 0 0 8px #fee2e240" }}>
+                  <CircleX size={30} className="text-red-400" />
+                </div>
+
+                {/* Fade up replaces motion delay:0.15 */}
+                <div className="anim-fade-up" style={{ animationDelay: "0.15s" }}>
+                  <p className="text-xl font-bold text-gray-900 mb-1" style={{ fontFamily: "'Fraunces', serif" }}>
+                    Payment Failed
+                  </p>
+                  <p className="text-xs text-gray-500 font-medium leading-relaxed">
+                    No amount was deducted. Please try again.
+                  </p>
+                </div>
+
+                <div className="w-full flex flex-col gap-3">
+                  <div className="bg-red-50 border border-red-100 rounded-2xl px-4 py-3 text-xs text-red-600 font-medium leading-relaxed text-left">
+                    Your <strong>{pc.label}</strong> request was not processed. No charges were applied.
+                  </div>
+                  <button
+                    onClick={() => {
+                      sessionStorage.removeItem("dp_order_id");
+                      window.history.back();
+                    }}
+                    className="w-full flex items-center justify-center gap-2 font-bold text-sm rounded-2xl py-3.5 text-white transition"
+                    style={{ background: "linear-gradient(135deg,#EC5F36,#D84E28)" }}>
+                    <ArrowLeft size={13} />
+                    Go back &amp; try again
+                  </button>
+                </div>
+              </>
+            )}
+
+            {/* ══════════ PENDING ══════════ */}
+            {status === "pending" && (
+              <>
+                {/* Spring pop replaces motion spring */}
+                <div
+                  className="anim-spring-pop w-16 h-16 rounded-full bg-amber-50 flex items-center justify-center"
+                  style={{ boxShadow: "0 0 0 8px #fef3c740" }}>
+                  <Clock size={28} className="text-amber-400" />
+                </div>
+
+                {/* Fade up replaces motion delay:0.15 */}
+                <div className="anim-fade-up" style={{ animationDelay: "0.15s" }}>
+                  <p className="text-xl font-bold text-gray-900 mb-1" style={{ fontFamily: "'Fraunces', serif" }}>
+                    Payment Processing
+                  </p>
+                  <p className="text-xs text-gray-500 font-medium leading-relaxed">
+                    Your bank is still confirming. This can take a few minutes.
+                  </p>
+                </div>
+
+                <div className="w-full flex flex-col gap-3">
+                  <div className="bg-amber-50 border border-amber-100 rounded-2xl px-4 py-3 text-xs text-amber-700 font-medium leading-relaxed text-left">
+                    If money was deducted, your <strong>{pc.label}</strong> request will be activated automatically.
+                    Our team will call you within 2 hours.
+                  </div>
+                  {orderId && (
+                    <div className="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-2.5 flex items-center justify-between">
+                      <span className="text-[10px] font-extrabold text-gray-400 uppercase tracking-wider">Order ID</span>
+                      <span className="text-[11px] font-extrabold text-gray-800 truncate max-w-[180px]">{orderId}</span>
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
+
+            {/* ══════════ ERROR ══════════ */}
+            {status === "error" && (
+              <>
+                {/* Spring pop replaces motion spring */}
+                <div
+                  className="anim-spring-pop w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center"
+                  style={{ boxShadow: "0 0 0 8px #f3f4f640" }}>
+                  <TriangleAlert size={26} className="text-gray-400" />
+                </div>
+
+                {/* Fade up replaces motion delay:0.15 */}
+                <div className="anim-fade-up" style={{ animationDelay: "0.15s" }}>
+                  <p className="text-xl font-bold text-gray-900 mb-1" style={{ fontFamily: "'Fraunces', serif" }}>
+                    Something went wrong
+                  </p>
+                  <p className="text-xs text-gray-500 font-medium leading-relaxed">
+                    We couldn't verify your payment. Contact support if money was deducted.
+                  </p>
+                </div>
+
+                <div className="w-full flex flex-col gap-3">
+                  {orderId && (
+                    <div className="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-2.5 flex items-center justify-between">
+                      <span className="text-[10px] font-extrabold text-gray-400 uppercase tracking-wider">Order ID</span>
+                      <span className="text-[11px] font-extrabold text-gray-800 truncate max-w-[180px]">{orderId}</span>
+                    </div>
+                  )}
+                  <a
+                    href={`https://wa.me/919211298139?text=Payment+issue+%E2%80%93+${pc.label}+%E2%80%93+Order+ID:+${orderId}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#1ebe5d] text-white font-bold text-sm rounded-2xl py-3.5 transition hover:shadow-md">
+                    <MessageSquare size={14} />
+                    WhatsApp Support
+                  </a>
+                </div>
+              </>
             )}
           </div>
 
-          <motion.p
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}
-            className="text-center mt-5 text-[11px] font-bold text-gray-400 tracking-widest uppercase">
-            Domestic Pro · Secure Checkout
-          </motion.p>
-        </motion.div>
-      </AnimatePresence>
+          {["failed", "pending", "error"].includes(status) && (
+            <div className="px-7 pb-5 border-t border-gray-100 pt-4">
+              <p className="text-center text-[10.5px] text-gray-400 font-medium">
+                Need help?{" "}
+                <a href="https://wa.me/919211298139" target="_blank" rel="noopener noreferrer"
+                  className="font-bold hover:underline" style={{ color: pc.color }}>
+                  Chat with us on WhatsApp
+                </a>
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* Fade in — replaces motion delay:0.4 */}
+        <p className="anim-fade-up text-center mt-5 text-[11px] font-bold text-gray-400 tracking-widest uppercase"
+          style={{ animationDelay: "0.4s" }}>
+          Domestic Pro · Secure Checkout
+        </p>
+      </div>
     </div>
   );
 }
