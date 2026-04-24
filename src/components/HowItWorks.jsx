@@ -6,28 +6,28 @@ const steps = [
     title: "Plan Selection",
     description:
       "Choose Connect, Care, or Complete based on the level of verification and support you prefer.",
-    image: "https://res.cloudinary.com/dto7bji6b/image/upload/v1774335046/d8d65fe2-617e-45c9-900b-93e7bc9be92c_spy8bn.png",
+    image: "https://res.cloudinary.com/dto7bji6b/image/upload/f_auto,w_100/v1774335046/d8d65fe2-617e-45c9-900b-93e7bc9be92c_spy8bn.webp",
   },
   {
     number: "02",
     title: "Profile Sharing & Interviews",
     description:
       "Verified profiles are shared as per your selected plan. Interviews are coordinated accordingly.",
-    image: "https://res.cloudinary.com/dto7bji6b/image/upload/v1774335643/Virtual_interview_in_progress_jdzrjv.png",
+    image: "https://res.cloudinary.com/dto7bji6b/image/upload/f_auto,w_150/v1774335643/Virtual_interview_in_progress_jdzrjv.webp",
   },
   {
     number: "03",
     title: "Candidate Confirmation",
     description:
       "You finalize the most suitable candidate after review and discussion.",
-    image: "https://res.cloudinary.com/dto7bji6b/image/upload/v1774336700/Successful_candidate_confirmation_moment_xpidww.png",
+    image: "https://res.cloudinary.com/dto7bji6b/image/upload/f_auto,w_100/v1774336700/Successful_candidate_confirmation_moment_xpidww.webp",
   },
   {
     number: "04",
     title: "Joining & Structured Support",
     description:
       "Post-joining assistance and follow-up support are provided as per your selected plan.",
-    image: "https://res.cloudinary.com/dto7bji6b/image/upload/v1774336141/Professional_handshake_with_friendly_exchange_ivn6qz.png",
+    image: "https://res.cloudinary.com/dto7bji6b/image/upload/f_auto,w_100/v1774336141/Professional_handshake_with_friendly_exchange_ivn6qz.webp",
   },
 ];
 
@@ -100,9 +100,9 @@ export default function HowItWorks() {
             <span className="inline-block bg-primary/10 text-primary text-xs font-bold tracking-widest uppercase px-4 py-1.5 rounded-full mb-5">
               Our Process
             </span>
-            <h2 className="text-4xl md:text-5xl font-bold text-textDark mb-4">
+            <h3 className="text-4xl md:text-5xl font-bold text-textDark mb-4">
               How the Process Works
-            </h2>
+            </h3>
             <p className="text-textLight text-lg max-w-2xl mx-auto leading-relaxed">
               A structured and transparent hiring journey designed for clarity and confidence.
             </p>
@@ -131,6 +131,7 @@ export default function HowItWorks() {
                         <img
                           src={step.image}
                           alt={step.title}
+                          width={56} height={56}
                           className="w-14 h-14 object-cover"
                         />
                       </div>

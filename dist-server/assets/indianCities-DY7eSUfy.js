@@ -1,0 +1,8 @@
+const indianCities = ["New Delhi", "Delhi", "Noida", "Greater Noida", "Ghaziabad", "Faridabad", "Gurugram", "Dwarka", "Mumbai", "Navi Mumbai", "Thane", "Pune", "Nagpur", "Nashik", "Aurangabad", "Solapur", "Kolhapur", "Ahmednagar", "Bengaluru", "Mysuru", "Hubli", "Mangaluru", "Belagavi", "Kalaburagi", "Tumkur", "Chennai", "Coimbatore", "Madurai", "Tiruchirappalli", "Salem", "Tirunelveli", "Vellore", "Erode", "Hyderabad", "Secunderabad", "Warangal", "Nizamabad", "Visakhapatnam", "Vijayawada", "Guntur", "Tirupati", "Ahmedabad", "Surat", "Vadodara", "Rajkot", "Bhavnagar", "Jamnagar", "Gandhinagar", "Anand", "Jaipur", "Jodhpur", "Udaipur", "Kota", "Ajmer", "Bikaner", "Alwar", "Lucknow", "Kanpur", "Agra", "Varanasi", "Prayagraj", "Meerut", "Bareilly", "Aligarh", "Mathura", "Moradabad", "Kolkata", "Howrah", "Durgapur", "Asansol", "Siliguri", "Bardhaman", "Bhopal", "Indore", "Jabalpur", "Gwalior", "Ujjain", "Sagar", "Dewas", "Chandigarh", "Ludhiana", "Amritsar", "Jalandhar", "Patiala", "Bathinda", "Ambala", "Panipat", "Karnal", "Rohtak", "Hisar", "Sonipat", "Patna", "Gaya", "Muzaffarpur", "Bhagalpur", "Ranchi", "Jamshedpur", "Dhanbad", "Bokaro", "Bhubaneswar", "Cuttack", "Rourkela", "Berhampur", "Thiruvananthapuram", "Kochi", "Kozhikode", "Thrissur", "Kollam", "Kannur", "Guwahati", "Dibrugarh", "Silchar", "Imphal", "Agartala", "Shillong", "Dehradun", "Haridwar", "Roorkee", "Shimla", "Dharamshala", "Mandi", "Panaji", "Margao", "Vasco da Gama", "Raipur", "Bhilai", "Bilaspur", "Korba", "Srinagar", "Jammu", "Leh"];
+const indianCities_default = {
+  indianCities
+};
+export {
+  indianCities_default as default,
+  indianCities
+};

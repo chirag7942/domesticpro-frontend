@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { ArrowRight, Gift, Users } from "lucide-react";
+import { Gift, Users } from "lucide-react";
+import SEO from "../components/SEO";
+import useScrollReveal from "../hooks/useScrollReveal";
 
 /* ── spinner for submit button — keyframe only ── */
 const CSS = `
@@ -35,7 +37,9 @@ const SubmitButton = ({ label, isSubmitting }) => (
             </span>
         ) : (
             <span className="flex items-center justify-center gap-2">
-                {label} <ArrowRight size={14} strokeWidth={2.5} />
+                {label}   <svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <path d="M5 12h14M12 5l7 7-7 7" />
+                </svg>
             </span>
         )}
     </button>
@@ -94,18 +98,13 @@ export default function Referrals() {
         }, 2000);
     };
 
-    useEffect(() => {
-        const sections = document.querySelectorAll(".scroll-section");
-        const observer = new IntersectionObserver(
-            (entries) => entries.forEach((e) => e.isIntersecting && e.target.classList.add("show")),
-            { threshold: 0.15 }
-        );
-        sections.forEach((s) => observer.observe(s));
-        return () => sections.forEach((s) => observer.unobserve(s));
-    }, []);
+    useScrollReveal();
 
     return (
         <>
+            <SEO title="Refer a Domestic Worker & Earn upto ₹3,000 | Domestic Pro India"
+                description="Refer a trusted domestic worker and earn ₹1,000 after successful placement. Simple process, fast payout, and verified job opportunities."
+                canonical="/refer-a-helper" />
             <style>{CSS}</style>
 
             {/* ── FORM: Refer a Helper ── */}

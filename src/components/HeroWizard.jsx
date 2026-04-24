@@ -13,6 +13,7 @@ import {
   SERVICE_FLOWS, DEFAULT_FLOW, PROG_META, INIT,
   JAPA_DUTIES, JAPA_MOTHER_NEEDS, CHILD_AGE_RANGES
 } from "./wizardData";
+import { safeSessionStorage } from "../utils/browserOnly";
 
 const API_BASE = import.meta.env.VITE_REACT_APP_API || "";
 const INTERNAL_SECRET = import.meta.env.VITE_INTERNAL_SECRET || "";
@@ -90,7 +91,7 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
   const [paymentStage, setPaymentStage] = useState("idle");
   const [activeTab, setActiveTab] = useState("priority");
   const [dropLeadId, setDropLeadId] = useState(
-    () => sessionStorage.getItem("dp_drop_lead_id") || ""
+    () => safeSessionStorage.getItem("dp_drop_lead_id") || ""
   );
   const [submitError, setSubmitError] = useState("");
   const bodyRef = useRef(null);

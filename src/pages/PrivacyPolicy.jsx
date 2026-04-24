@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { HeadphonesIcon, ShieldCheck } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import SEO from "../components/SEO";
+import useScrollReveal from "../hooks/useScrollReveal";
 
 /* ── only scroll-margin & smooth-scroll — Tailwind has no scroll-margin-top utility at this value ── */
 const CSS = `
@@ -100,25 +102,22 @@ export default function PrivacyPolicy() {
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState("introduction");
 
-  useEffect(() => {
-    const sections = document.querySelectorAll("section[data-section]");
-    const observer = new IntersectionObserver(
-      (entries) => entries.forEach((e) => e.isIntersecting && setActiveSection(e.target.dataset.section)),
-      { rootMargin: "-50% 0px -50% 0px" }
-    );
-    sections.forEach((s) => observer.observe(s));
-    return () => sections.forEach((s) => observer.unobserve(s));
-  }, []);
+  useScrollReveal();
 
   return (
     <>
+      <SEO title="Privacy Policy"
+        description="DomesticPro's privacy policy explaining how we collect, use and protect your personal data."
+        canonical="/privacy-policy"
+        ogImage="https://res.cloudinary.com/dhtzknkdr/image/upload/v1773031913/privacyPolicy_sk0vhw.webp"
+        noIndex={true} />
       <style>{CSS}</style>
       <div className="bg-bgLight text-textDark min-h-screen">
 
         {/* ── HERO ── */}
         <section className="relative h-[75vh] md:h-[85vh] flex items-center justify-center">
           <div className="absolute inset-0 bg-cover bg-center"
-            style={{ backgroundImage: `url(https://res.cloudinary.com/dhtzknkdr/image/upload/v1773031913/privacyPolicy_sk0vhw.png)` }} />
+            style={{ backgroundImage: `url(https://res.cloudinary.com/dhtzknkdr/image/upload/v1773031913/privacyPolicy_sk0vhw.webp)` }} />
           <div className="absolute inset-0 bg-black/80" />
           <div className="relative z-10 text-center px-5 max-w-4xl mx-auto">
             <h1 className="text-[clamp(32px,5vw,52px)] font-extrabold text-white leading-tight mb-4">

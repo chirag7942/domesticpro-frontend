@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import HeroWizard from "../../components/HeroWizard";
+import SEO from "../../components/SEO";
 
 const PatientCare = () => {
   const [modalType, setModalType] = useState(null);
@@ -40,6 +41,12 @@ const PatientCare = () => {
 
   return (
     <>
+      <SEO
+        title="Patient Care Services at Home | Trained Caregivers for Elderly & Recovery"
+        description="Hire professional patient caregivers for home care including elderly support, post-surgery recovery, bedridden care, and 24x7 assistance. Verified and trained staff available."
+        canonical="/services/patient-care"
+        ogImage="https://res.cloudinary.com/dhtzknkdr/image/upload/v1773031910/patientcare_b3oqgg.webp"
+      />
       {/* ================= HERO SECTION ================= */}
       <section className="bg-bgLight py-20 relative overflow-hidden">
         <div className="absolute top-0 right-0 translate-x-1/3 -translate-y-1/3 w-[400px] h-[400px] bg-primary/30 rounded-full blur-3xl z-0"></div>

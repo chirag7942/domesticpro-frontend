@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import HeroWizard from "../components/HeroWizard";
 import { HeadphonesIcon } from "lucide-react";
+import SEO from "../components/SEO";
+import useScrollReveal from "../hooks/useScrollReveal";
 
 const CSS = `
   section[data-section] { scroll-margin-top: 100px; }
@@ -73,24 +75,22 @@ export default function RefundPolicy() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("introduction");
 
-  useEffect(() => {
-    const sections = document.querySelectorAll("section[data-section]");
-    const observer = new IntersectionObserver(
-      (entries) => entries.forEach((e) => e.isIntersecting && setActiveSection(e.target.dataset.section)),
-      { rootMargin: "-50% 0px -50% 0px" }
-    );
-    sections.forEach((s) => observer.observe(s));
-    return () => sections.forEach((s) => observer.unobserve(s));
-  }, []);
+  useScrollReveal();
 
   return (
     <>
+      <SEO
+        title="Refund & Replacement Policy"
+        description="Understand DomesticPro's no-refund and guaranteed replacement policy for domestic helper placements."
+        canonical="/refund-policy"
+        ogImage="https://res.cloudinary.com/dhtzknkdr/image/upload/v1773031916/refundPolicy_rmzl2s.webp"
+        noIndex={true} />
       <style>{CSS}</style>
 
       {/* ── HERO ── */}
       <section className="relative h-[75vh] md:h-[85vh] flex items-center justify-center">
         <div className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: `url(https://res.cloudinary.com/dhtzknkdr/image/upload/v1773031916/refundPolicy_rmzl2s.png)` }} />
+          style={{ backgroundImage: `url(https://res.cloudinary.com/dhtzknkdr/image/upload/v1773031916/refundPolicy_rmzl2s.webp)` }} />
         <div className="absolute inset-0 bg-black/80" />
         <div className="relative z-10 text-center px-5 max-w-4xl mx-auto">
           <h1 className="text-4xl md:text-6xl font-extrabold text-white mb-6 leading-tight">

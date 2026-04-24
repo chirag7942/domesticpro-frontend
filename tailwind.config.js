@@ -1,3 +1,5 @@
+import defaultTheme from "tailwindcss/defaultTheme";
+
 export default {
   content: ["./index.html", "./src/**/*.{js,jsx}"],
   theme: {
@@ -21,6 +23,12 @@ export default {
           "0%": { opacity: 0, transform: "scale(0.95)" },
           "100%": { opacity: 1, transform: "scale(1)" },
         },
+      },
+      fontFamily: {
+        sans: ["Plus Jakarta Sans", ...defaultTheme.fontFamily.sans],
+        display: ["Fraunces", "serif"],
+        playfair: ["Playfair Display", "serif"],
+        dm: ["DM Sans", "sans-serif"],
       },
     },
   },

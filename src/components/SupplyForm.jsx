@@ -344,7 +344,7 @@ export default function SupplyForm() {
         {/* Header */}
         <div style={s.header}>
           <div style={s.logoBox}>
-            <img src="./logoOnly.png" alt="DomesticPro logo" style={{ maxWidth: "100%", maxHeight: "100%" }} />
+            <img src="./logoOnly.webp" alt="DomesticPro logo" style={{ maxWidth: "100%", maxHeight: "100%" }} />
           </div>
           <div>
             <p style={s.headerTitle}>DomesticPro – Helper Registration</p>

@@ -1,6 +1,7 @@
 import { useRef } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Pagination, Navigation } from "swiper/modules";
+import Harpreet from "../assets/photo-1567532939604-b6b5b0db2604.avif"
 
 import "swiper/css";
 import "swiper/css/pagination";
@@ -41,18 +42,18 @@ const CSS = `
 `;
 
 const testimonials = [
-  { name: "Neelam", role: "Noida", rating: 5, image: "https://res.cloudinary.com/dto7bji6b/image/upload/v1774349319/ChatGPT_Image_Mar_24_2026_04_14_13_PM_u4mgvt.png", review: "Got a good cook within one day. They shared her full details before sending her. Very happy with the service." },
-  { name: "Shweta", role: "Gurugram", rating: 5, image: "https://res.cloudinary.com/dto7bji6b/image/upload/v1774350307/shweta_na7wnm.png", review: "The nanny they sent is very caring and honest. They checked her background before sending. I feel safe leaving my child with her." },
-  { name: "Vaishali", role: "Delhi", rating: 4, image: "https://res.cloudinary.com/dto7bji6b/image/upload/v1774348576/ChatGPT_Image_Mar_24_2026_04_04_59_PMi_yw73ip.png", review: "I told them my needs and they found the right maid for me. She cooks well and keeps the house clean. No complaints at all." },
-  { name: "Lovina", role: "Delhi", rating: 5, image: "https://res.cloudinary.com/dto7bji6b/image/upload/v1774349352/ChatGPT_Image_Mar_24_2026_04_14_13_PM_1_qkfs6r.png", review: "Domestic Pro shared profiles with photos and work history. Easy to choose. Their team helped at every step. Hired in 2 days." },
-  { name: "Nikita", role: "Noida", rating: 4, image: "https://res.cloudinary.com/dto7bji6b/image/upload/v1774350236/nikita_z76hg7.png", review: "Needed help quickly after shifting to a new house. They arranged a helper the same evening. She is still with us after 3 months." },
-  { name: "Kavya", role: "Gurugram", rating: 5, image: "https://res.cloudinary.com/dto7bji6b/image/upload/v1774350528/kavya_cotxbk.png", review: "They sent a PDF with the helper's ID proof, past work, and skills. Very clear and easy to understand. Trusted the process fully." },
-  { name: "Ruchika", role: "Noida", rating: 4, image: "https://res.cloudinary.com/dto7bji6b/image/upload/v1774350497/ruchika_qgycrj.png", review: "Had a bad experience with a local agent before. Domestic Pro was totally different — proper ID check, agreement, everything in writing. Very reliable." },
-  { name: "Angel", role: "Delhi", rating: 5, image: "https://res.cloudinary.com/dto7bji6b/image/upload/v1774350794/u_kaxpqp.png", review: "I needed someone who is okay with pets and early mornings. They understood and sent the right match. Saved me a lot of time." },
-  { name: "Harpreet", role: "Delhi", rating: 5, image: "https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?q=80&w=150&h=150&auto=format&fit=crop", review: "My mother-in-law needed a helper for daily care. Domestic Pro sent someone with experience in looking after old people. She is very gentle and helpful." },
-  { name: "Armaan Malik", role: "Gurugram", rating: 4, image: "https://res.cloudinary.com/dto7bji6b/image/upload/v1774348004/photo-1500648767791-00dcc994a43e_xksnqy.jpg", review: "Did not have time to meet many candidates. They shortlisted 3 good profiles, set up calls in one day, and the cook joined within a week. Very smooth." },
-  { name: "Ritika", role: "Delhi", rating: 5, image: "https://res.cloudinary.com/dto7bji6b/image/upload/v1774348101/photo-1607746882042-944635dfe10e_tvptd9.jpg", review: "Our maid had to leave suddenly. Domestic Pro sent a replacement in 3 days. That is the kind of support every family needs." },
-  { name: "Urvashi", role: "Noida", rating: 4, image: "https://res.cloudinary.com/dto7bji6b/image/upload/v1774350671/ChatGPT_Image_Mar_24_2026_04_40_12_PM_kjvigh.png", review: "Took their Japa Maid service after delivery. The helper was trained and knew how to handle a newborn. I could rest and recover without worry." },
+  { name: "Neelam", role: "Noida", rating: 5, image: "https://res.cloudinary.com/dto7bji6b/image/upload/f_auto,w_100/v1774349319/ChatGPT_Image_Mar_24_2026_04_14_13_PM_u4mgvt.webp", review: "Got a good cook within one day. They shared her full details before sending her. Very happy with the service." },
+  { name: "Shweta", role: "Gurugram", rating: 5, image: "https://res.cloudinary.com/dto7bji6b/image/upload/f_auto,w_100/v1774350307/shweta_na7wnm.webp", review: "The nanny they sent is very caring and honest. They checked her background before sending. I feel safe leaving my child with her." },
+  { name: "Vaishali", role: "Delhi", rating: 4, image: "https://res.cloudinary.com/dto7bji6b/image/upload/f_auto,w_100/v1774348576/ChatGPT_Image_Mar_24_2026_04_04_59_PMi_yw73ip.webp", review: "I told them my needs and they found the right maid for me. She cooks well and keeps the house clean. No complaints at all." },
+  { name: "Lovina", role: "Delhi", rating: 5, image: "https://res.cloudinary.com/dto7bji6b/image/upload/f_auto,w_100/v1774349352/ChatGPT_Image_Mar_24_2026_04_14_13_PM_1_qkfs6r.webp", review: "Domestic Pro shared profiles with photos and work history. Easy to choose. Their team helped at every step. Hired in 2 days." },
+  { name: "Nikita", role: "Noida", rating: 4, image: "https://res.cloudinary.com/dto7bji6b/image/upload/f_auto,w_100/v1774350236/nikita_z76hg7.webp", review: "Needed help quickly after shifting to a new house. They arranged a helper the same evening. She is still with us after 3 months." },
+  { name: "Kavya", role: "Gurugram", rating: 5, image: "https://res.cloudinary.com/dto7bji6b/image/upload/f_auto,w_100/v1774350528/kavya_cotxbk.webp", review: "They sent a PDF with the helper's ID proof, past work, and skills. Very clear and easy to understand. Trusted the process fully." },
+  { name: "Ruchika", role: "Noida", rating: 4, image: "https://res.cloudinary.com/dto7bji6b/image/upload/f_auto,w_100/v1774350497/ruchika_qgycrj.webp", review: "Had a bad experience with a local agent before. Domestic Pro was totally different — proper ID check, agreement, everything in writing. Very reliable." },
+  { name: "Angel", role: "Delhi", rating: 5, image: "https://res.cloudinary.com/dto7bji6b/image/upload/f_auto,w_100/v1774350794/u_kaxpqp.webp", review: "I needed someone who is okay with pets and early mornings. They understood and sent the right match. Saved me a lot of time." },
+  { name: "Harpreet", role: "Delhi", rating: 5, image: Harpreet, review: "My mother-in-law needed a helper for daily care. Domestic Pro sent someone with experience in looking after old people. She is very gentle and helpful." },
+  { name: "Armaan Malik", role: "Gurugram", rating: 4, image: "https://res.cloudinary.com/dto7bji6b/image/upload/f_auto,w_100/v1774348004/photo-1500648767791-00dcc994a43e_xksnqy.jpg", review: "Did not have time to meet many candidates. They shortlisted 3 good profiles, set up calls in one day, and the cook joined within a week. Very smooth." },
+  { name: "Ritika", role: "Delhi", rating: 5, image: "https://res.cloudinary.com/dto7bji6b/image/upload/f_auto,w_100/v1774348101/photo-1607746882042-944635dfe10e_tvptd9.jpg", review: "Our maid had to leave suddenly. Domestic Pro sent a replacement in 3 days. That is the kind of support every family needs." },
+  { name: "Urvashi", role: "Noida", rating: 4, image: "https://res.cloudinary.com/dto7bji6b/image/upload/f_auto,w_100/v1774350671/ChatGPT_Image_Mar_24_2026_04_40_12_PM_kjvigh.webp", review: "Took their Japa Maid service after delivery. The helper was trained and knew how to handle a newborn. I could rest and recover without worry." },
 ];
 
 

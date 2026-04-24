@@ -1,30 +1,32 @@
 import HeroWizard from "../components/HeroWizard";
-import TestimonialCarousel from "../components/TestimonialCarousel";
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import PricingSection from "../components/PricingSection";
 import HowItWorks from "../components/HowItWorks";
 import { useNavigate } from "react-router-dom";
-import { ShieldCheck, Zap, RefreshCw, Headphones, ArrowRight, Check, ChevronDown } from "lucide-react";
+import { ShieldCheck, Zap, Headphones, Check, ChevronDown } from "lucide-react";
 import MatchedProfilesPreview from "../components/MatchedProfilesPreview";
+import SEO from "../components/SEO";
+import useScrollReveal from "../hooks/useScrollReveal";
+const TestimonialsSection = lazy(() => import('../components/TestimonialCarousel'))
 
 const WHY_CARDS = [
   {
-    image: "https://res.cloudinary.com/dto7bji6b/image/upload/v1774330222/unnamed_jn88vo.jpg",   // save your image here
+    image: "https://res.cloudinary.com/dto7bji6b/image/upload/f_auto,w_100/v1774330222/unnamed_jn88vo.jpg",   // save your image here
     title: "Verified Staff",
     desc: "Every candidate undergoes strict background verification for your safety.",
   },
   {
-    image: "https://res.cloudinary.com/dto7bji6b/image/upload/v1774330704/clock_qplc39.png",
+    image: "https://res.cloudinary.com/dto7bji6b/image/upload/f_auto,w_100/v1774330704/clock_qplc39.webp",
     title: "Fast Hiring",
     desc: "Get suitable staff within 24–48 hours based on your requirements.",
   },
   {
-    image: "https://res.cloudinary.com/dto7bji6b/image/upload/v1774330769/New_housemaid_transition_in_home_setting_rdss8s.png",
+    image: "https://res.cloudinary.com/dto7bji6b/image/upload/f_auto,w_100/v1774330769/New_housemaid_transition_in_home_setting_rdss8s.webp",
     title: "Substitute Guarantee",
     desc: "Replacement staff provided instantly if your regular staff is unavailable.",
   },
   {
-    image: "https://res.cloudinary.com/dto7bji6b/image/upload/v1774330874/ChatGPT_Image_Mar_24_2026_11_10_46_AM_hwbydu.png",
+    image: "https://res.cloudinary.com/dto7bji6b/image/upload/f_auto,w_100/v1774330874/ChatGPT_Image_Mar_24_2026_11_10_46_AM_hwbydu.webp",
     title: "Dedicated Support",
     desc: "Our team assists you throughout hiring and after placement.",
   },
@@ -50,25 +52,33 @@ export default function Home() {
   const [openIndexes, setOpenIndexes] = useState([]);
   const toggleFAQ = (i) => setOpenIndexes((prev) => prev.includes(i) ? prev.filter((x) => x !== i) : [...prev, i]);
 
-  useEffect(() => {
-    const sections = document.querySelectorAll(".scroll-section");
-    const observer = new IntersectionObserver(
-      (entries) => entries.forEach((e) => e.isIntersecting && e.target.classList.add("show")),
-      { threshold: 0.15 }
-    );
-    sections.forEach((s) => observer.observe(s));
-    return () => sections.forEach((s) => observer.unobserve(s));
-  }, []);
+  useScrollReveal();
 
   return (
-    <div>
+    <>
+      <SEO
+        title="Hire Verified Live-In Domestic Helpers"
+        description="DomesticPro connects families with verified, trained domestic helpers — nannies, cooks, drivers, and patient care. Fast hiring in Delhi-NCR, Mumbai, Bangalore."
+        canonical="/"
+        ogImage="https://domesticpro.in/hero-image.webp"
+      />
       {/* ── HERO ── */}
       <section className="bg-bgLight">
         <div className="flex flex-wrap justify-center">
           {/* image  bg-[center_center] md:bg-[-94rem_center]*/}
           <div
-            className="relative w-full h-[32vh] sm:h-[19vh] md:h-[39vh] lg:h-[38rem] bg-[url('/hero-image.jpeg')] bg-[center_center] bg-cover"
+            className="relative w-full h-[32vh] sm:h-[19vh] md:h-[39vh] lg:h-[38rem]"
           >
+            <img
+              src="/hero-image.webp"
+              alt="Domestic Pro — Verified House Help"
+              loading="eager"
+              fetchPriority="high"
+              decoding="async"
+              width={1440}
+              height={608}
+              className="absolute inset-0 w-full h-full object-center object-cover"
+            />
             <div className="absolute lg:w-1/2 md:w-full top-0 lg:px-[4rem] px-4 pt-[3rem] pb-[2rem]">
               <div className="pt-4 hidden lg:block">
                 <HeroWizard />
@@ -144,7 +154,9 @@ export default function Home() {
               onClick={() => setIsModalOpen(true)}
               className="bg-primary hover:bg-primaryHover text-white px-6 py-3 rounded-xl font-bold transition-all duration-200 shadow-[0_4px_14px_rgba(236,95,54,0.30)] hover:shadow-[0_6px_20px_rgba(236,95,54,0.40)] hover:-translate-y-0.5 whitespace-nowrap flex items-center gap-2"
             >
-              Hire Now <ArrowRight size={15} strokeWidth={2.5} />
+              Hire Now   <svg width={15} height={15} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <path d="M5 12h14M12 5l7 7-7 7" />
+              </svg>
             </button>
           </div>
         </div>
@@ -154,8 +166,9 @@ export default function Home() {
 
       <HowItWorks />
 
-      {/* ── TESTIMONIALS ── */}
-      <TestimonialCarousel />
+      <Suspense fallback={<div className="h-64 bg-bgLight animate-pulse rounded-2xl" />}>
+        <TestimonialsSection />
+      </Suspense>
 
       <MatchedProfilesPreview />
 
@@ -228,6 +241,6 @@ export default function Home() {
       </section>
 
       <HeroWizard asModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
-    </div>
+    </>
   );
 }

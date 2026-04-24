@@ -57,8 +57,10 @@ export default function MatchedProfilesPreview() {
                                     key={i}
                                     src={src}
                                     alt={`PDF Page ${i + 1}`}
+                                    width={600}
+                                    height={850}
                                     className="w-full rounded-[3px] shadow-md"
-                                    style={{ boxShadow: "0 2px 8px rgba(0,0,0,0.18)" }}
+                                    style={{ aspectRatio: '600/850' }}
                                 />
                             ))}
                         </div>

@@ -27,7 +27,7 @@ export default function Loader() {
             />
             {/* logo in centre */}
             <img
-              src="https://res.cloudinary.com/dhtzknkdr/image/upload/v1773031901/logoOnly_qsridn.png"
+              src="./logoOnly.webp"
               alt="Domestic Pro"
               className="w-9 h-9 object-contain"
             />

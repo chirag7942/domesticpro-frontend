@@ -79,8 +79,10 @@ export default function Navbar() {
           {/* LOGO */}
           <Link to="/" className="flex items-center h-full">
             <img
-              src="/updatedLogo.png"
+              src="/updatedLogo.webp"
               alt="Domestic Pro Logo"
+              width={176}
+              height={80}
               className="h-full w-[11rem]"
             />
           </Link>

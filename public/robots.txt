@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+
+Disallow: /supply-form
+Disallow: /demand-form
+Disallow: /agent-form
+Disallow: /thank-you
+Disallow: /payment-status
+
+Sitemap: https://domesticpro.in/sitemap.xml

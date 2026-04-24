@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import HeroWizard from "../../components/HeroWizard";
+import SEO from "../../components/SEO";
+import useScrollReveal from "../../hooks/useScrollReveal";
 
 const Nanny = () => {
   const [modalType, setModalType] = useState(null);
@@ -17,33 +19,16 @@ const Nanny = () => {
     setModalType(type);
   };
 
-  useEffect(() => {
-    const sections = document.querySelectorAll(".scroll-section");
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("show");
-          }
-        });
-      },
-      { threshold: 0.15 },
-    );
-
-    sections.forEach((section) => {
-      observer.observe(section);
-    });
-
-    return () => {
-      sections.forEach((section) => {
-        observer.unobserve(section);
-      });
-    };
-  }, []);
+  useScrollReveal();
 
   return (
     <>
+      <SEO
+        title="Baby Caretaker & Nanny Services | Verified Personal Baby Caretaker"
+        description="Hire verified, trained baby caretakers for newborns, infants and toddlers. Live-in and substitute nanny services available in Delhi-NCR."
+        canonical="/services/baby-caretaker"
+        ogImage="https://res.cloudinary.com/dhtzknkdr/image/upload/v1773031909/nanny_cvkz9g.webp"
+      />
       {/* ================= HERO SECTION ================= */}
       <section className="bg-bgLight py-20 relative overflow-hidden">
         {/* ===== Decorative Circles ===== */}
@@ -130,7 +115,7 @@ const Nanny = () => {
           {/* RIGHT IMAGE */}
           <div className="flex justify-center md:justify-end animate-right">
             <img
-              src="https://res.cloudinary.com/dhtzknkdr/image/upload/v1773031909/nanny_cvkz9g.png"
+              src="https://res.cloudinary.com/dhtzknkdr/image/upload/v1773031909/nanny_cvkz9g.webp"
               alt="Domestic Pro Baby Caretaker"
               className="rounded-2xl shadow-xl w-full h-[350px] md:h-[480px]   "
             />

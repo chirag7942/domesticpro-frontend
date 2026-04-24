@@ -1,6 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import SEO from "./SEO";
 
 const API_BASE = import.meta.env.VITE_REACT_APP_API || "";
 
@@ -514,406 +515,408 @@ export default function DemandForm() {
   const svc = form.ServiceType;
 
   return (
-    <div style={s.page}>
-      <div style={s.card}>
+    <>
+      <SEO title="Demand Form" description="" noIndex={true} />
+      <div style={s.page}>
+        <div style={s.card}>
 
-        {/* Header */}
-        <div style={s.header}>
-          <div style={s.logoBox}>
-            <img src="./logoOnly.png" alt="Domesticpri-logo" />
-            {/* <svg width="52" height="52" viewBox="0 0 52 52" fill="none">
+          {/* Header */}
+          <div style={s.header}>
+            <div style={s.logoBox}>
+              <img src="./logoOnly.webp" alt="Domestic Pro logo" />
+              {/* <svg width="52" height="52" viewBox="0 0 52 52" fill="none">
               <polygon points="26,6 46,44 6,44" fill="rgba(0,0,0,0.2)" />
               <polygon points="26,10 43,42 9,42" fill="none" stroke="white" strokeWidth="1.5" />
               <text x="26" y="34" textAnchor="middle" fontSize="8.5" fontWeight="700" fill="white" fontFamily="sans-serif">DOMESTIC</text>
               <text x="26" y="43" textAnchor="middle" fontSize="5.5" fill="white" fontFamily="sans-serif">PRO</text>
             </svg> */}
-          </div>
-          <div>
-            <p style={s.headerTitle}>DomesticPro – 24×7 Live-In Helper</p>
-            <p style={s.headerTitle}>Demand Request Form</p>
-            <p style={s.headerSub}>Fill in your details and we'll match you with the right helper within 2 hours.</p>
-          </div>
-        </div>
-
-        <div style={s.body}>
-
-          {/* ── PERSONAL DETAILS ── */}
-          <SectionBar>Personal Details</SectionBar>
-
-          {/* Name row */}
-          <div style={s.row2}>
-            <div style={s.field}>
-              <label style={s.label}>First Name<span style={s.req}>*</span></label>
-              <input
-                type="text"
-                value={form.FirstName}
-                onChange={(e) => setF("FirstName", e.target.value)}
-                placeholder="Rahul"
-                style={s.input}
-              />
-              <Err msg={errors.FirstName} />
             </div>
-            <div style={s.field}>
-              <label style={s.label}>Last Name</label>
-              <input
-                type="text"
-                value={form.LastName}
-                onChange={(e) => setF("LastName", e.target.value)}
-                placeholder="Sharma"
-                style={s.input}
-              />
+            <div>
+              <p style={s.headerTitle}>DomesticPro – 24×7 Live-In Helper</p>
+              <p style={s.headerTitle}>Demand Request Form</p>
+              <p style={s.headerSub}>Fill in your details and we'll match you with the right helper within 2 hours.</p>
             </div>
           </div>
 
-          {/* Phone */}
-          <div style={s.field}>
-            <label style={s.label}>Phone Number<span style={s.req}>*</span></label>
-            <div style={s.phoneWrap}>
-              <span style={s.phonePrefix}>+91</span>
-              <input
-                type="tel"
-                inputMode="numeric"
-                maxLength={10}
-                value={form.Phone}
-                onChange={(e) => setF("Phone", e.target.value.replace(/\D/g, "").slice(0, 10))}
-                placeholder="98765 43210"
-                style={s.phoneInput}
-              />
-            </div>
-            <Err msg={errors.Phone} />
-          </div>
+          <div style={s.body}>
 
-          {/* Email */}
-          <TextInput
-            label="Email Address"
-            type="email"
-            value={form.Email}
-            onChange={(e) => setF("Email", e.target.value)}
-            placeholder="rahul@example.com"
-          />
+            {/* ── PERSONAL DETAILS ── */}
+            <SectionBar>Personal Details</SectionBar>
 
-          {/* Address */}
-          <div style={s.field}>
-            <label style={s.label}>Current Address<span style={s.req}>*</span></label>
-            <input
-              type="text"
-              value={form.Street}
-              onChange={(e) => setF("Street", e.target.value)}
-              placeholder="Street Address"
-              style={{ ...s.input, marginBottom: 8 }}
-            />
-            <Err msg={errors.Street} />
+            {/* Name row */}
             <div style={s.row2}>
-              <div>
+              <div style={s.field}>
+                <label style={s.label}>First Name<span style={s.req}>*</span></label>
                 <input
                   type="text"
-                  value={form.City}
-                  onChange={(e) => setF("City", e.target.value)}
-                  placeholder="City"
+                  value={form.FirstName}
+                  onChange={(e) => setF("FirstName", e.target.value)}
+                  placeholder="Rahul"
                   style={s.input}
                 />
-                <Err msg={errors.City} />
+                <Err msg={errors.FirstName} />
               </div>
+              <div style={s.field}>
+                <label style={s.label}>Last Name</label>
+                <input
+                  type="text"
+                  value={form.LastName}
+                  onChange={(e) => setF("LastName", e.target.value)}
+                  placeholder="Sharma"
+                  style={s.input}
+                />
+              </div>
+            </div>
+
+            {/* Phone */}
+            <div style={s.field}>
+              <label style={s.label}>Phone Number<span style={s.req}>*</span></label>
+              <div style={s.phoneWrap}>
+                <span style={s.phonePrefix}>+91</span>
+                <input
+                  type="tel"
+                  inputMode="numeric"
+                  maxLength={10}
+                  value={form.Phone}
+                  onChange={(e) => setF("Phone", e.target.value.replace(/\D/g, "").slice(0, 10))}
+                  placeholder="98765 43210"
+                  style={s.phoneInput}
+                />
+              </div>
+              <Err msg={errors.Phone} />
+            </div>
+
+            {/* Email */}
+            <TextInput
+              label="Email Address"
+              type="email"
+              value={form.Email}
+              onChange={(e) => setF("Email", e.target.value)}
+              placeholder="rahul@example.com"
+            />
+
+            {/* Address */}
+            <div style={s.field}>
+              <label style={s.label}>Current Address<span style={s.req}>*</span></label>
               <input
                 type="text"
-                placeholder="State / Province"
-                style={s.input}
+                value={form.Street}
+                onChange={(e) => setF("Street", e.target.value)}
+                placeholder="Street Address"
+                style={{ ...s.input, marginBottom: 8 }}
               />
-            </div>
-          </div>
-
-          {/* ── SERVICE DETAILS ── */}
-          <SectionBar>Service Details</SectionBar>
-
-          {/* Service Type */}
-          <div style={s.field}>
-            <label style={s.label}>Which type of household help are you looking for?<span style={s.req}>*</span></label>
-            <select
-              value={form.ServiceType}
-              onChange={(e) => setF("ServiceType", e.target.value)}
-              style={s.select}
-            >
-              <option value="" disabled>Please Select</option>
-              {SERVICE_TYPES.map((o) => <option key={o} value={o}>{o}</option>)}
-            </select>
-            <Err msg={errors.ServiceType} />
-          </div>
-
-          {/* Work Type */}
-          <div style={s.field}>
-            <label style={s.label}>Work Type<span style={s.req}>*</span></label>
-            <div style={s.radioRow}>
-              {SERVICE_FORMATS.map((o) => (
-                <label key={o} style={s.radioLabel}>
+              <Err msg={errors.Street} />
+              <div style={s.row2}>
+                <div>
                   <input
-                    type="radio"
-                    style={s.radioInput}
-                    name="workType"
-                    checked={form.ServiceFormat === o}
-                    onChange={() => setF("ServiceFormat", o)}
+                    type="text"
+                    value={form.City}
+                    onChange={(e) => setF("City", e.target.value)}
+                    placeholder="City"
+                    style={s.input}
                   />
-                  {o}
-                </label>
-              ))}
-            </div>
-          </div>
-
-          {/* Gender Preference */}
-          <div style={s.field}>
-            <label style={s.label}>Helper's Gender Preference<span style={s.req}>*</span></label>
-            <div style={s.radioRow}>
-              {GENDER_OPTIONS.map((o) => (
-                <label key={o} style={s.radioLabel}>
-                  <input
-                    type="radio"
-                    style={s.radioInput}
-                    name="gender"
-                    checked={form.Cook_Gender === o}
-                    onChange={() => setF("Cook_Gender", o)}
-                  />
-                  {o}
-                </label>
-              ))}
-            </div>
-            <Err msg={errors.Cook_Gender} />
-          </div>
-
-          {/* ── LIVE-IN SUPPORT ── */}
-          {svc === "Live-In Support" && (
-            <>
-              <SectionBar>Live-In Support Details</SectionBar>
-              <CheckboxGroup
-                label="Tasks Required" required
-                values={form.Tasks}
-                onChange={(v) => toggleArr("Tasks", v)}
-                options={TASK_OPTIONS}
-              />
-              <Err msg={errors.Tasks} />
-
-              <div style={s.field}>
-                <label style={s.label}>House Size</label>
-                <select value={form.HouseSize} onChange={(e) => setF("HouseSize", e.target.value)} style={s.select}>
-                  <option value="" disabled>Select…</option>
-                  {HOUSE_SIZE_OPTIONS.map((o) => <option key={o} value={o}>{o}</option>)}
-                </select>
-              </div>
-
-              <div style={s.field}>
-                <label style={s.label}>People at Home</label>
+                  <Err msg={errors.City} />
+                </div>
                 <input
-                  type="number"
-                  value={form.PeopleAtHome}
-                  onChange={(e) => setF("PeopleAtHome", e.target.value)}
-                  placeholder="e.g. 4"
+                  type="text"
+                  placeholder="State / Province"
                   style={s.input}
-                  min="1"
                 />
               </div>
+            </div>
 
-              <div style={s.field}>
-                <label style={s.label}>Pets at Home</label>
-                <div style={s.radioRow}>
-                  {PETS_OPTIONS.map((o) => (
-                    <label key={o} style={s.radioLabel}>
-                      <input
-                        type="radio"
-                        style={s.radioInput}
-                        name="pets"
-                        checked={form.PetsAtHome === o}
-                        onChange={() => setF("PetsAtHome", o)}
-                      />
-                      {o}
-                    </label>
-                  ))}
-                </div>
-              </div>
-            </>
-          )}
+            {/* ── SERVICE DETAILS ── */}
+            <SectionBar>Service Details</SectionBar>
 
-          {/* ── COOKING HELP ── */}
-          {svc === "Cooking Help" && (
-            <>
-              <SectionBar>Cooking Help Details</SectionBar>
-              <div style={s.field}>
-                <label style={s.label}>Meal Preference</label>
-                <div style={s.radioRow}>
-                  {MEAL_PREF_OPTIONS.map((o) => (
-                    <label key={o} style={s.radioLabel}>
-                      <input
-                        type="radio"
-                        style={s.radioInput}
-                        name="mealPref"
-                        checked={form.MealPref === o}
-                        onChange={() => setF("MealPref", o)}
-                      />
-                      {o}
-                    </label>
-                  ))}
-                </div>
-              </div>
-              <CheckboxGroup
-                label="Cuisine Preference" required
-                values={form.CuisinePref}
-                onChange={(v) => toggleArr("CuisinePref", v)}
-                options={CUISINE_OPTIONS}
-              />
-              <Err msg={errors.CuisinePref} />
-              <div style={s.field}>
-                <label style={s.label}>Members to Cook For</label>
-                <input
-                  type="number"
-                  value={form.Cook_Members}
-                  onChange={(e) => setF("Cook_Members", e.target.value)}
-                  placeholder="e.g. 4"
-                  style={s.input}
-                  min="1"
-                />
-              </div>
-            </>
-          )}
+            {/* Service Type */}
+            <div style={s.field}>
+              <label style={s.label}>Which type of household help are you looking for?<span style={s.req}>*</span></label>
+              <select
+                value={form.ServiceType}
+                onChange={(e) => setF("ServiceType", e.target.value)}
+                style={s.select}
+              >
+                <option value="" disabled>Please Select</option>
+                {SERVICE_TYPES.map((o) => <option key={o} value={o}>{o}</option>)}
+              </select>
+              <Err msg={errors.ServiceType} />
+            </div>
 
-          {/* ── BABY CARETAKER ── */}
-          {svc === "Baby Caretaker" && (
-            <>
-              <SectionBar>Baby Caretaker Details</SectionBar>
-              <div style={s.field}>
-                <label style={s.label}>Age Groups Handled (in years)<span style={s.req}>*</span></label>
-                {CHILD_AGE_OPTIONS.map((o) => (
+            {/* Work Type */}
+            <div style={s.field}>
+              <label style={s.label}>Work Type<span style={s.req}>*</span></label>
+              <div style={s.radioRow}>
+                {SERVICE_FORMATS.map((o) => (
                   <label key={o} style={s.radioLabel}>
                     <input
                       type="radio"
                       style={s.radioInput}
-                      name="ChildAge"
-                      checked={form.ChildAge === o}
-                      onChange={() => setF("ChildAge", o)}
+                      name="workType"
+                      checked={form.ServiceFormat === o}
+                      onChange={() => setF("ServiceFormat", o)}
                     />
                     {o}
                   </label>
                 ))}
-                <Err msg={errors.ChildAge} />
               </div>
-              <CheckboxGroup
-                label="Skills / Tasks Can Perform" required
-                values={form.ChildDuties}
-                onChange={(v) => toggleArr("ChildDuties", v)}
-                options={CHILD_DUTY_OPTIONS}
-              />
-              <Err msg={errors.ChildDuties} />
-            </>
-          )}
+            </div>
 
-          {/* ── PATIENT CARE ── */}
-          {svc === "Patient Care" && (
-            <>
-              <SectionBar>Patient Care Details</SectionBar>
-              <div style={s.field}>
-                <label style={s.label}>Patient's Age<span style={s.req}>*</span></label>
-                <input
-                  type="number"
-                  value={form.PatientAge}
-                  onChange={(e) => setF("PatientAge", e.target.value)}
-                  placeholder="e.g. 68"
-                  style={s.input}
-                  min="1"
-                />
-                <Err msg={errors.PatientAge} />
+            {/* Gender Preference */}
+            <div style={s.field}>
+              <label style={s.label}>Helper's Gender Preference<span style={s.req}>*</span></label>
+              <div style={s.radioRow}>
+                {GENDER_OPTIONS.map((o) => (
+                  <label key={o} style={s.radioLabel}>
+                    <input
+                      type="radio"
+                      style={s.radioInput}
+                      name="gender"
+                      checked={form.Cook_Gender === o}
+                      onChange={() => setF("Cook_Gender", o)}
+                    />
+                    {o}
+                  </label>
+                ))}
               </div>
-              <div style={s.field}>
-                <label style={s.label}>Patient's Gender</label>
-                <div style={s.radioRow}>
-                  {PATIENT_GENDER_OPTIONS.map((o) => (
+              <Err msg={errors.Cook_Gender} />
+            </div>
+
+            {/* ── LIVE-IN SUPPORT ── */}
+            {svc === "Live-In Support" && (
+              <>
+                <SectionBar>Live-In Support Details</SectionBar>
+                <CheckboxGroup
+                  label="Tasks Required" required
+                  values={form.Tasks}
+                  onChange={(v) => toggleArr("Tasks", v)}
+                  options={TASK_OPTIONS}
+                />
+                <Err msg={errors.Tasks} />
+
+                <div style={s.field}>
+                  <label style={s.label}>House Size</label>
+                  <select value={form.HouseSize} onChange={(e) => setF("HouseSize", e.target.value)} style={s.select}>
+                    <option value="" disabled>Select…</option>
+                    {HOUSE_SIZE_OPTIONS.map((o) => <option key={o} value={o}>{o}</option>)}
+                  </select>
+                </div>
+
+                <div style={s.field}>
+                  <label style={s.label}>People at Home</label>
+                  <input
+                    type="number"
+                    value={form.PeopleAtHome}
+                    onChange={(e) => setF("PeopleAtHome", e.target.value)}
+                    placeholder="e.g. 4"
+                    style={s.input}
+                    min="1"
+                  />
+                </div>
+
+                <div style={s.field}>
+                  <label style={s.label}>Pets at Home</label>
+                  <div style={s.radioRow}>
+                    {PETS_OPTIONS.map((o) => (
+                      <label key={o} style={s.radioLabel}>
+                        <input
+                          type="radio"
+                          style={s.radioInput}
+                          name="pets"
+                          checked={form.PetsAtHome === o}
+                          onChange={() => setF("PetsAtHome", o)}
+                        />
+                        {o}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* ── COOKING HELP ── */}
+            {svc === "Cooking Help" && (
+              <>
+                <SectionBar>Cooking Help Details</SectionBar>
+                <div style={s.field}>
+                  <label style={s.label}>Meal Preference</label>
+                  <div style={s.radioRow}>
+                    {MEAL_PREF_OPTIONS.map((o) => (
+                      <label key={o} style={s.radioLabel}>
+                        <input
+                          type="radio"
+                          style={s.radioInput}
+                          name="mealPref"
+                          checked={form.MealPref === o}
+                          onChange={() => setF("MealPref", o)}
+                        />
+                        {o}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+                <CheckboxGroup
+                  label="Cuisine Preference" required
+                  values={form.CuisinePref}
+                  onChange={(v) => toggleArr("CuisinePref", v)}
+                  options={CUISINE_OPTIONS}
+                />
+                <Err msg={errors.CuisinePref} />
+                <div style={s.field}>
+                  <label style={s.label}>Members to Cook For</label>
+                  <input
+                    type="number"
+                    value={form.Cook_Members}
+                    onChange={(e) => setF("Cook_Members", e.target.value)}
+                    placeholder="e.g. 4"
+                    style={s.input}
+                    min="1"
+                  />
+                </div>
+              </>
+            )}
+
+            {/* ── BABY CARETAKER ── */}
+            {svc === "Baby Caretaker" && (
+              <>
+                <SectionBar>Baby Caretaker Details</SectionBar>
+                <div style={s.field}>
+                  <label style={s.label}>Age Groups Handled (in years)<span style={s.req}>*</span></label>
+                  {CHILD_AGE_OPTIONS.map((o) => (
                     <label key={o} style={s.radioLabel}>
                       <input
                         type="radio"
                         style={s.radioInput}
-                        name="patientGender"
-                        checked={form.PatientGender === o}
-                        onChange={() => setF("PatientGender", o)}
+                        name="ChildAge"
+                        checked={form.ChildAge === o}
+                        onChange={() => setF("ChildAge", o)}
                       />
                       {o}
                     </label>
                   ))}
+                  <Err msg={errors.ChildAge} />
                 </div>
-              </div>
-              <CheckboxGroup
-                label="Care Required" required
-                values={form.CareNeeded}
-                onChange={(v) => toggleArr("CareNeeded", v)}
-                options={CARE_NEEDED_OPTIONS}
-              />
-              <Err msg={errors.CareNeeded} />
-            </>
-          )}
-
-          {/* ── DRIVER ── */}
-          {svc === "Driver" && (
-            <>
-              <SectionBar>Driver Details</SectionBar>
-              <CheckboxGroup
-                label="Vehicle Type(s)" required
-                values={form.VehicleType}
-                onChange={(v) => toggleArr("VehicleType", v)}
-                options={VEHICLE_TYPE_OPTIONS}
-              />
-              <Err msg={errors.VehicleType} />
-            </>
-          )}
-
-          {/* ── JAPA ── */}
-          {svc === "Japa" && (
-            <>
-              <SectionBar>Japa Details</SectionBar>
-              <div style={s.field}>
-                <label style={s.label}>Newborn's Age (weeks)</label>
-                <input
-                  type="text"
-                  value={form.NewbornAge}
-                  onChange={(e) => setF("NewbornAge", e.target.value)}
-                  placeholder="e.g. 2 weeks"
-                  style={s.input}
+                <CheckboxGroup
+                  label="Skills / Tasks Can Perform" required
+                  values={form.ChildDuties}
+                  onChange={(v) => toggleArr("ChildDuties", v)}
+                  options={CHILD_DUTY_OPTIONS}
                 />
-              </div>
-              <CheckboxGroup
-                label="Japa Duties (Newborn)" required
-                values={form.JapaDuties}
-                onChange={(v) => toggleArr("JapaDuties", v)}
-                options={JAPA_DUTY_OPTIONS}
-              />
-              <Err msg={errors.JapaDuties} />
-              <CheckboxGroup
-                label="Mother's Needs"
-                values={form.JapaMotherNeeds}
-                onChange={(v) => toggleArr("JapaMotherNeeds", v)}
-                options={JAPA_MOTHER_OPTIONS}
-              />
-            </>
-          )}
+                <Err msg={errors.ChildDuties} />
+              </>
+            )}
 
-          {/* ── PREFERENCES & PLAN ── */}
-          <SectionBar>Preferences &amp; Plan</SectionBar>
+            {/* ── PATIENT CARE ── */}
+            {svc === "Patient Care" && (
+              <>
+                <SectionBar>Patient Care Details</SectionBar>
+                <div style={s.field}>
+                  <label style={s.label}>Patient's Age<span style={s.req}>*</span></label>
+                  <input
+                    type="number"
+                    value={form.PatientAge}
+                    onChange={(e) => setF("PatientAge", e.target.value)}
+                    placeholder="e.g. 68"
+                    style={s.input}
+                    min="1"
+                  />
+                  <Err msg={errors.PatientAge} />
+                </div>
+                <div style={s.field}>
+                  <label style={s.label}>Patient's Gender</label>
+                  <div style={s.radioRow}>
+                    {PATIENT_GENDER_OPTIONS.map((o) => (
+                      <label key={o} style={s.radioLabel}>
+                        <input
+                          type="radio"
+                          style={s.radioInput}
+                          name="patientGender"
+                          checked={form.PatientGender === o}
+                          onChange={() => setF("PatientGender", o)}
+                        />
+                        {o}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+                <CheckboxGroup
+                  label="Care Required" required
+                  values={form.CareNeeded}
+                  onChange={(v) => toggleArr("CareNeeded", v)}
+                  options={CARE_NEEDED_OPTIONS}
+                />
+                <Err msg={errors.CareNeeded} />
+              </>
+            )}
 
-          {/* Urgency */}
-          <div style={s.field}>
-            <label style={s.label}>Urgency<span style={s.req}>*</span></label>
-            <select value={form.Urgency} onChange={(e) => setF("Urgency", e.target.value)} style={s.select}>
-              <option value="" disabled>How soon?</option>
-              {URGENCY_OPTIONS.map((o) => <option key={o} value={o}>{o}</option>)}
-            </select>
-            <Err msg={errors.Urgency} />
-          </div>
+            {/* ── DRIVER ── */}
+            {svc === "Driver" && (
+              <>
+                <SectionBar>Driver Details</SectionBar>
+                <CheckboxGroup
+                  label="Vehicle Type(s)" required
+                  values={form.VehicleType}
+                  onChange={(v) => toggleArr("VehicleType", v)}
+                  options={VEHICLE_TYPE_OPTIONS}
+                />
+                <Err msg={errors.VehicleType} />
+              </>
+            )}
 
-          {/* Budget */}
-          <div style={s.field}>
-            <label style={s.label}>Monthly Budget<span style={s.req}>*</span></label>
-            <select value={form.Budget} onChange={(e) => setF("Budget", e.target.value)} style={s.select}>
-              <option value="" disabled>Select budget…</option>
-              {BUDGET_OPTIONS.map((o) => <option key={o} value={o}>{o}</option>)}
-            </select>
-            <Err msg={errors.Budget} />
-          </div>
+            {/* ── JAPA ── */}
+            {svc === "Japa" && (
+              <>
+                <SectionBar>Japa Details</SectionBar>
+                <div style={s.field}>
+                  <label style={s.label}>Newborn's Age (weeks)</label>
+                  <input
+                    type="text"
+                    value={form.NewbornAge}
+                    onChange={(e) => setF("NewbornAge", e.target.value)}
+                    placeholder="e.g. 2 weeks"
+                    style={s.input}
+                  />
+                </div>
+                <CheckboxGroup
+                  label="Japa Duties (Newborn)" required
+                  values={form.JapaDuties}
+                  onChange={(v) => toggleArr("JapaDuties", v)}
+                  options={JAPA_DUTY_OPTIONS}
+                />
+                <Err msg={errors.JapaDuties} />
+                <CheckboxGroup
+                  label="Mother's Needs"
+                  values={form.JapaMotherNeeds}
+                  onChange={(v) => toggleArr("JapaMotherNeeds", v)}
+                  options={JAPA_MOTHER_OPTIONS}
+                />
+              </>
+            )}
 
-          {/* Plan */}
-          {/* <div style={s.field}>
+            {/* ── PREFERENCES & PLAN ── */}
+            <SectionBar>Preferences &amp; Plan</SectionBar>
+
+            {/* Urgency */}
+            <div style={s.field}>
+              <label style={s.label}>Urgency<span style={s.req}>*</span></label>
+              <select value={form.Urgency} onChange={(e) => setF("Urgency", e.target.value)} style={s.select}>
+                <option value="" disabled>How soon?</option>
+                {URGENCY_OPTIONS.map((o) => <option key={o} value={o}>{o}</option>)}
+              </select>
+              <Err msg={errors.Urgency} />
+            </div>
+
+            {/* Budget */}
+            <div style={s.field}>
+              <label style={s.label}>Monthly Budget<span style={s.req}>*</span></label>
+              <select value={form.Budget} onChange={(e) => setF("Budget", e.target.value)} style={s.select}>
+                <option value="" disabled>Select budget…</option>
+                {BUDGET_OPTIONS.map((o) => <option key={o} value={o}>{o}</option>)}
+              </select>
+              <Err msg={errors.Budget} />
+            </div>
+
+            {/* Plan */}
+            {/* <div style={s.field}>
             <label style={s.label}>Plan<span style={s.req}>*</span></label>
             <div style={s.radioRow}>
               {PLAN_OPTIONS.map((o) => (
@@ -935,39 +938,40 @@ export default function DemandForm() {
             )}
           </div> */}
 
-          {/* Special Instructions */}
-          <div style={s.field}>
-            <label style={s.label}>Special Instructions</label>
-            <textarea
-              rows={3}
-              maxLength={500}
-              value={form.Instructions}
-              onChange={(e) => setF("Instructions", e.target.value)}
-              placeholder="Specific timing, language preferences, dietary restrictions, any other requirements…"
-              style={s.textarea}
-            />
-          </div>
+            {/* Special Instructions */}
+            <div style={s.field}>
+              <label style={s.label}>Special Instructions</label>
+              <textarea
+                rows={3}
+                maxLength={500}
+                value={form.Instructions}
+                onChange={(e) => setF("Instructions", e.target.value)}
+                placeholder="Specific timing, language preferences, dietary restrictions, any other requirements…"
+                style={s.textarea}
+              />
+            </div>
 
-          {/* Submit */}
-          <button
-            type="button"
-            onClick={handleNopayDirectSubmit}
-            disabled={submitting}
-            style={submitting ? s.submitBtnDisabled : s.submitBtn}
-          >
-            {/* {submitting
+            {/* Submit */}
+            <button
+              type="button"
+              onClick={handleNopayDirectSubmit}
+              disabled={submitting}
+              style={submitting ? s.submitBtnDisabled : s.submitBtn}
+            >
+              {/* {submitting
               ? "Submitting…"
               : form.PlanType === "Priority" || form.PlanType === "Commitment"
                 ? "Proceed to Payment →"
                 : "Submit Request →"} */}
-            Submit Request →
-          </button>
+              Submit Request →
+            </button>
 
-          {status === "success" && <div style={s.successBanner}>✓ {statusMsg}</div>}
-          {status === "error" && <div style={s.errorBanner}>⚠ {statusMsg}</div>}
+            {status === "success" && <div style={s.successBanner}>✓ {statusMsg}</div>}
+            {status === "error" && <div style={s.errorBanner}>⚠ {statusMsg}</div>}
 
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }

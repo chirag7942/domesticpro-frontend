@@ -9,6 +9,7 @@ import { lazy, Suspense, useEffect, useState } from "react";
 
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
+import Home from "./pages/Home";
 import ScrollToTop from "./components/ScrollToTop";
 import Loader from "./components/Loader";
 import PaymentStatus from "./pages/PaymentStatus";
@@ -17,10 +18,10 @@ import SupplyForm from "./components/SupplyForm";
 import AgentForm from "./components/AgentForm";
 import DemandForm from "./components/DemandForm";
 import ThankYou from "./components/ThankYou";
+import AppRoutes from "./AppRoutes.jsx";
 
 /* -------- Lazy Loaded Pages -------- */
-
-const Home = lazy(() => import("./pages/Home"));
+const RibbonAnimation = lazy(() => import('./components/RibbonCutting'))
 const AboutUs = lazy(() => import("./pages/AboutUs"));
 const ReferHelper = lazy(() => import("./pages/ReferAHelper"));
 const ReferHousehold = lazy(() => import("./pages/ReferAHousehold"));
@@ -79,20 +80,14 @@ function Layout() {
   return (
     <>
       <ScrollToTop />
-      {showIntro && <RibbonCutting onComplete={() => setShowIntro(false)} />}
+      {showIntro && (
+        <Suspense fallback={null}>
+          <RibbonAnimation onComplete={() => setShowIntro(false)} />
+        </Suspense>
+      )}
       {!is404 && <Navbar />}
-
       <Suspense fallback={<Loader />}>
-        <Routes>
-          {routes.map((route) => (
-            <Route key={route.path} path={route.path} element={route.element} />
-          ))}
-          <Route path="*" element={<NotFound />} />
-          <Route path="/demand-form" element={<DemandForm />} />
-          <Route path="/agent-form" element={<AgentForm />} />
-          <Route path="/supply-form" element={<SupplyForm />} />
-          <Route path="/thank-you" element={<ThankYou />} />
-        </Routes>
+        <AppRoutes />
       </Suspense>
 
       {!is404 && <Footer />}
@@ -104,8 +99,6 @@ function Layout() {
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <Layout />
-    </BrowserRouter>
+    <Layout />
   );
 }

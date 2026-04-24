@@ -1,23 +1,14 @@
 import { useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  faShieldHalved, faStar, faHandshake, faHeart, faHouse, faBaby, faBed, faUserNurse, faUtensils, faCircleCheck, faClock, faArrowsRotate, faCheck, faUmbrellaBeach, faSun, faMountain, faCar, faGlobe, faEnvelope, faPhone, faLeaf,
-  faAward,
-  faHandHoldingHand,
-  faHandHoldingHeart,
+  faHeart, faHouse, faBaby, faUserNurse, faUtensils, faCircleCheck, faClock, faArrowsRotate, faCheck, faUmbrellaBeach, faSun, faMountain, faCar, faLeaf,
   faPersonBreastfeeding
 } from "@fortawesome/free-solid-svg-icons";
+import SEO from "../components/SEO";
+import useScrollReveal from "../hooks/useScrollReveal";
 
 export default function AboutUs() {
-  useEffect(() => {
-    const sections = document.querySelectorAll(".scroll-section");
-    const observer = new IntersectionObserver(
-      (entries) => entries.forEach((e) => e.isIntersecting && e.target.classList.add("show")),
-      { threshold: 0.15 }
-    );
-    sections.forEach((s) => observer.observe(s));
-    return () => sections.forEach((s) => observer.unobserve(s));
-  }, []);
+  useScrollReveal();
 
   const WHO_WE_ARE = [
     "Background-Verified and Identity-Checked Domestic Helpers",
@@ -28,10 +19,10 @@ export default function AboutUs() {
   ];
 
   const CORE_VALUES = [
-    { image: "https://res.cloudinary.com/dto7bji6b/image/upload/v1774416765/trust_and_safety__about_yk2ijo.png", title: "Trust & Safety", desc: "Security comes first with police-verified and background-checked maids." },
-    { image: "https://res.cloudinary.com/dto7bji6b/image/upload/v1774417914/professional-excellence_about_cxyxxb.png", title: "Professional Excellence", desc: "Delivering trained and skilled domestic helpers for all needs." },
-    { image: "https://res.cloudinary.com/dto7bji6b/image/upload/v1774419096/customer-centricity_about_cqcbgg.png", title: "Customer-Centricity", desc: "Every service is tailored to your family's lifestyle and requirements." },
-    { image: "https://res.cloudinary.com/dto7bji6b/image/upload/v1774418953/customer-centricity_about_hbxmay.png", title: "Compassion & Care", desc: "Beyond work, we bring kindness, respect, and empathy to your home." },
+    { image: "https://res.cloudinary.com/dto7bji6b/image/upload/v1774416765/trust_and_safety__about_yk2ijo.webp", title: "Trust & Safety", desc: "Security comes first with police-verified and background-checked maids." },
+    { image: "https://res.cloudinary.com/dto7bji6b/image/upload/v1774417914/professional-excellence_about_cxyxxb.webp", title: "Professional Excellence", desc: "Delivering trained and skilled domestic helpers for all needs." },
+    { image: "https://res.cloudinary.com/dto7bji6b/image/upload/v1774419096/customer-centricity_about_cqcbgg.webp", title: "Customer-Centricity", desc: "Every service is tailored to your family's lifestyle and requirements." },
+    { image: "https://res.cloudinary.com/dto7bji6b/image/upload/v1774418953/customer-centricity_about_hbxmay.webp", title: "Compassion & Care", desc: "Beyond work, we bring kindness, respect, and empathy to your home." },
   ];
 
   const SERVICES = [
@@ -63,12 +54,17 @@ export default function AboutUs() {
   ];
 
   return (
-    <div>
-
+    <>
+      <SEO
+        title="About Us — Our Story & Mission"
+        description="Learn how DomesticPro was founded and our mission to connect families with verified, reliable domestic helpers across India."
+        canonical="/about"
+        ogImage="https://res.cloudinary.com/dto7bji6b/image/upload/v1774413666/about_hero_nibkui.webp"
+      />
       {/* ── HERO ── */}
       <section className="relative h-[75vh] md:h-[85vh] flex items-center justify-center">
         <div className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: `url(https://res.cloudinary.com/dto7bji6b/image/upload/v1774413666/about_hero_nibkui.png)` }} />
+          style={{ backgroundImage: `url(https://res.cloudinary.com/dto7bji6b/image/upload/v1774413666/about_hero_nibkui.webp)` }} />
         <div className="absolute inset-0 bg-black/80" />
         <div className="relative z-10 text-center px-5 max-w-4xl mx-auto">
           <h1 className="text-4xl md:text-6xl font-extrabold text-white mb-6 leading-tight">
@@ -247,7 +243,7 @@ export default function AboutUs() {
                 {/* Founder photo */}
                 <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-borderLight mb-5">
                   <img
-                    src="./founder.jpeg"
+                    src="./founder.webp"
                     alt="Founder, Domestic Pro"
                     className="w-full h-full object-cover"
                   />
@@ -401,6 +397,6 @@ export default function AboutUs() {
         </div>
       </section>
 
-    </div>
+    </>
   );
 }

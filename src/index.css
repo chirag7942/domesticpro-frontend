@@ -1,11 +1,16 @@
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:wght@700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,800;1,700&family=DM+Sans:wght@400;500;600;700&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --font-body: 'Plus Jakarta Sans', sans-serif;
+  --font-display: 'Fraunces', serif;
+  --font-playfair: 'Playfair Display', serif;
+  --font-dm: 'DM Sans', sans-serif;
+}
+
 body {
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--font-dm);
 }
 
 /* PAGE BACKGROUND */
@@ -315,8 +320,6 @@ html{
 
     /* Bonus strip */
     .hw2-pv2-bonus { display: flex; align-items: center; gap: 8px; border: 1.5px solid; border-radius: 10px; padding: 7px 12px; font-size: 12px; font-weight: 700; font-family: 'Plus Jakarta Sans', sans-serif; line-height: 1.4; margin-top: 2px; }
-
-    /* ─── Wizard & Payment: Framer Motion replacement animations ─────────────── */
 
 /* Step slide: direction-aware enter only (exit is instant — trade-off vs AnimatePresence) */
 @keyframes stepEnterRight {

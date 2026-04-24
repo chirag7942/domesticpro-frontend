@@ -67,7 +67,7 @@ const CSS = `
   }
 
   .cs-list {
-    max-height: 200px; overflow-y: auto; overflow-x: hidden;
+    max-height: 180px; overflow-y: auto; overflow-x: hidden;
     -webkit-overflow-scrolling: touch; /* smooth scroll on iOS */
     scrollbar-width: thin; scrollbar-color: #F0E8E4 transparent;
   }
@@ -105,12 +105,24 @@ export default function CitySelect({
 }) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
+  const [cities, setCities] = useState([]);
   const [dropdownStyle, setDropdownStyle] = useState({});
   const wrapRef = useRef(null);
   const triggerRef = useRef(null);
   const searchRef = useRef(null);
 
-  const allCities = INDIAN_CITIES;
+  useEffect(() => {
+    if (!open || cities.length > 0) return;
+
+    import("./indianCities.json").then((module) => {
+      const sorted = module.default.indianCities.sort((a, b) =>
+        a.localeCompare(b)
+      );
+      setCities(sorted);
+    });
+  }, [open]);
+
+  const allCities = cities;
 
   const updatePosition = () => {
     if (!triggerRef.current) return;
@@ -214,7 +226,9 @@ export default function CitySelect({
         </div>
       )}
       <div className="cs-list">
-        {filtered.length > 0 ? (
+        {cities.length === 0 ? (
+          <div className="cs-empty">Loading cities...</div>
+        ) : filtered.length > 0 ? (
           filtered.map((city) => (
             <button
               key={city}

@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import HeroWizard from "../components/HeroWizard";
 import PricingSection from "../components/PricingSection";
 import { Check } from "lucide-react";
+import SEO from "../components/SEO";
+import useScrollReveal from "../hooks/useScrollReveal";
 
 /* ── only what Tailwind cannot do ── */
 const CSS = `
@@ -44,18 +46,15 @@ function CellValue({ value }) {
 export default function PricingPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  useEffect(() => {
-    const sections = document.querySelectorAll(".scroll-section");
-    const observer = new IntersectionObserver(
-      (entries) => entries.forEach((e) => e.isIntersecting && e.target.classList.add("show")),
-      { threshold: 0.15 }
-    );
-    sections.forEach((s) => observer.observe(s));
-    return () => sections.forEach((s) => observer.unobserve(s));
-  }, []);
+  useScrollReveal();
 
   return (
     <>
+      <SEO
+        title="Pricing Plans — Connect, Care & Complete"
+        description="Transparent domestic helper placement plans starting at ₹11,000. Compare features and choose the plan that fits your household needs."
+        canonical="/pricing"
+      />
       <style>{CSS}</style>
       <div className="bg-bgLight text-textDark">
 

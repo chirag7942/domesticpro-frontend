@@ -379,7 +379,7 @@ export default function RibbonCutting({ onComplete }) {
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                         boxShadow: '0 8px 32px rgba(236,95,54,0.55)', flexShrink: 0,
                     }}>
-                        <img src="./logoOnly.png" alt="" />
+                        <img src="./logoOnly.webp" alt="" />
                     </div>
                     <div id="br-wordmark" style={{ display: 'flex', flexDirection: 'column', marginLeft: 14, opacity: 0, transform: 'translateX(-16px)' }}>
                         <div id="br-name" style={{ fontFamily: "'Plus Jakarta Sans',sans-serif", fontSize: 'clamp(28px,5vw,52px)', fontWeight: 800, color: '#fff', lineHeight: 1, letterSpacing: -1, textShadow: '0 2px 20px rgba(0,0,0,0.3)' }}>

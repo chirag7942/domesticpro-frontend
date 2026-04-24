@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { ShieldCheck, HeadphonesIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import SEO from "../components/SEO";
+import useScrollReveal from "../hooks/useScrollReveal";
 
 const CSS = `
   section[data-section] { scroll-margin-top: 100px; }
@@ -91,18 +93,17 @@ export default function TermsAndCondition() {
   const [activeSection, setActiveSection] = useState("nature");
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const sections = document.querySelectorAll("section[data-section]");
-    const observer = new IntersectionObserver(
-      (entries) => entries.forEach((e) => e.isIntersecting && setActiveSection(e.target.dataset.section)),
-      { rootMargin: "-50% 0px -50% 0px" }
-    );
-    sections.forEach((s) => observer.observe(s));
-    return () => sections.forEach((s) => observer.unobserve(s));
-  }, []);
+  useScrollReveal();
 
   return (
     <>
+      <SEO
+        title="Terms & Conditions"
+        description="Read DomesticPro's terms of service governing all domestic helper placement engagements."
+        canonical="/terms-and-conditions"
+        ogImage="https://res.cloudinary.com/dto7bji6b/image/upload/v1774429745/terma_and_conditions_oneo24.jpg"
+        noIndex={true}
+      />
       <style>{CSS}</style>
       <div className="bg-bgLight text-textDark min-h-screen">
 

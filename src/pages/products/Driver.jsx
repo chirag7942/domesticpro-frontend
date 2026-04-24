@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import HeroWizard from "../../components/HeroWizard";
+import SEO from "../../components/SEO";
+import useScrollReveal from "../../hooks/useScrollReveal";
 
 const Driver = () => {
   const [modalType, setModalType] = useState(null);
@@ -17,33 +19,16 @@ const Driver = () => {
     setModalType(type);
   };
 
-  useEffect(() => {
-    const sections = document.querySelectorAll(".scroll-section");
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("show");
-          }
-        });
-      },
-      { threshold: 0.15 },
-    );
-
-    sections.forEach((section) => {
-      observer.observe(section);
-    });
-
-    return () => {
-      sections.forEach((section) => {
-        observer.unobserve(section);
-      });
-    };
-  }, []);
+  useScrollReveal();
 
   return (
     <>
+      <SEO
+        title="Professional Drivers Services"
+        description="Hire verified personal drivers in Gurgaon & Delhi NCR. 24x7 live-in drivers, substitute drivers, and experienced chauffeurs. Safe, trained & background-checked staff."
+        canonical="/services/drivers"
+        ogImage="https://res.cloudinary.com/dto7bji6b/image/upload/v1774429112/driver_dxdx5j.webp"
+      />
       {/* ================= HERO SECTION ================= */}
       <section className="bg-bgLight py-20 relative overflow-hidden">
         {/* ===== Decorative Circles ===== */}
@@ -125,7 +110,7 @@ const Driver = () => {
           {/* RIGHT IMAGE */}
           <div className="flex justify-center md:justify-end animate-right">
             <img
-              src="https://res.cloudinary.com/dto7bji6b/image/upload/v1774429112/driver_dxdx5j.png"
+              src="https://res.cloudinary.com/dto7bji6b/image/upload/v1774429112/driver_dxdx5j.webp"
               alt="Domestic Pro Driver"
               className="rounded-2xl h-[350px] md:h-[400px] shadow-xl w-full  max-w-md object-cover"
             />

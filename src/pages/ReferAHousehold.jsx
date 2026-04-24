@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { ArrowRight, Users } from "lucide-react";
+import { Users } from "lucide-react";
+import SEO from "../components/SEO";
+import useScrollReveal from "../hooks/useScrollReveal";
 
 /* ── spinner keyframe ── */
 const CSS = `
@@ -35,7 +37,9 @@ const SubmitButton = ({ label, isSubmitting }) => (
             </span>
         ) : (
             <span className="flex items-center justify-center gap-2">
-                {label} <ArrowRight size={14} strokeWidth={2.5} />
+                {label}   <svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <path d="M5 12h14M12 5l7 7-7 7" />
+                </svg>
             </span>
         )}
     </button>
@@ -94,18 +98,13 @@ export default function ReferHousehold() {
         }, 2000);
     };
 
-    useEffect(() => {
-        const sections = document.querySelectorAll(".scroll-section");
-        const observer = new IntersectionObserver(
-            (entries) => entries.forEach((e) => e.isIntersecting && e.target.classList.add("show")),
-            { threshold: 0.15 }
-        );
-        sections.forEach((s) => observer.observe(s));
-        return () => sections.forEach((s) => observer.unobserve(s));
-    }, []);
+    useScrollReveal();
 
     return (
         <>
+            <SEO title="Refer a Household & Get Trusted Domestic Help | Verified Staff Matching"
+                description="Help a family find the right domestic helper. Refer a household and our experts will match them with verified, experienced staff quickly and reliably."
+                canonical="/refer-a-household" />
             <style>{CSS}</style>
 
             {/* ── FORM 2: Refer a Household ── */}

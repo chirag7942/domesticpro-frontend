@@ -28,42 +28,42 @@ export const SERVICES = [
   {
     id: "Live-In Support",
     label: "Live-In Support",
-    image: `${CDN}/v1773034359/house-manager_by4krx.png`,
+    image: `${CDN}/v1773034359/house-manager_by4krx.webp`,
     color: "#FBBF24",
     emoji: "🏡",
   },
   {
     id: "Baby Caretaker",
     label: "Baby Caretaker",
-    image: `${CDN}/v1773034351/baby-caretaker_qtcpvn.png`,
+    image: `${CDN}/v1773034351/baby-caretaker_qtcpvn.webp`,
     color: "#A78BFA",
     emoji: "👶",
   },
   {
     id: "Japa",
     label: "Japa",
-    image: `${CDN}/v1773034351/japa_kjbqeu.png`,
+    image: `${CDN}/v1773034351/japa_kjbqeu.webp`,
     color: "#F472B6",
     emoji: "🤱",
   },
   {
     id: "Cooking Help",
     label: "Cooking Help",
-    image: `${CDN}/v1773034353/cook_aa2ex7.png`,
+    image: `${CDN}/v1773034353/cook_aa2ex7.webp`,
     color: "#F87C4F",
     emoji: "👨‍🍳",
   },
   {
     id: "Patient Care",
     label: "Patient Care",
-    image: `${CDN}/v1773034355/elderly-household_mt1b8o.png`,
+    image: `${CDN}/v1773034355/elderly-household_mt1b8o.webp`,
     color: "#F87FAC",
     emoji: "🧓",
   },
   {
     id: "Driver",
     label: "Drivers",
-    image: `${CDN}/v1773034355/driver_efye54.png`,
+    image: `${CDN}/v1773034355/driver_efye54.webp`,
     color: "#34D399",
     emoji: "🚗",
   },
@@ -92,16 +92,16 @@ export const SERVICE_FORMATS = [
 ];
 
 export const GENDER_OPTIONS_DATA = [
-  { id: "Male", label: "Male", image: `${CDN}/v1773031904/male_wubsvs.png` },
+  { id: "Male", label: "Male", image: `${CDN}/v1773031904/male_wubsvs.webp` },
   {
     id: "Female",
     label: "Female",
-    image: `${CDN}/v1773031900/female_zo7iwn.png`,
+    image: `${CDN}/v1773031900/female_zo7iwn.webp`,
   },
   {
     id: "Any",
     label: "Any",
-    image: `${CDN}/v1773031900/any_cvq417.png`,
+    image: `${CDN}/v1773031900/any_cvq417.webp`,
   },
 ];
 
@@ -109,68 +109,76 @@ export const TASKS = [
   {
     id: "Cleaning",
     label: "Cleaning",
-    image: `${CDN}/v1773037121/cleaning_fszds1.png`,
+    image: `${CDN}/v1773037121/cleaning_fszds1.webp`,
   },
   {
     id: "Utensils",
     label: "Utensils",
-    image: `${CDN}/v1773037127/utensils_fyurgi.png`,
+    image: `${CDN}/v1773037127/utensils_fyurgi.webp`,
   },
   {
     id: "Laundry",
     label: "Laundry",
-    image: `${CDN}/v1773037122/laundry_qowye6.png`,
+    image: `${CDN}/v1773037122/laundry_qowye6.webp`,
   },
   {
     id: "Dusting",
     label: "Dusting",
-    image: `${CDN}/v1773037119/dusting_hw9vbr.png`,
+    image: `${CDN}/v1773037119/dusting_hw9vbr.webp`,
   },
   {
     id: "Bathroom",
     label: "Bathroom",
-    image: `${CDN}/v1773037119/bathroom_phzorr.png`,
+    image: `${CDN}/v1773037119/bathroom_phzorr.webp`,
   },
   {
     id: "Groceries",
     label: "Groceries",
-    image: `${CDN}/v1773037120/grocery_teclqd.png`,
+    image: `${CDN}/v1773037120/grocery_teclqd.webp`,
   },
-  { id: "Other", label: "Other", image: `${CDN}/v1773034370/other_s1pon0.png` },
+  {
+    id: "Other",
+    label: "Other",
+    image: `${CDN}/v1773034370/other_s1pon0.webp`,
+  },
 ];
 
 export const HOUSE_SIZES = [
-  { id: "1BHK", label: "1 BHK", image: `${CDN}/v1773037116/1BHK_bgzp6k.png` },
-  { id: "2BHK", label: "2 BHK", image: `${CDN}/v1773037121/2BHK_sin2om.png` },
-  { id: "3BHK", label: "3 BHK", image: `${CDN}/v1773037117/3BHK_jc54bv.png` },
-  { id: "4BHK", label: "4 BHK", image: `${CDN}/v1773037118/4BHK_vnuyup.png` },
-  { id: "Villa", label: "Villa", image: `${CDN}/v1773037129/villa_jextfy.png` },
+  { id: "1BHK", label: "1 BHK", image: `${CDN}/v1773037116/1BHK_bgzp6k.webp` },
+  { id: "2BHK", label: "2 BHK", image: `${CDN}/v1773037121/2BHK_sin2om.webp` },
+  { id: "3BHK", label: "3 BHK", image: `${CDN}/v1773037117/3BHK_jc54bv.webp` },
+  { id: "4BHK", label: "4 BHK", image: `${CDN}/v1773037118/4BHK_vnuyup.webp` },
+  {
+    id: "Villa",
+    label: "Villa",
+    image: `${CDN}/v1773037129/villa_jextfy.webp`,
+  },
 ];
 
 export const PETS_OPTIONS = [
   {
     id: "Yes",
     label: "Yes, we have pets",
-    image: `${CDN}/v1773037128/pets_rdppq7.png`,
+    image: `${CDN}/v1773037128/pets_rdppq7.webp`,
   },
   {
     id: "No",
     label: "No pets",
-    image: `${CDN}/v1773037125/no-pets_ih18ap.png`,
+    image: `${CDN}/v1773037125/no-pets_ih18ap.webp`,
   },
 ];
 
 export const MEAL_PREFS = [
-  { id: "Veg", label: "Veg", image: `${CDN}/v1773037727/veg_jz5fdj.png` },
+  { id: "Veg", label: "Veg", image: `${CDN}/v1773037727/veg_jz5fdj.webp` },
   {
     id: "Non-Veg",
     label: "Non-Veg",
-    image: `${CDN}/v1773037724/non-veg_e3ji5g.png`,
+    image: `${CDN}/v1773037724/non-veg_e3ji5g.webp`,
   },
   {
     id: "Both",
     label: "Both",
-    image: `${CDN}/v1773037719/full-cook_yomiur.png`,
+    image: `${CDN}/v1773037719/full-cook_yomiur.webp`,
   },
 ];
 
@@ -178,58 +186,66 @@ export const CUISINES = [
   {
     id: "North Indian",
     label: "North Indian",
-    image: `${CDN}/v1773037726/north-indian_uxc5tl.png`,
+    image: `${CDN}/v1773037726/north-indian_uxc5tl.webp`,
   },
   {
     id: "South Indian",
     label: "South Indian",
-    image: `${CDN}/v1773037726/south-indian_udys5o.png`,
+    image: `${CDN}/v1773037726/south-indian_udys5o.webp`,
   },
   {
     id: "Chinese",
     label: "Chinese",
-    image: `${CDN}/v1773037716/chinese_dmrbhy.png`,
+    image: `${CDN}/v1773037716/chinese_dmrbhy.webp`,
   },
   {
     id: "Continental",
     label: "Continental",
-    image: `${CDN}/v1773037716/continental_wboery.png`,
+    image: `${CDN}/v1773037716/continental_wboery.webp`,
   },
   {
     id: "Diet Food",
     label: "Diet Food",
-    image: `${CDN}/v1773037715/diet_pxaiek.png`,
+    image: `${CDN}/v1773037715/diet_pxaiek.webp`,
   },
-  { id: "Other", label: "Other", image: `${CDN}/v1773034370/other_s1pon0.png` },
+  {
+    id: "Other",
+    label: "Other",
+    image: `${CDN}/v1773034370/other_s1pon0.webp`,
+  },
 ];
 
 export const CHILD_DUTIES = [
   {
     id: "Feeding",
     label: "Feeding",
-    image: `${CDN}/v1773038057/feeding_kvsvwk.png`,
+    image: `${CDN}/v1773038057/feeding_kvsvwk.webp`,
   },
   {
     id: "Bathing",
     label: "Bathing",
-    image: `${CDN}/v1773038057/bathing_bykrvq.png`,
+    image: `${CDN}/v1773038057/bathing_bykrvq.webp`,
   },
   {
     id: "Homework",
     label: "Homework",
-    image: `${CDN}/v1773038059/homework_g3jbdz.png`,
+    image: `${CDN}/v1773038059/homework_g3jbdz.webp`,
   },
   {
     id: "Playtime",
     label: "Playtime",
-    image: `${CDN}/v1773038058/playtime_udha2d.png`,
+    image: `${CDN}/v1773038058/playtime_udha2d.webp`,
   },
   {
     id: "Putting to sleep",
     label: "Putting to sleep",
-    image: `${CDN}/v1773038061/sleeping_uk5vqm.png`,
+    image: `${CDN}/v1773038061/sleeping_uk5vqm.webp`,
   },
-  { id: "Other", label: "Other", image: `${CDN}/v1773034370/other_s1pon0.png` },
+  {
+    id: "Other",
+    label: "Other",
+    image: `${CDN}/v1773034370/other_s1pon0.webp`,
+  },
 ];
 
 // Add this export near CHILD_DUTIES:
@@ -256,27 +272,27 @@ export const CARE_NEEDED = [
   {
     id: "Basic Support",
     label: "Basic Support",
-    image: `${CDN}/v1773038308/caregiver_rhozy2.png`,
+    image: `${CDN}/v1773038308/caregiver_rhozy2.webp`,
   },
   {
     id: "Personal Hygiene",
     label: "Personal Hygiene",
-    image: `${CDN}/v1773038311/hygiene_de4gcu.png`,
+    image: `${CDN}/v1773038311/hygiene_de4gcu.webp`,
   },
   {
     id: "Mobility Support",
     label: "Mobility Support",
-    image: `${CDN}/v1773038315/support_erb1uy.png`,
+    image: `${CDN}/v1773038315/support_erb1uy.webp`,
   },
   {
     id: "Medicine Reminders",
     label: "Medicine Reminders",
-    image: `${CDN}/v1773038312/medicine_kjlkd0.png`,
+    image: `${CDN}/v1773038312/medicine_kjlkd0.webp`,
   },
   {
     id: "Full Care",
     label: "Full Care",
-    image: `${CDN}/v1773038310/full-help_jrxrax.png`,
+    image: `${CDN}/v1773038310/full-help_jrxrax.webp`,
   },
 ];
 
@@ -284,29 +300,37 @@ export const VEHICLE_TYPES = [
   {
     id: "Manual",
     label: "Manual",
-    image: `${CDN}/v1773038638/manual_f78sol.png`,
+    image: `${CDN}/v1773038638/manual_f78sol.webp`,
   },
   {
     id: "Automatic",
     label: "Automatic",
-    image: `${CDN}/v1773038636/automatic_dmyqva.png`,
+    image: `${CDN}/v1773038636/automatic_dmyqva.webp`,
   },
-  { id: "SUV", label: "SUV", image: `${CDN}/v1773038641/SUV_hzrcgr.png` },
-  { id: "Sedan", label: "Sedan", image: `${CDN}/v1773038639/sedan_q1xmlm.png` },
+  { id: "SUV", label: "SUV", image: `${CDN}/v1773038641/SUV_hzrcgr.webp` },
+  {
+    id: "Sedan",
+    label: "Sedan",
+    image: `${CDN}/v1773038639/sedan_q1xmlm.webp`,
+  },
 ];
 
 export const HOME_TYPES = [
   {
     id: "Apartment",
     label: "Apartment",
-    image: `${CDN}/v1773038422/apartment_ys8rbw.png`,
+    image: `${CDN}/v1773038422/apartment_ys8rbw.webp`,
   },
   {
     id: "Independent House",
     label: "Independent House",
-    image: `${CDN}/v1773038451/individual_k0ko1y.png`,
+    image: `${CDN}/v1773038451/individual_k0ko1y.webp`,
   },
-  { id: "Villa", label: "Villa", image: `${CDN}/v1773038464/villa_z0apwp.png` },
+  {
+    id: "Villa",
+    label: "Villa",
+    image: `${CDN}/v1773038464/villa_z0apwp.webp`,
+  },
 ];
 
 export const BUDGETS = [
@@ -365,24 +389,28 @@ export const JAPA_DUTIES = [
   {
     id: "Newborn Bath",
     label: "Newborn Bath",
-    image: `${CDN}/v1773038057/bathing_bykrvq.png`,
+    image: `${CDN}/v1773038057/bathing_bykrvq.webp`,
   },
   {
     id: "Feeding Support",
     label: "Feeding Support",
-    image: `${CDN}/v1773038057/feeding_kvsvwk.png`,
+    image: `${CDN}/v1773038057/feeding_kvsvwk.webp`,
   },
   {
     id: "Swaddling",
     label: "Swaddling",
-    image: `${CDN}/v1773038061/Swaddling_ce8kdn.png`,
+    image: `${CDN}/v1773038061/Swaddling_ce8kdn.webp`,
   },
   {
     id: "Night Watch",
     label: "Night Watch",
-    image: `${CDN}/v1773038061/sleeping_uk5vqm.png`,
+    image: `${CDN}/v1773038061/sleeping_uk5vqm.webp`,
   },
-  { id: "Other", label: "Other", image: `${CDN}/v1773034370/other_s1pon0.png` },
+  {
+    id: "Other",
+    label: "Other",
+    image: `${CDN}/v1773034370/other_s1pon0.webp`,
+  },
 ];
 
 // What the Japa maid does FOR THE MOTHER
@@ -395,24 +423,28 @@ export const JAPA_MOTHER_NEEDS = [
   {
     id: "Diet & Nutrition",
     label: "Diet & Nutrition",
-    image: `${CDN}/v1773038424/cookingOversight_bonbic.png`,
+    image: `${CDN}/v1773038424/cookingOversight_bonbic.webp`,
   },
   {
     id: "Light Cooking",
     label: "Light Cooking",
-    image: `${CDN}/v1773037719/light-cooking_bs02ym.png`,
+    image: `${CDN}/v1773037719/light-cooking_bs02ym.webp`,
   },
   {
     id: "Night Support",
     label: "Night Support",
-    image: `${CDN}/v1773038061/night-support_sqnjvw.png`,
+    image: `${CDN}/v1773038061/night-support_sqnjvw.webp`,
   },
   {
     id: "Personal Hygiene",
     label: "Personal Hygiene",
-    image: `${CDN}/v1773038311/personal-hygiene_ynuc3c.png`,
+    image: `${CDN}/v1773038311/personal-hygiene_ynuc3c.webp`,
   },
-  { id: "Other", label: "Other", image: `${CDN}/v1773034370/other_s1pon0.png` },
+  {
+    id: "Other",
+    label: "Other",
+    image: `${CDN}/v1773034370/other_s1pon0.webp`,
+  },
 ];
 
 // ── PLANS ─────────────────────────────────────────────────────────────────────

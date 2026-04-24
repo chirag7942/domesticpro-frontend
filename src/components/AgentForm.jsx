@@ -1,6 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import SEO from "./SEO";
 
 const API_BASE = import.meta.env.VITE_REACT_APP_API || "";
 
@@ -237,91 +238,94 @@ export default function AgentForm() {
     };
 
     return (
-        <div style={s.page}>
-            <div style={s.card}>
+        <>
+            <SEO title="Agent Form" description="" noIndex={true} />
+            <div style={s.page}>
+                <div style={s.card}>
 
-                {/* Header */}
-                <div style={s.header}>
-                    <div style={s.logoBox}>
-                        <img src="./logoOnly.png" alt="Domesticpri-logo" />
-                    </div>
-                    <div>
-                        <p style={s.headerTitle}>Agent Registration Form</p>
-                        <p style={s.headerSub}>Submit your details to supply helpers with DomesticPro.</p>
-                    </div>
-                </div>
-
-                {/* Body */}
-                <div style={s.body}>
-
-                    {/* Name */}
-                    <div style={s.field}>
-                        <label style={s.label}>
-                            Full Name <span style={s.req}>*</span>
-                        </label>
-                        <input
-                            type="text"
-                            value={form.Name}
-                            onChange={(e) => setF("Name", e.target.value)}
-                            placeholder="Enter your name"
-                            style={s.input}
-                        />
-                        {errors.Name && <div style={s.errText}>{errors.Name}</div>}
-                    </div>
-
-                    {/* Phone */}
-                    <div style={s.field}>
-                        <label style={s.label}>
-                            Phone Number <span style={s.req}>*</span>
-                        </label>
-                        <div style={s.phoneWrap}>
-                            <span style={s.phonePrefix}>+91</span>
-                            <input
-                                type="tel"
-                                value={form.Phone}
-                                onChange={(e) =>
-                                    setF("Phone", e.target.value.replace(/\D/g, "").slice(0, 10))
-                                }
-                                placeholder="9876543210"
-                                style={s.phoneInput}
-                            />
+                    {/* Header */}
+                    <div style={s.header}>
+                        <div style={s.logoBox}>
+                            <img src="./logoOnly.webp" alt="Domestic Pro logo" />
                         </div>
-                        {errors.Phone && <div style={s.errText}>{errors.Phone}</div>}
+                        <div>
+                            <p style={s.headerTitle}>Agent Registration Form</p>
+                            <p style={s.headerSub}>Submit your details to supply helpers with DomesticPro.</p>
+                        </div>
                     </div>
 
-                    {/* Address */}
-                    <div style={s.field}>
-                        <label style={s.label}>
-                            Address <span style={s.req}>*</span>
-                        </label>
-                        <textarea
-                            value={form.Address}
-                            onChange={(e) => setF("Address", e.target.value)}
-                            placeholder="Enter your address"
-                            style={s.textarea}
-                        />
-                        {errors.Address && <div style={s.errText}>{errors.Address}</div>}
+                    {/* Body */}
+                    <div style={s.body}>
+
+                        {/* Name */}
+                        <div style={s.field}>
+                            <label style={s.label}>
+                                Full Name <span style={s.req}>*</span>
+                            </label>
+                            <input
+                                type="text"
+                                value={form.Name}
+                                onChange={(e) => setF("Name", e.target.value)}
+                                placeholder="Enter your name"
+                                style={s.input}
+                            />
+                            {errors.Name && <div style={s.errText}>{errors.Name}</div>}
+                        </div>
+
+                        {/* Phone */}
+                        <div style={s.field}>
+                            <label style={s.label}>
+                                Phone Number <span style={s.req}>*</span>
+                            </label>
+                            <div style={s.phoneWrap}>
+                                <span style={s.phonePrefix}>+91</span>
+                                <input
+                                    type="tel"
+                                    value={form.Phone}
+                                    onChange={(e) =>
+                                        setF("Phone", e.target.value.replace(/\D/g, "").slice(0, 10))
+                                    }
+                                    placeholder="9876543210"
+                                    style={s.phoneInput}
+                                />
+                            </div>
+                            {errors.Phone && <div style={s.errText}>{errors.Phone}</div>}
+                        </div>
+
+                        {/* Address */}
+                        <div style={s.field}>
+                            <label style={s.label}>
+                                Address <span style={s.req}>*</span>
+                            </label>
+                            <textarea
+                                value={form.Address}
+                                onChange={(e) => setF("Address", e.target.value)}
+                                placeholder="Enter your address"
+                                style={s.textarea}
+                            />
+                            {errors.Address && <div style={s.errText}>{errors.Address}</div>}
+                        </div>
+
+                        {/* Submit */}
+                        <button
+                            onClick={handleSubmit}
+                            disabled={submitting}
+                            style={submitting ? s.btnDisabled : s.btn}
+                        >
+                            {submitting ? "Submitting..." : "Submit Details →"}
+                        </button>
+
+                        {/* Status */}
+                        {status === "success" && (
+                            <div style={s.success}>{statusMsg}</div>
+                        )}
+                        {status === "error" && (
+                            <div style={s.error}>{statusMsg}</div>
+                        )}
+
                     </div>
-
-                    {/* Submit */}
-                    <button
-                        onClick={handleSubmit}
-                        disabled={submitting}
-                        style={submitting ? s.btnDisabled : s.btn}
-                    >
-                        {submitting ? "Submitting..." : "Submit Details →"}
-                    </button>
-
-                    {/* Status */}
-                    {status === "success" && (
-                        <div style={s.success}>{statusMsg}</div>
-                    )}
-                    {status === "error" && (
-                        <div style={s.error}>{statusMsg}</div>
-                    )}
-
                 </div>
             </div>
-        </div>
+        </>
     );
 }

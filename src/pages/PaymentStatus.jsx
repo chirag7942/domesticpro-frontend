@@ -9,6 +9,7 @@ import {
   MessageSquare,
   CalendarCheck,
 } from "lucide-react";
+import { useSearchParams } from "react-router-dom";
 
 const API_BASE = import.meta.env.VITE_REACT_APP_API;
 const MAX_POLLS = 10;
@@ -49,6 +50,8 @@ export default function PaymentStatus() {
   const [orderId, setOrderId] = useState("");
   const [pollCount, setPollCount] = useState(0);
   const [plan, setPlan] = useState("priority");
+  const [searchParams] = useSearchParams();
+  const orderId = searchParams.get('order_id') || '';
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);

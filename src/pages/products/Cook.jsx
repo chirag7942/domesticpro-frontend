@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import HeroWizard from "../../components/HeroWizard";
+import SEO from "../../components/SEO";
+import useScrollReveal from "../../hooks/useScrollReveal";
 
 const Cook = () => {
   const [modalType, setModalType] = useState(null);
@@ -17,24 +19,16 @@ const Cook = () => {
     setModalType(type);
   };
 
-  useEffect(() => {
-    const sections = document.querySelectorAll(".scroll-section");
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) entry.target.classList.add("show");
-        });
-      },
-      { threshold: 0.15 },
-    );
-
-    sections.forEach((section) => observer.observe(section));
-
-    return () => sections.forEach((section) => observer.unobserve(section));
-  }, []);
+  useScrollReveal();
 
   return (
     <>
+      <SEO
+        title="Professional Home Cook Services | Verified Personal Cooking Help"
+        description="Find experienced live-in cooks for daily meals. Veg, non-veg and diet cooking. Verified and background-checked culinary professionals."
+        canonical="/services/cooking-help"
+        ogImage="https://res.cloudinary.com/dhtzknkdr/image/upload/v1773031895/cook_zy7sri.jpg"
+      />
       {/* ================= HERO SECTION ================= */}
       <section className="bg-bgLight py-20 relative overflow-hidden">
         {/* ===== Decorative Circles ===== */}

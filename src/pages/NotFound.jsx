@@ -199,7 +199,6 @@ export default function NotFound() {
       </div>
 
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Fraunces:wght@700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
         @keyframes blobFloat1 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(28px,20px)} }
         @keyframes blobFloat2 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-20px,-26px)} }
         @keyframes emojiFloat { 0%,100%{transform:translateY(0) rotate(0deg)} 50%{transform:translateY(-8px) rotate(10deg)} }

@@ -7,10 +7,11 @@ import {
   Send,
   Check,
   MessageSquare,
-  ArrowRight,
 } from "lucide-react";
 
 import { useNavigate } from "react-router-dom";
+import SEO from "../components/SEO";
+import useScrollReveal from "../hooks/useScrollReveal";
 
 const contactChannels = [
   {
@@ -71,11 +72,6 @@ const promises = [
 
 /* ─── Only CSS that Tailwind genuinely cannot express ─── */
 const styles = `
-  
-
- 
-  
-
   /* multi-stop gradient buttons */
   .btn-gradient {
     background: linear-gradient(135deg, #EC5F36, #D84E28);
@@ -128,30 +124,7 @@ export default function ContactPage() {
 
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const sections = document.querySelectorAll(".scroll-section");
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("show");
-          }
-        });
-      },
-      { threshold: 0.15 },
-    );
-
-    sections.forEach((section) => {
-      observer.observe(section);
-    });
-
-    return () => {
-      sections.forEach((section) => {
-        observer.unobserve(section);
-      });
-    };
-  }, []);
+  useScrollReveal();
 
   const set = (f) => (e) => setForm((p) => ({ ...p, [f]: e.target.value }));
   const reset = () => {
@@ -170,6 +143,11 @@ export default function ContactPage() {
 
   return (
     <>
+      <SEO
+        title="Contact Us"
+        description="Get in touch with DomesticPro for domestic helper hiring. Call +91 92112 98139 or WhatsApp us for fast response."
+        canonical="/contact"
+      />
       <style>{styles}</style>
 
       <div className="font-body bg-bgLight text-textDark min-h-screen">
@@ -213,7 +191,10 @@ export default function ContactPage() {
                     <p className="text-xs text-textLight mt-0.5">{sub}</p>
                   </div>
                   <p className="flex items-center gap-1.5 text-[13px] font-bold text-primary">
-                    {cta} <ArrowRight size={13} />
+                    {cta}
+                    <svg width={13} height={13} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M5 12h14M12 5l7 7-7 7" />
+                    </svg>
                   </p>
                 </a>
               ),
@@ -451,7 +432,10 @@ export default function ContactPage() {
             className="strip-btn inline-flex items-center gap-2 bg-white text-primary
   px-8 py-3.5 rounded-2xl text-[15px] font-bold border-none cursor-pointer shadow-md"
           >
-            View Our Plans <ArrowRight size={15} />
+            View Our Plans
+            <svg width={15} height={15} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M5 12h14M12 5l7 7-7 7" />
+            </svg>
           </button>
         </section>
       </div>

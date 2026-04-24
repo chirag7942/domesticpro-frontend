@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import HeroWizard from "../../components/HeroWizard";
+import SEO from "../../components/SEO";
+import useScrollReveal from "../../hooks/useScrollReveal";
 
 const Japa = () => {
   const [modalType, setModalType] = useState(null);
@@ -16,33 +18,15 @@ const Japa = () => {
     }
     setModalType(type);
   };
-  useEffect(() => {
-    const sections = document.querySelectorAll(".scroll-section");
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("show");
-          }
-        });
-      },
-      { threshold: 0.15 },
-    );
-
-    sections.forEach((section) => {
-      observer.observe(section);
-    });
-
-    return () => {
-      sections.forEach((section) => {
-        observer.unobserve(section);
-      });
-    };
-  }, []);
+  useScrollReveal();
 
   return (
     <>
+      <SEO title="Professional Japa Services | Newborn & Postpartum Care at Home"
+        description="Hire trained Japa for expert newborn care and post-delivery support. Verified caregivers for mother recovery, baby hygiene, feeding, and 24x7 assistance."
+        canonical="/services/japa"
+        ogImage="https://res.cloudinary.com/dto7bji6b/image/upload/v1774428751/japa_zzkowa.webp"
+      />
       {/* ================= HERO SECTION ================= */}
       <section className="bg-bgLight py-20 relative overflow-hidden">
         {/* ===== Decorative Circles ===== */}
@@ -113,7 +97,7 @@ const Japa = () => {
           {/* RIGHT IMAGE */}
           <div className="flex justify-center md:justify-end animate-right">
             <img
-              src="https://res.cloudinary.com/dto7bji6b/image/upload/v1774428751/japa_zzkowa.png"
+              src="https://res.cloudinary.com/dto7bji6b/image/upload/v1774428751/japa_zzkowa.webp"
               alt="Domestic Pro Japa "
               className="rounded-2xl shadow-xl w-full h-[350px] md:h-[450px]  max-w-md object-cover"
             />

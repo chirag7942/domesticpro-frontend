@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import HeroWizard from "../../components/HeroWizard";
+import useScrollReveal from "../../hooks/useScrollReveal";
+import SEO from "../../components/SEO";
 
 const HouseHelp = () => {
   const [modalType, setModalType] = useState(null);
@@ -17,33 +19,16 @@ const HouseHelp = () => {
     setModalType(type);
   };
 
-  useEffect(() => {
-    const sections = document.querySelectorAll(".scroll-section");
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("show");
-          }
-        });
-      },
-      { threshold: 0.15 },
-    );
-
-    sections.forEach((section) => {
-      observer.observe(section);
-    });
-
-    return () => {
-      sections.forEach((section) => {
-        observer.unobserve(section);
-      });
-    };
-  }, []);
+  useScrollReveal();
 
   return (
     <>
+      <SEO
+        title="Hire Live-In Housekeepers & Full-Time Housekeeper Services | Domestic Pro"
+        description="Hire verified live-in housekeepers for 24x7 home support. Domestic Pro provides trained maids for cleaning, laundry, and household management with instant substitute staff available."
+        canonical="/services/live-in-housekeepers"
+        ogImage="https://res.cloudinary.com/dhtzknkdr/image/upload/v1773031902/house-keeper_cwr1ph.webp"
+      />
       {/* ================= HERO SECTION ================= */}
       <section className="bg-bgLight py-20 relative overflow-hidden">
         {/* ===== Decorative Circles ===== */}
@@ -114,7 +99,7 @@ const HouseHelp = () => {
           {/* RIGHT IMAGE */}
           <div className="flex justify-center md:justify-end animate-right">
             <img
-              src="https://res.cloudinary.com/dhtzknkdr/image/upload/v1773031902/house-keeper_cwr1ph.png"
+              src="https://res.cloudinary.com/dhtzknkdr/image/upload/v1773031902/house-keeper_cwr1ph.webp"
               alt="Domestic Pro Housekeeper"
               className="rounded-2xl shadow-xl w-full max-w-md object-cover"
             />

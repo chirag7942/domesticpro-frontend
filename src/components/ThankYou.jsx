@@ -86,7 +86,6 @@ export default function ThankYou() {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
 
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -352,7 +351,7 @@ export default function ThankYou() {
           {/* ── Header ── */}
           <div className="ty-header">
             <div className="ty-header-left">
-              <img src="./logoOnly.png" alt="DomesticPro" className="ty-logo" />
+              <img src="./logoOnly.webp" alt="DomesticPro" className="ty-logo" />
               <div>
                 <div className="ty-brand">DomesticPro</div>
                 <div className="ty-brand-tagline">24×7 Live-In Helper Service</div>
