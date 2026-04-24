@@ -51,11 +51,9 @@ export default function PaymentStatus() {
   const [pollCount, setPollCount] = useState(0);
   const [plan, setPlan] = useState("priority");
   const [searchParams] = useSearchParams();
-  const orderId = searchParams.get('order_id') || '';
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const oid = params.get("order_id") || sessionStorage.getItem("dp_order_id") || "";
+    const oid = searchParams.get('order_id') || '';
     const savedPlan = sessionStorage.getItem("dp_plan") || "priority";
 
     setOrderId(oid);
