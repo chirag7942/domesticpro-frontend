@@ -20,20 +20,20 @@
  * ─────────────────────────────────────────────────────────────────────────────
  */
 
-import { lazy, Suspense } from "react";
-import { Routes, Route } from "react-router-dom";
+import { lazy, Suspense, useState } from "react";
+import { Routes, Route, useLocation, matchRoutes } from "react-router-dom";
 
 // ── Eager imports (small, always needed) ─────────────────────────────────────
-import Home from "./pages/Home";
 
 // ── Lazy imports (larger pages, code-split) ───────────────────────────────────
 // Lazy imports work fine for SSG — renderToString awaits them.
 // If you have issues with lazy + SSG, switch the problem import to eager.
+const RibbonAnimation = lazy(() => import('./components/RibbonCutting'))
 const AboutUs = lazy(() => import("./pages/AboutUs"));
-const ContactPage = lazy(() => import("./pages/ContectNow"));
-const Pricing = lazy(() => import("./pages/Pricing"));
 const ReferHelper = lazy(() => import("./pages/ReferAHelper"));
 const ReferHousehold = lazy(() => import("./pages/ReferAHousehold"));
+const Pricing = lazy(() => import("./pages/Pricing"));
+const ContectNow = lazy(() => import("./pages/ContectNow"));
 
 const Nanny = lazy(() => import("./pages/products/Nanny"));
 const Cook = lazy(() => import("./pages/products/Cook"));
@@ -42,54 +42,74 @@ const HouseHelp = lazy(() => import("./pages/products/HouseHelp"));
 const PatientCare = lazy(() => import("./pages/products/PatientCare"));
 const Japa = lazy(() => import("./pages/products/Japa"));
 
-const TermsAndCondition = lazy(() => import("./pages/TermsAndCondition"));
+const TermstAndCondition = lazy(() => import("./pages/TermsAndCondition"));
 const RefundPolicy = lazy(() => import("./pages/RefundPolicy"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
+
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 // ── Non-SEO internal forms (noIndex=true in their SEO component) ──────────────
 // These are still rendered but won't be indexed. Keep them here so SSR works.
+import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
+import Home from "./pages/Home";
+import ScrollToTop from "./components/ScrollToTop";
+import Loader from "./components/Loader";
+import PaymentStatus from "./pages/PaymentStatus";
+import RibbonCutting from "./components/RibbonCutting";
 import SupplyForm from "./components/SupplyForm";
 import AgentForm from "./components/AgentForm";
 import DemandForm from "./components/DemandForm";
 import ThankYou from "./components/ThankYou";
-import PaymentStatus from "./pages/PaymentStatus";
+
+export const routes = [
+  { path: "/", element: <Home /> },
+  { path: "/about", element: <AboutUs /> },
+  { path: "/refer-a-helper", element: <ReferHelper /> },
+  { path: "/refer-a-household", element: <ReferHousehold /> },
+  { path: "/pricing", element: <Pricing /> },
+  { path: "/contact", element: <ContectNow /> },
+  { path: "/services/baby-caretaker", element: <Nanny /> },
+  { path: "/services/cooking-help", element: <Cook /> },
+  { path: "/payment-status", element: <PaymentStatus /> },
+  { path: "/services/drivers", element: <Driver /> },
+  { path: "/services/japa", element: <Japa /> },
+  { path: "/services/live-in-support", element: <HouseHelp /> },
+  { path: "/services/patient-care", element: <PatientCare /> },
+  { path: "/terms-and-conditions", element: <TermstAndCondition /> },
+  { path: "/refund-policy", element: <RefundPolicy /> },
+  { path: "/privacy-policy", element: <PrivacyPolicy /> },
+];
 
 export default function AppRoutes() {
+  const location = useLocation();
+  const [showIntro, setShowIntro] = useState(false);
+
+  const matchedRoute = matchRoutes(routes, location);
+  const is404 = !matchedRoute;
+
   return (
-    <Suspense fallback={null}>
-      <Routes>
-        {/* ── Public SEO routes ────────────────────────────────────────────── */}
-        <Route path="/" element={<Home />} />
-        <Route path="/about" element={<AboutUs />} />
-        <Route path="/contact" element={<ContactPage />} />
-        <Route path="/pricing" element={<Pricing />} />
-        <Route path="/refer-a-helper" element={<ReferHelper />} />
-        <Route path="/refer-a-household" element={<ReferHousehold />} />
+    <>
+      {showIntro && (
+        <Suspense fallback={null}>
+          <RibbonAnimation onComplete={() => setShowIntro(false)} />
+        </Suspense>
+      )}
+      {!is404 && <Navbar />}
+      <Suspense fallback={<Loader />}>
+        <Routes>
+          {routes.map((route) => (
+            <Route key={route.path} path={route.path} element={route.element} />
+          ))}
+          <Route path="*" element={<NotFound />} />
+          <Route path="/demand-form" element={<DemandForm />} />
+          <Route path="/agent-form" element={<AgentForm />} />
+          <Route path="/supply-form" element={<SupplyForm />} />
+          <Route path="/thank-you" element={<ThankYou />} />
+        </Routes>
+      </Suspense>
 
-        {/* ── Service pages ────────────────────────────────────────────────── */}
-        <Route path="/services/baby-caretaker" element={<Nanny />} />
-        <Route path="/services/cooking-help" element={<Cook />} />
-        <Route path="/services/drivers" element={<Driver />} />
-        <Route path="/services/japa" element={<Japa />} />
-        <Route path="/services/live-in-support" element={<HouseHelp />} />
-        <Route path="/services/patient-care" element={<PatientCare />} />
-
-        {/* ── Legal pages ──────────────────────────────────────────────────── */}
-        <Route path="/terms-and-conditions" element={<TermsAndCondition />} />
-        <Route path="/refund-policy" element={<RefundPolicy />} />
-        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-
-        {/* ── Internal / non-indexed routes ────────────────────────────────── */}
-        <Route path="/demand-form" element={<DemandForm />} />
-        <Route path="/agent-form" element={<AgentForm />} />
-        <Route path="/supply-form" element={<SupplyForm />} />
-        <Route path="/thank-you" element={<ThankYou />} />
-        <Route path="/payment-status" element={<PaymentStatus />} />
-
-        {/* ── 404 ──────────────────────────────────────────────────────────── */}
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-    </Suspense>
+      {!is404 && <Footer />}
+    </>
   );
 }

@@ -18,7 +18,6 @@ import SupplyForm from "./components/SupplyForm";
 import AgentForm from "./components/AgentForm";
 import DemandForm from "./components/DemandForm";
 import ThankYou from "./components/ThankYou";
-import AppRoutes from "./AppRoutes.jsx";
 
 /* -------- Lazy Loaded Pages -------- */
 const RibbonAnimation = lazy(() => import('./components/RibbonCutting'))
@@ -87,7 +86,16 @@ function Layout() {
       )}
       {!is404 && <Navbar />}
       <Suspense fallback={<Loader />}>
-        <AppRoutes />
+        <Routes>
+          {routes.map((route) => (
+            <Route key={route.path} path={route.path} element={route.element} />
+          ))}
+          <Route path="*" element={<NotFound />} />
+          <Route path="/demand-form" element={<DemandForm />} />
+          <Route path="/agent-form" element={<AgentForm />} />
+          <Route path="/supply-form" element={<SupplyForm />} />
+          <Route path="/thank-you" element={<ThankYou />} />
+        </Routes>
       </Suspense>
 
       {!is404 && <Footer />}
