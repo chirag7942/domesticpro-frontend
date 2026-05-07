@@ -3,6 +3,7 @@ import { useState, useRef, useEffect, useMemo } from "react";
 import { createPortal } from "react-dom";
 import INDIAN_CITIES from "./indianCities";
 import { ChevronDown, Search, X, MapPin } from "lucide-react";
+import { isBrowser } from "../utils/browserOnly";
 
 const CSS = `
   .cs-wrap    { position: relative; width: 100%; font-family: 'Plus Jakarta Sans', sans-serif; }
@@ -290,7 +291,7 @@ export default function CitySelect({
           />
         </button>
 
-        {createPortal(dropdown, document.body)}
+        {isBrowser && createPortal(dropdown, document.body)}
       </div>
     </>
   );

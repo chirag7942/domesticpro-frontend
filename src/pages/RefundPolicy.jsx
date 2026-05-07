@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
-import HeroWizard from "../components/HeroWizard";
+import { lazy, useEffect, useState } from "react";
 import { HeadphonesIcon } from "lucide-react";
 import SEO from "../components/SEO";
 import useScrollReveal from "../hooks/useScrollReveal";
+import HeroWizard from "../components/HeroWizard";
+// const HeroWizard = lazy(() => import("../components/HeroWizard"));
 
 const CSS = `
   section[data-section] { scroll-margin-top: 100px; }

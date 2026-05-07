@@ -18,6 +18,8 @@ function buildZohoFields(f) {
     Service_Format: f.ServiceFormat,
 
     Tasks_Needed: f.Tasks,
+    Cook_Tasks: f.CookTasks,
+    Driver_Tasks: f.DriverTasks,
     House_Size: f.HouseSize,
     People_At_Home: f.PeopleAtHome,
     Pets_At_Home: f.PetsAtHome,
@@ -29,7 +31,8 @@ function buildZohoFields(f) {
     Cook_Members: String(f.Cook_Members || ""), // ✅ FIXED
 
     Child_Age: f.ChildAge,
-    Child_Duties: f.ChildDuties,
+    Child_Duties_Infant: f.ChildDutiesInfant,
+    Child_Duties_Older: f.ChildDutiesOlder,
 
     Japa_Child_Duties: f.JapaDuties,
     Japa_Mother_Duties: f.JapaMotherNeeds,
@@ -63,7 +66,22 @@ const SERVICE_TYPES = [
 const SERVICE_FORMATS = ["Live-In", "Substitute"];
 
 const TASK_OPTIONS = [
-  "Cleaning", "Utensils", "Laundry", "Dusting", "Bathroom", "Groceries", "Other",
+  "General House Cleaning", "Dusting", "Sweeping and Mopping",
+  "Washroom Cleaning", "Basic Help in Kitchen", "Assist with Laundry",
+  "Spend Time with Kids",
+];
+
+// ADD after TASK_OPTIONS
+const COOK_TASK_OPTIONS = [
+  "Prepare Breakfast", "Prepare Lunch", "Prepare Dinner",
+  "Clean Utensils", "Maintain Kitchen Hygiene", "Manage Basic Groceries",
+  "Assist in Dusting", "Assist in Laundry",
+];
+
+const DRIVER_TASK_OPTIONS = [
+  "Drive as per Daily Requirement", "Can Work for 10 Hours", "Can Work for 12 Hours",
+  "Flexible with Working Hours", "Maintain Vehicle Cleanliness",
+  "Basic Vehicle Upkeep", "Ensure Safe and Timely Travel",
 ];
 
 const HOUSE_SIZE_OPTIONS = ["1BHK", "2BHK", "3BHK", "4BHK", "Villa"];
@@ -76,11 +94,19 @@ const CUISINE_OPTIONS = [
   "North Indian", "South Indian", "Chinese", "Continental", "Diet Food", "Other",
 ];
 
-const CHILD_DUTY_OPTIONS = [
-  "Feeding", "Bathing", "Homework", "Playtime", "Putting to sleep", "Other",
+const CHILD_AGE_OPTIONS = ["0 - 3 Years", "3+ Years"];
+
+const CHILD_DUTY_OPTIONS_INFANT = [
+  "Feeding (Milk/Solids)", "Sterilizing Bottles", "Maintaining Hygiene",
+  "Diaper Changing", "Bathing", "Massage", "Sleep Routine",
+  "Monitoring Health", "Basic Stimulation",
 ];
 
-const CHILD_AGE_OPTIONS = ["0 - 1 Year", "2 - 5 Years", "6 - 12 Years", "13+ Years"];
+const CHILD_DUTY_OPTIONS_OLDER = [
+  "Meal Prep / Feeding", "School Readiness", "Engaging in Play",
+  "Basic Learning Support", "Activity Supervision", "Maintaining Routine",
+  "Hygiene Support", "Child Safety Supervision",
+];
 
 const PATIENT_GENDER_OPTIONS = ["Male", "Female", "Other"];
 
@@ -117,9 +143,9 @@ const BUDGET_OPTIONS = ["₹25,000+", "₹18,000 – ₹24,999", "₹15,000 – 
 const INIT = {
   FirstName: "", LastName: "", Phone: "", Email: "", City: "", Street: "",
   ServiceType: "", ServiceFormat: "", Cook_Gender: "", Budget: "", Urgency: "",
-  Tasks: [], HouseSize: "", PeopleAtHome: "", PetsAtHome: "",
-  MealPref: "", CuisinePref: [], Cook_Members: "", ChildAge: "", ChildDuties: [],
-  PatientAge: "", PatientGender: "", CareNeeded: [], VehicleType: [],
+  Tasks: [], CookTasks: [], HouseSize: "", PeopleAtHome: "", PetsAtHome: "",
+  MealPref: "", CuisinePref: [], Cook_Members: "", ChildAge: "", ChildDutiesInfant: [], ChildDutiesOlder: [],
+  PatientAge: "", PatientGender: "", CareNeeded: [], VehicleType: [], DriverTasks: [],
   NewbornAge: "", JapaDuties: [], JapaMotherNeeds: [], Instructions: "",
 };
 
@@ -438,14 +464,18 @@ export default function DemandForm() {
     if (!form.Street.trim()) e.Street = "Street / area is required";
     if (!form.ServiceType) e.ServiceType = "Please select a service type";
     if (!form.Cook_Gender) e.Cook_Gender = "Helper's gender is required";
-    if (!form.ServiceFormat) e.ServiceFormat = "Work type is required"
+    if (!form.ServiceFormat) e.ServiceFormat = "Service format is required"
     if (!form.Urgency) e.Urgency = "Urgency is required";
     if (!form.Budget) e.Budget = "Please select a budget";
     // if (!form.PlanType) e.PlanType = "Please select a plan";
     if (form.ServiceType === "Live-In Support" && form.Tasks.length === 0) e.Tasks = "Select at least one task";
     if (form.ServiceType === "Cooking Help" && form.CuisinePref.length === 0) e.CuisinePref = "Select at least one cuisine";
     if (form.ServiceType === "Baby Caretaker" && !form.ChildAge) e.ChildAge = "Select child's age";
-    if (form.ServiceType === "Baby Caretaker" && form.ChildDuties.length === 0) e.ChildDuties = "Select at least one duty";
+    if (form.ServiceType === "Baby Caretaker") {
+      const isInfant = form.ChildAge === "0 - 3 Years";
+      const duties = isInfant ? form.ChildDutiesInfant : form.ChildDutiesOlder;
+      if (duties.length === 0) e.ChildDuties = "Select at least one duty";
+    }
     if (form.ServiceType === "Patient Care" && !form.PatientAge.trim()) e.PatientAge = "Patient age is required";
     if (form.ServiceType === "Patient Care" && form.CareNeeded.length === 0) e.CareNeeded = "Select at least one care type";
     if (form.ServiceType === "Driver" && form.VehicleType.length === 0) e.VehicleType = "Select at least one vehicle type";
@@ -523,7 +553,7 @@ export default function DemandForm() {
           {/* Header */}
           <div style={s.header}>
             <div style={s.logoBox}>
-              <img src="./logoOnly.webp" alt="Domestic Pro logo" />
+              <img src="/logoOnly.webp" alt="Domestic Pro logo" />
               {/* <svg width="52" height="52" viewBox="0 0 52 52" fill="none">
               <polygon points="26,6 46,44 6,44" fill="rgba(0,0,0,0.2)" />
               <polygon points="26,10 43,42 9,42" fill="none" stroke="white" strokeWidth="1.5" />
@@ -644,7 +674,7 @@ export default function DemandForm() {
 
             {/* Work Type */}
             <div style={s.field}>
-              <label style={s.label}>Work Type<span style={s.req}>*</span></label>
+              <label style={s.label}>Service Format<span style={s.req}>*</span></label>
               <div style={s.radioRow}>
                 {SERVICE_FORMATS.map((o) => (
                   <label key={o} style={s.radioLabel}>
@@ -737,6 +767,12 @@ export default function DemandForm() {
             {svc === "Cooking Help" && (
               <>
                 <SectionBar>Cooking Help Details</SectionBar>
+                <CheckboxGroup
+                  label="Cooking Tasks" required
+                  values={form.CookTasks}
+                  onChange={(v) => toggleArr("CookTasks", v)}
+                  options={COOK_TASK_OPTIONS}
+                />
                 <div style={s.field}>
                   <label style={s.label}>Meal Preference</label>
                   <div style={s.radioRow}>
@@ -780,7 +816,7 @@ export default function DemandForm() {
               <>
                 <SectionBar>Baby Caretaker Details</SectionBar>
                 <div style={s.field}>
-                  <label style={s.label}>Age Groups Handled (in years)<span style={s.req}>*</span></label>
+                  <label style={s.label}>Child's Age Group<span style={s.req}>*</span></label>
                   {CHILD_AGE_OPTIONS.map((o) => (
                     <label key={o} style={s.radioLabel}>
                       <input
@@ -788,20 +824,29 @@ export default function DemandForm() {
                         style={s.radioInput}
                         name="ChildAge"
                         checked={form.ChildAge === o}
-                        onChange={() => setF("ChildAge", o)}
+                        onChange={() => setForm(f => ({ ...f, ChildAge: o, ChildDutiesInfant: [], ChildDutiesOlder: [] }))}
                       />
                       {o}
                     </label>
                   ))}
                   <Err msg={errors.ChildAge} />
                 </div>
-                <CheckboxGroup
-                  label="Skills / Tasks Can Perform" required
-                  values={form.ChildDuties}
-                  onChange={(v) => toggleArr("ChildDuties", v)}
-                  options={CHILD_DUTY_OPTIONS}
-                />
-                <Err msg={errors.ChildDuties} />
+                {(() => {
+                  const isInfant = form.ChildAge === "0 - 3 Years";
+                  const field = isInfant ? "ChildDutiesInfant" : "ChildDutiesOlder";
+                  const opts = isInfant ? CHILD_DUTY_OPTIONS_INFANT : CHILD_DUTY_OPTIONS_OLDER;
+                  return form.ChildAge ? (
+                    <>
+                      <CheckboxGroup
+                        label="Duties Required" required
+                        values={form[field]}
+                        onChange={(v) => toggleArr(field, v)}
+                        options={opts}
+                      />
+                      <Err msg={errors.ChildDuties} />
+                    </>
+                  ) : null;
+                })()}
               </>
             )}
 
@@ -859,6 +904,12 @@ export default function DemandForm() {
                   options={VEHICLE_TYPE_OPTIONS}
                 />
                 <Err msg={errors.VehicleType} />
+                <CheckboxGroup
+                  label="Driver Duties" required
+                  values={form.DriverTasks}
+                  onChange={(v) => toggleArr("DriverTasks", v)}
+                  options={DRIVER_TASK_OPTIONS}
+                />
               </>
             )}
 

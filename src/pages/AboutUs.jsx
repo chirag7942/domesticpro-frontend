@@ -1,9 +1,20 @@
 import { useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faHeart, faHouse, faBaby, faUserNurse, faUtensils, faCircleCheck, faClock, faArrowsRotate, faCheck, faUmbrellaBeach, faSun, faMountain, faCar, faLeaf,
-  faPersonBreastfeeding
-} from "@fortawesome/free-solid-svg-icons";
+import { faHeart } from "@fortawesome/free-solid-svg-icons/faHeart";
+import { faHouse } from "@fortawesome/free-solid-svg-icons/faHouse";
+import { faBaby } from "@fortawesome/free-solid-svg-icons/faBaby";
+import { faUserNurse } from "@fortawesome/free-solid-svg-icons/faUserNurse";
+import { faUtensils } from "@fortawesome/free-solid-svg-icons/faUtensils";
+import { faCircleCheck } from "@fortawesome/free-solid-svg-icons/faCircleCheck";
+import { faClock } from "@fortawesome/free-solid-svg-icons/faClock";
+import { faArrowsRotate } from "@fortawesome/free-solid-svg-icons/faArrowsRotate";
+import { faCheck } from "@fortawesome/free-solid-svg-icons/faCheck";
+import { faUmbrellaBeach } from "@fortawesome/free-solid-svg-icons/faUmbrellaBeach";
+import { faSun } from "@fortawesome/free-solid-svg-icons/faSun";
+import { faMountain } from "@fortawesome/free-solid-svg-icons/faMountain";
+import { faCar } from "@fortawesome/free-solid-svg-icons/faCar";
+import { faLeaf } from "@fortawesome/free-solid-svg-icons/faLeaf";
+import { faPersonBreastfeeding } from "@fortawesome/free-solid-svg-icons/faPersonBreastfeeding";
 import SEO from "../components/SEO";
 import useScrollReveal from "../hooks/useScrollReveal";
 

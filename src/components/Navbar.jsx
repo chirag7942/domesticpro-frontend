@@ -91,6 +91,7 @@ export default function Navbar() {
           <div className="hidden md:flex gap-8 items-center font-medium">
             <NavLink
               to="/"
+              end
               className={({ isActive }) =>
                 `hover:text-primary transition-colors duration-200 ${isActive ? "text-primary font-semibold" : ""
                 }`
@@ -370,6 +371,7 @@ export default function Navbar() {
             <div className="flex flex-col space-y-4 font-medium">
               <NavLink
                 to="/"
+                end
                 onClick={() => setOpen(false)}
                 className="flex items-center gap-2 group hover:text-primary transition-colors duration-300"
               >

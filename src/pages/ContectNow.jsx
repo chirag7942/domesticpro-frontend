@@ -126,14 +126,25 @@ export default function ContactPage() {
 
   useScrollReveal();
 
+  const API_BASE = import.meta.env.VITE_REACT_APP_API || "";
+  const INTERNAL_SECRET = import.meta.env.VITE_INTERNAL_SECRET || "";
   const set = (f) => (e) => setForm((p) => ({ ...p, [f]: e.target.value }));
   const reset = () => {
     setSubmitted(false);
     setForm({ name: "", phone: "", reason: "", message: "" });
   };
-  const submit = (e) => {
+  const submit = async (e) => {
     e.preventDefault();
-    if (form.name && form.phone.length === 10) setSubmitted(true);
+    const res = await fetch(`${API_BASE}/api/contact`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-internal-secret": INTERNAL_SECRET,
+      },
+      body: JSON.stringify(form),
+    });
+    console.log(res)
+    if (res.ok) setSubmitted(true);
   };
 
   /* shared input classes */

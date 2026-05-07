@@ -7,6 +7,9 @@ import { ShieldCheck, Zap, Headphones, Check, ChevronDown } from "lucide-react";
 import MatchedProfilesPreview from "../components/MatchedProfilesPreview";
 import SEO from "../components/SEO";
 import useScrollReveal from "../hooks/useScrollReveal";
+import ReviewSection from "../components/ReviewSection";
+// import TestimonialCarousel from "../components/TestimonialCarousel";
+// const HeroWizard = lazy(() => import("../components/HeroWizard"));
 const TestimonialsSection = lazy(() => import('../components/TestimonialCarousel'))
 
 const WHY_CARDS = [
@@ -69,16 +72,30 @@ export default function Home() {
           <div
             className="relative w-full h-[32vh] sm:h-[19vh] md:h-[39vh] lg:h-[38rem]"
           >
-            <img
-              src="/hero-image.webp"
-              alt="Domestic Pro — Verified House Help"
-              loading="eager"
-              fetchPriority="high"
-              decoding="async"
-              width={1440}
-              height={608}
-              className="absolute inset-0 w-full h-full object-center object-cover"
-            />
+            <picture>
+              <source
+                media="(max-width: 480px)"
+                srcSet="/hero-mobile.webp"
+                type="image/webp"
+              />
+
+              <source
+                media="(max-width: 768px)"
+                srcSet="/hero-tablet.webp"
+                type="image/webp"
+              />
+              <img
+                src="/hero-image.webp"
+                alt="Domestic helper services"
+                width="1027"
+                height="656"
+                sizes="100vw"
+                fetchPriority="high"
+                loading="eager"
+                decoding="async"
+                className="absolute inset-0 w-full h-full object-center object-cover"
+              />
+            </picture>
             <div className="absolute lg:w-1/2 md:w-full top-0 lg:px-[4rem] px-4 pt-[3rem] pb-[2rem]">
               <div className="pt-4 hidden lg:block">
                 <HeroWizard />
@@ -212,6 +229,8 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      <ReviewSection />
 
       {/* ── CTA ── */}
       <section style={{ background: "linear-gradient(135deg, #EC5F36 0%, #C94520 100%)" }}>

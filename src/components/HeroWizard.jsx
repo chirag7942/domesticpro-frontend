@@ -8,10 +8,20 @@ import {
 } from "lucide-react";
 import {
   SERVICES, SERVICE_FORMATS, GENDER_OPTIONS_DATA, TASKS, HOUSE_SIZES,
-  PETS_OPTIONS, MEAL_PREFS, CUISINES, CHILD_DUTIES,
-  CARE_NEEDED, VEHICLE_TYPES, HOME_TYPES, BUDGETS, SUBSTITUTE_BUDGETS, URGENCY_OPTIONS, PLANS,
+  PETS_OPTIONS, MEAL_PREFS, CUISINES,
+  // ── Baby Caretaker ──────────────────────────────────────────────────────────
+  // CHILD_DUTIES removed; replaced by two age-specific exports:
+  CHILD_DUTIES_INFANT, CHILD_DUTIES_OLDER,
+  CHILD_AGE_RANGES,
+  // ── Cook ────────────────────────────────────────────────────────────────────
+  COOK_TASKS,
+  // ── Driver ──────────────────────────────────────────────────────────────────
+  DRIVER_TASKS,
+  // ── shared ──────────────────────────────────────────────────────────────────
+  CARE_NEEDED, VEHICLE_TYPES, HOME_TYPES, BUDGETS, SUBSTITUTE_BUDGETS,
+  URGENCY_OPTIONS, PLANS,
   SERVICE_FLOWS, DEFAULT_FLOW, PROG_META, INIT,
-  JAPA_DUTIES, JAPA_MOTHER_NEEDS, CHILD_AGE_RANGES
+  JAPA_DUTIES, JAPA_MOTHER_NEEDS,
 } from "./wizardData";
 import { safeSessionStorage } from "../utils/browserOnly";
 
@@ -193,6 +203,8 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
     switch (curKey) {
       case "service": return !!form.ServiceType;
       case "tasks": return form.Tasks.length > 0;
+      case "cooktasks": return form.CookTasks.length > 0;         // ← new
+      case "drivertasks": return form.DriverTasks.length > 0;       // ← new
       case "housesize": return !!form.HouseSize;
       case "pets": return !!form.PetsAtHome;
       case "mealpref": return !!form.MealPref;
@@ -200,7 +212,7 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
       case "cuisine": return form.CuisinePref.length > 0;
       case "helpergender": return !!form.HelperGender;
       case "childage": return !!form.ChildAge.trim();
-      case "childduties": return form.ChildDuties.length > 0;
+      // case "childduties": return form.ChildDuties.length > 0;
       case "patientage": return !!form.PatientAge.trim();
       case "patientgender": return !!form.PatientGender;
       case "careneeded": return form.CareNeeded.length > 0;
@@ -210,6 +222,10 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
       case "budget": return !!form.Budget;
       case "japaduties": return form.JapaDuties.length > 0;
       case "japamotherneeds": return form.JapaMotherNeeds.length > 0;
+      case "childduties":
+        return form.ChildAge === "0 - 3 Years"
+          ? form.ChildDutiesInfant.length > 0
+          : form.ChildDutiesOlder.length > 0;
       case "contact":
         return form.FirstName.trim() !== "" &&
           form.Phone.length === 10 && /^[6-9]/.test(form.Phone) &&
@@ -220,7 +236,8 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
   };
 
   const CONT_KEYS = new Set([
-    "tasks", "cuisine", "childduties", "careneeded", "vehicletype", "contact",
+    "tasks", "cooktasks", "drivertasks",                              // ← cooktasks, drivertasks added
+    "cuisine", "childduties", "careneeded", "vehicletype", "contact",
     "housesize", "mealpref", "cookmembers", "helpergender", "urgency",
     "budget", "patientage", "childage", "patientgender", "hometype", "plan",
     "japaduties", "japamotherneeds",
@@ -239,6 +256,8 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
       Service_Type: f.ServiceType,
       Service_Format: f.ServiceFormat,
       Tasks_Needed: f.Tasks,
+      Cook_Tasks: f.CookTasks,          // ← new
+      Driver_Tasks: f.DriverTasks,        // ← new
       House_Size: f.HouseSize,
       People_At_Home: f.PeopleAtHome,
       Pets_At_Home: f.PetsAtHome,
@@ -247,7 +266,9 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
       Helper_s_Gender: f.HelperGender,
       Cook_Members: String(f.CookMembers),
       Child_Age: f.ChildAge,
-      Child_Duties: f.ChildDuties,
+      // Child_Duties: f.ChildDuties,
+      Child_Duties_Infant: f.ChildDutiesInfant,
+      Child_Duties_Older: f.ChildDutiesOlder,
       Japa_Child_Duties: f.JapaDuties,
       Japa_Mother_Duties: f.JapaMotherNeeds,
       Patient_Age: f.PatientAge,
@@ -497,6 +518,7 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
       </div>
     );
 
+    // ── LIVE-IN SUPPORT TASKS ─────────────────────────────────────────────────
     if (curKey === "tasks") return (
       <div>
         <QHead q="Which tasks are needed?" hint="Select all that apply" />
@@ -507,6 +529,36 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
           ))}
         </div>
         {form.Tasks.length === 0 && <p className="hw2-warn mt-2">Pick at least one task</p>}
+      </div>
+    );
+
+    // ── COOK TASKS ────────────────────────────────────────────────────────────
+    if (curKey === "cooktasks") return (
+      <div>
+        <QHead q="What cooking tasks are needed?" hint="Select all that apply" />
+        <div className="grid grid-cols-3 gap-2.5">
+          {COOK_TASKS.map((t) => (
+            <ImgChip key={t.id} label={t.label} image={t.image}
+              selected={form.CookTasks.includes(t.id)}
+              onClick={() => toggleArr("CookTasks", t.id)} />
+          ))}
+        </div>
+        {form.CookTasks.length === 0 && <p className="hw2-warn mt-2">Pick at least one task</p>}
+      </div>
+    );
+
+    // ── DRIVER TASKS ──────────────────────────────────────────────────────────
+    if (curKey === "drivertasks") return (
+      <div>
+        <QHead q="Driver's duties and availability?" hint="Select all that apply" />
+        <div className="grid grid-cols-3 gap-2.5">
+          {DRIVER_TASKS.map((t) => (
+            <ImgChip key={t.id} label={t.label} image={t.image}
+              selected={form.DriverTasks.includes(t.id)}
+              onClick={() => toggleArr("DriverTasks", t.id)} />
+          ))}
+        </div>
+        {form.DriverTasks.length === 0 && <p className="hw2-warn mt-2">Select at least one</p>}
       </div>
     );
 
@@ -648,15 +700,24 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
       </div>
     );
 
+    // ── BABY CARETAKER — AGE SELECTION ────────────────────────────────────────
     if (curKey === "childage") return (
       <div>
-        <QHead q="How old is the child?" hint="Select the age range" />
-        <div className="grid grid-cols-2 gap-3">
+        <QHead q="How old is the child?" hint="Tasks are matched to the age group" />
+        <div className="grid grid-cols-1 gap-3">
           {CHILD_AGE_RANGES.map((r) => (
             <button key={r.id} type="button"
-              onClick={() => { setF("ChildAge", r.id); after(); }}
+              onClick={() => {
+                // Clear previously selected duties when age group changes
+                // so stale IDs from the other task set don't persist.
+                setForm(f => ({ ...f, ChildAge: r.id, ChildDutiesInfant: [], ChildDutiesOlder: [] }));
+                after();
+              }}
               className="hw2-budget-row"
-              style={{ background: form.ChildAge === r.id ? "#EC5F36" : "#fff", borderColor: form.ChildAge === r.id ? "#EC5F36" : "#E5E2DE" }}>
+              style={{
+                background: form.ChildAge === r.id ? "#EC5F36" : "#fff",
+                borderColor: form.ChildAge === r.id ? "#EC5F36" : "#E5E2DE",
+              }}>
               <span className="hw2-budget-label" style={{ color: form.ChildAge === r.id ? "#fff" : "#1a1a2e" }}>{r.label}</span>
               {form.ChildAge === r.id && <Check size={16} strokeWidth={2.5} color="#fff" className="ml-auto flex-shrink-0" />}
             </button>
@@ -665,19 +726,29 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
       </div>
     );
 
-    if (curKey === "childduties") return (
-      <div>
-        <QHead q="What duties are needed?" hint="Select all that apply" />
-        <div className="grid grid-cols-3 gap-2.5">
-          {CHILD_DUTIES.map((d) => (
-            <ImgChip key={d.id} label={d.label} image={d.image}
-              selected={form.ChildDuties.includes(d.id)}
-              onClick={() => toggleArr("ChildDuties", d.id)} />
-          ))}
+    // ── BABY CARETAKER — AGE-CONDITIONAL DUTIES ───────────────────────────────
+    if (curKey === "childduties") {
+      const isInfant = form.ChildAge === "0 - 3 Years";
+      const dutySet = isInfant ? CHILD_DUTIES_INFANT : CHILD_DUTIES_OLDER;
+      const field = isInfant ? "ChildDutiesInfant" : "ChildDutiesOlder";
+      const qText = isInfant
+        ? "What infant care duties are needed?"
+        : "What childcare duties are needed?";
+
+      return (
+        <div>
+          <QHead q={qText} hint="Select all that apply" />
+          <div className="grid grid-cols-3 gap-2.5">
+            {dutySet.map((d) => (
+              <ImgChip key={d.id} label={d.label} image={d.image}
+                selected={form[field].includes(d.id)}
+                onClick={() => toggleArr(field, d.id)} />
+            ))}
+          </div>
+          {form[field].length === 0 && <p className="hw2-warn mt-2">Select at least one</p>}
         </div>
-        {form.ChildDuties.length === 0 && <p className="hw2-warn mt-2">Select at least one</p>}
-      </div>
-    );
+      );
+    }
 
     if (curKey === "japaduties") return (
       <div>
@@ -903,12 +974,16 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
               form.HouseSize && { k: "Home", v: form.HouseSize.toUpperCase() },
               form.HouseSize && { k: "Household", v: `${form.PeopleAtHome} people` },
               form.Tasks.length > 0 && { k: "Tasks", v: form.Tasks.join(", ") },
+              form.CookTasks.length > 0 && { k: "Cook Tasks", v: form.CookTasks.join(", ") },  // ← new
+              form.DriverTasks.length > 0 && { k: "Driver Tasks", v: form.DriverTasks.join(", ") },  // ← new
               form.MealPref && { k: "Diet", v: form.MealPref },
               form.CuisinePref.length > 0 && { k: "Cuisine", v: form.CuisinePref.join(", ") },
               form.CookMembers && { k: "Family Members", v: form.CookMembers },
               form.HelperGender && { k: "Helper's Gender", v: form.HelperGender },
               form.ChildAge && { k: "Child Age", v: form.ChildAge },
-              form.ChildDuties.length > 0 && { k: "Child Duties", v: form.ChildDuties.join(", ") },
+              // form.ChildDuties.length > 0 && { k: "Child Duties", v: form.ChildDuties.join(", ") },
+              form.ChildDutiesInfant.length > 0 && { k: "Child Duties (Infant)", v: form.ChildDutiesInfant.join(", ") },
+              form.ChildDutiesOlder.length > 0 && { k: "Child Duties (3+)", v: form.ChildDutiesOlder.join(", ") },
               form.JapaDuties?.length > 0 && { k: "Japa Duties", v: form.JapaDuties.join(", ") },
               form.JapaMotherNeeds?.length > 0 && { k: "Mother Needs", v: form.JapaMotherNeeds.join(", ") },
               form.PatientAge && { k: "Patient Age", v: form.PatientAge },
@@ -972,7 +1047,6 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
             const plan = activePlan;
             const total = plan.amount + plan.gst;
             const isSelected = form.PlanType === plan.id;
-            const PlanIcon = ICON_MAP["check"];
             return (
               <div style={{ border: `2px solid ${isSelected ? plan.color : "#EBEBEB"}`, borderRadius: 16, padding: "14px 15px", background: isSelected ? plan.accentLight : "#fff", transition: "all .22s" }}>
                 <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 10, marginBottom: 4 }}>
@@ -1080,7 +1154,6 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
       const bg = isNoPay ? "linear-gradient(135deg,#9CA3AF,#6B7280)" : "linear-gradient(135deg,#EC5F36,#D84E28)";
       return (
         <div className="flex flex-col items-center justify-center py-8 text-center">
-          {/* Spring pop animation via CSS — no framer-motion needed */}
           <div className="anim-spring-pop w-20 h-20 rounded-full flex items-center justify-center mb-5"
             style={{ background: bg, boxShadow: "0 10px 36px rgba(0,0,0,.20)" }}>
             <Check size={36} color="#fff" strokeWidth={3} />
@@ -1119,22 +1192,14 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
     return (
       <div className="mb-5 flex-shrink-0">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="hw2-display text-lg font-extrabold text-gray-900 leading-tight">
+          <h2 className="hw2-display text-lg font-extrabold text-gray-900 leading-tight w-[80%]">
             Start Here to Hire Trusted Help Instantly
           </h2>
-          {form.ServiceType && (
-            <span className="flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full sm-hidden"
-              style={{ background: "#FFF2EE", color: "#EC5F36", border: "1.5px solid #F5D8CF", fontSize: "0.65rem" }}>
-              {SERVICES.find((s) => s.id === form.ServiceType)?.emoji}{" "}
-              {SERVICES.find((s) => s.id === form.ServiceType)?.label}
-            </span>
-          )}
         </div>
 
         <div className="relative">
           <div className="absolute h-[2px] bg-gray-100 rounded-full"
             style={{ top: hideLabels ? 12 : 13, left: `calc(${100 / (2 * progKeys.length)}%)`, right: `calc(${100 / (2 * progKeys.length)}%)`, zIndex: 0 }}>
-            {/* CSS animated progress bar — replaces motion.div */}
             <div
               className="h-full origin-left rounded-full transition-all duration-500 ease-in-out"
               style={{ width: `${progPct}%`, background: "linear-gradient(90deg,#EC5F36,#D84E28)" }}
@@ -1149,7 +1214,6 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
               const active = progIdx === i;
               return (
                 <div key={`${key}-${i}`} className="flex flex-col items-center gap-1 flex-1 min-w-0">
-                  {/* CSS scale on active — replaces motion.div animate scale */}
                   <div
                     className="flex items-center justify-center flex-shrink-0 rounded-full border-2 transition-all duration-300"
                     style={{
@@ -1248,7 +1312,6 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
     <div className="hw2-root flex flex-col bg-white rounded-3xl p-5 sm:p-6 w-full max-w-[35rem]" style={{ height: "30rem" }}>
       {renderProgress()}
       <div ref={bodyRef} className="hw2-body overflow-y-auto overflow-x-hidden" style={{ flex: 1 }}>
-        {/* CSS direction-aware slide animation — replaces AnimatePresence + motion.div */}
         <div
           key={`${form.ServiceType || "svc"}-${stepIdx}`}
           className={dir > 0 ? curKey == "contact" ? "" : "step-enter-right" : "step-enter-left"}>
@@ -1265,13 +1328,11 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
       <div
         className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
         onClick={(e) => { if (e.target === e.currentTarget) { resetWizard(); onClose?.(); } }}>
-        {/* CSS modal enter animation — replaces motion.div */}
-        <div className="relative w-full max-w-xl anim-status-enter">
+        <div className="relative w-full max-w-[35rem] anim-status-enter">
           {onClose && (
             <button type="button" aria-label="Close"
               onClick={() => { resetWizard(); onClose?.(); }}
-              className="absolute -top-3 -right-3 bg-white shadow-md rounded-full w-9 h-9 flex items-center justify-center hover:bg-gray-50 transition"
-              style={{ border: "1.5px solid #F0EBE8" }}>
+              className="absolute top-3 right-3 w-9 h-9 flex items-center justify-center hover:bg-gray-50">
               <X size={17} strokeWidth={2.5} />
             </button>
           )}

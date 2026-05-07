@@ -21,13 +21,37 @@ const PIPELINE_STAGE_DEFAULT = "Profile Created";
 const AVAILABILITY_OPTIONS = ["Immediately", "Within 15-20 days", "Within 30 days"];
 
 // Service-type-specific options
-const TASK_OPTIONS = ["Cleaning", "Utensils", "Laundry", "Dusting", "Bathroom", "Groceries", "Other"];
+const TASK_OPTIONS = [
+  "General House Cleaning", "Dusting", "Sweeping and Mopping",
+  "Washroom Cleaning", "Basic Help in Kitchen", "Assist with Laundry",
+  "Spend Time with Kids",
+];
+const COOK_TASK_OPTIONS = [
+  "Prepare Breakfast", "Prepare Lunch", "Prepare Dinner",
+  "Clean Utensils", "Maintain Kitchen Hygiene", "Manage Basic Groceries",
+  "Assist in Dusting", "Assist in Laundry",
+];
+
+const DRIVER_TASK_OPTIONS = [
+  "Drive as per Daily Requirement", "Can Work for 10 Hours", "Can Work for 12 Hours",
+  "Flexible with Working Hours", "Maintain Vehicle Cleanliness",
+  "Basic Vehicle Upkeep", "Ensure Safe and Timely Travel",
+];
 const HOUSE_SIZE_OPTIONS = ["1BHK", "2BHK", "3BHK", "4BHK", "Villa"];
 // NOTE: "Non- Veg" matches the exact choice value in Zoho Creator (space before Veg)
 const MEAL_PREF_OPTIONS = ["Veg", "Non- Veg", "Both"];
 const CUISINE_OPTIONS = ["North Indian", "South Indian", "Chinese", "Continental", "Diet Food", "Other"];
-const CHILD_AGE_OPTIONS = ["0 - 1 Year", "2 - 5 Years", "6 - 12 Years", "13+ Years"];
-const CHILD_DUTY_OPTIONS = ["Feeding", "Bathing", "Homework", "Playtime", "Putting to sleep", "Other"];
+const CHILD_AGE_OPTIONS = ["0 - 3 Years", "3+ Years"];
+const CHILD_DUTY_OPTIONS_INFANT = [
+  "Feeding (Milk/Solids)", "Sterilizing Bottles", "Maintaining Hygiene",
+  "Diaper Changing", "Bathing", "Massage", "Sleep Routine",
+  "Monitoring Health", "Basic Stimulation",
+];
+const CHILD_DUTY_OPTIONS_OLDER = [
+  "Meal Prep / Feeding", "School Readiness", "Engaging in Play",
+  "Basic Learning Support", "Activity Supervision", "Maintaining Routine",
+  "Hygiene Support", "Child Safety Supervision",
+];
 const CARE_NEEDED_OPTIONS = ["Basic Support", "Personal Hygiene", "Mobility Support", "Medicine Reminders", "Full Care"];
 const PATIENT_GENDER_OPTIONS = ["Male", "Female", "Other"];
 const VEHICLE_TYPE_OPTIONS = ["Manual", "Automatic", "SUV", "Sedan"];
@@ -48,7 +72,8 @@ const INIT = {
   // service-type fields
   Tasks: [], HouseSize: "", PeopleAtHome: "", PetsAtHome: "", ComfortablePets: "",
   MealPref: "", CuisinePref: [], ComfortableFamilySize: "",
-  ChildAge: "", ChildDuties: [],
+  ChildAge: "", ChildDutiesInfant: [], ChildDutiesOlder: [],
+  CookTasks: [], DriverTasks: [],
   PatientAge: "", PatientGender: "", CareNeeded: [],
   VehicleType: [], DrivingLicense: "",
   JapaDuties: [], JapaMotherNeeds: [],
@@ -219,7 +244,10 @@ function buildZohoFields(f, sc, pipelineStage) {
     Pets_At_Home: f.PetsAtHome,
     Comfortable_With_Pets: f.ComfortablePets,
     Child_Age: f.ChildAge,
-    Child_Duties: f.ChildDuties,
+    Child_Duties_Infant: f.ChildDutiesInfant,
+    Child_Duties_Older: f.ChildDutiesOlder,
+    Cook_Tasks: f.CookTasks,
+    Driver_Tasks: f.DriverTasks,
     Cuisine_Preference: f.CuisinePref,
     Comfortable_Family_Size: f.ComfortableFamilySize,
     Meal_Preferences: f.MealPref,
@@ -270,7 +298,7 @@ export default function SupplyForm() {
     if (!form.Status) e.Status = "Status is required";
     if (!form.ServiceType) e.ServiceType = "Please select a service type";
     if (!form.ServiceFormat) e.ServiceFormat = "Service format is required";
-    if (!form.ReferredBy.trim()) e.ReferredBy = "Referred by is required";
+    // if (!form.ReferredBy.trim()) e.ReferredBy = "Referred by is required";
     if (!form.SCAssigned) e.SCAssigned = "SC Assigned is required";
     if (!form.Availability) e.Availability = "Availability is required";
     if (!form.SalaryExpectation.trim()) e.SalaryExpectation = "Salary expectation is required";
@@ -291,7 +319,11 @@ export default function SupplyForm() {
     if (form.ServiceType === "Live-In Support" && !form.ComfortablePets) e.ComfortablePets = "Please select pet preference";
     if (form.ServiceType === "Cooking Help" && form.CuisinePref.length === 0) e.CuisinePref = "Select at least one cuisine";
     if (form.ServiceType === "Baby Caretaker" && !form.ChildAge) e.ChildAge = "Select child's age group";
-    if (form.ServiceType === "Baby Caretaker" && form.ChildDuties.length === 0) e.ChildDuties = "Select at least one duty";
+    if (form.ServiceType === "Baby Caretaker") {
+      const isInfant = form.ChildAge === "0 - 3 Years";
+      const duties = isInfant ? form.ChildDutiesInfant : form.ChildDutiesOlder;
+      if (duties.length === 0) e.ChildDuties = "Select at least one duty";
+    }
     if (form.ServiceType === "Patient Care" && !form.PatientAge.trim()) e.PatientAge = "Patient age is required";
     if (form.ServiceType === "Patient Care" && form.CareNeeded.length === 0) e.CareNeeded = "Select at least one care type";
     if (form.ServiceType === "Driver" && form.VehicleType.length === 0) e.VehicleType = "Select at least one vehicle type";
@@ -533,6 +565,12 @@ export default function SupplyForm() {
           {svc === "Cooking Help" && (
             <>
               <SectionBar>Cooking Help Details</SectionBar>
+              <CheckboxGroup
+                label="Cooking Tasks" required
+                values={form.CookTasks}
+                onChange={(v) => toggleArr("CookTasks", v)}
+                options={COOK_TASK_OPTIONS}
+              />
               <div style={s.field}>
                 <label style={s.label}>Meal Preference</label>
                 <div style={s.radioRowH}>
@@ -563,15 +601,28 @@ export default function SupplyForm() {
                 <label style={s.label}>Child Age Groups Handled<span style={s.req}>*</span></label>
                 {CHILD_AGE_OPTIONS.map((o) => (
                   <label key={o} style={s.radioLabel}>
-                    <input type="radio" style={s.radioInput} name="childAge" checked={form.ChildAge === o} onChange={() => setF("ChildAge", o)} />
+                    <input type="radio" style={s.radioInput} name="childAge" checked={form.ChildAge === o} onChange={() => setForm(f => ({ ...f, ChildAge: o, ChildDutiesInfant: [], ChildDutiesOlder: [] }))} />
                     {o}
                   </label>
                 ))}
                 <Err msg={errors.ChildAge} />
               </div>
-              <CheckboxGroup label="Skills / Tasks Can Perform" required values={form.ChildDuties}
-                onChange={(v) => toggleArr("ChildDuties", v)} options={CHILD_DUTY_OPTIONS} />
-              <Err msg={errors.ChildDuties} />
+              {(() => {
+                const isInfant = form.ChildAge === "0 - 3 Years";
+                const field = isInfant ? "ChildDutiesInfant" : "ChildDutiesOlder";
+                const opts = isInfant ? CHILD_DUTY_OPTIONS_INFANT : CHILD_DUTY_OPTIONS_OLDER;
+                return form.ChildAge ? (
+                  <>
+                    <CheckboxGroup
+                      label="Skills / Tasks Can Perform" required
+                      values={form[field]}
+                      onChange={(v) => toggleArr(field, v)}
+                      options={opts}
+                    />
+                    <Err msg={errors.ChildDuties} />
+                  </>
+                ) : null;
+              })()}
             </>
           )}
 
@@ -607,6 +658,12 @@ export default function SupplyForm() {
               <CheckboxGroup label="Vehicle Types Can Drive" required values={form.VehicleType}
                 onChange={(v) => toggleArr("VehicleType", v)} options={VEHICLE_TYPE_OPTIONS} />
               <Err msg={errors.VehicleType} />
+              <CheckboxGroup
+                label="Driver Duties" required
+                values={form.DriverTasks}
+                onChange={(v) => toggleArr("DriverTasks", v)}
+                options={DRIVER_TASK_OPTIONS}
+              />
               <div style={s.field}>
                 <label style={s.label}>Has Driving License?</label>
                 <div style={s.radioRowH}>
@@ -643,10 +700,10 @@ export default function SupplyForm() {
 
           <div style={s.row2}>
             <div style={s.field}>
-              <label style={s.label}>Referred By<span style={s.req}>*</span></label>
+              <label style={s.label}>Referred By</label>
               <input type="text" value={form.ReferredBy} onChange={(e) => setF("ReferredBy", e.target.value)}
                 placeholder="e.g. DP001 (Agent's code)" style={s.input} />
-              <Err msg={errors.ReferredBy} />
+              {/* <Err msg={errors.ReferredBy} /> */}
             </div>
             <div style={s.field}>
               <label style={s.label}>SC Assigned<span style={s.req}>*</span></label>

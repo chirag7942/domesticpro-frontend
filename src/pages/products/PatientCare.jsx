@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
-import HeroWizard from "../../components/HeroWizard";
 import SEO from "../../components/SEO";
+import HeroWizard from "../../components/HeroWizard";
+// const HeroWizard = lazy(() => import("../../components/HeroWizard"));
 
 const PatientCare = () => {
   const [modalType, setModalType] = useState(null);
@@ -224,8 +225,10 @@ const PatientCare = () => {
           </div>
 
           <div className="grid md:grid-cols-2 gap-8">
-            <div className="flex gap-5 bg-bgLight rounded-2xl p-6 border border-borderLight">
-              <div className="w-14 h-14 bg-primary/10 text-primary flex items-center justify-center rounded-full text-xl">
+            <div className="flex gap-5 bg-bgLight rounded-2xl p-6 border border-borderLight hover:shadow-xl hover:-translate-y-2 transition-transform duration-500 group">
+              <div className=" flex-shrink-0
+                        group-hover:bg-primary group-hover:text-white
+                        transition duration-500">
                 🛏️
               </div>
               <div>
@@ -239,8 +242,10 @@ const PatientCare = () => {
               </div>
             </div>
 
-            <div className="flex gap-5 bg-bgLight rounded-2xl p-6 border border-borderLight">
-              <div className="w-14 h-14 bg-primary/10 text-primary flex items-center justify-center rounded-full text-xl">
+            <div className="flex gap-5 bg-bgLight rounded-2xl p-6 border border-borderLight hover:shadow-xl hover:-translate-y-2 transition-transform duration-500 group">
+              <div className="w-14 h-14 bg-primary/10 text-primary flex items-center justify-center rounded-full text-xl flex-shrink-0
+                        group-hover:bg-primary group-hover:text-white
+                        transition duration-500">
                 💊
               </div>
               <div>
@@ -253,8 +258,10 @@ const PatientCare = () => {
               </div>
             </div>
 
-            <div className="flex gap-5 bg-bgLight rounded-2xl p-6 border border-borderLight">
-              <div className="w-14 h-14 bg-primary/10 text-primary flex items-center justify-center rounded-full text-xl">
+            <div className="flex gap-5 bg-bgLight rounded-2xl p-6 border border-borderLight hover:shadow-xl hover:-translate-y-2 transition-transform duration-500 group">
+              <div className="w-14 h-14 bg-primary/10 text-primary flex items-center justify-center rounded-full text-xl flex-shrink-0
+                        group-hover:bg-primary group-hover:text-white
+                        transition duration-500">
                 🧼
               </div>
               <div>
@@ -267,8 +274,10 @@ const PatientCare = () => {
               </div>
             </div>
 
-            <div className="flex gap-5 bg-bgLight rounded-2xl p-6 border border-borderLight">
-              <div className="w-14 h-14 bg-primary/10 text-primary flex items-center justify-center rounded-full text-xl">
+            <div className="flex gap-5 bg-bgLight rounded-2xl p-6 border border-borderLight hover:shadow-xl hover:-translate-y-2 transition-transform duration-500 group">
+              <div className="w-14 h-14 bg-primary/10 text-primary flex items-center justify-center rounded-full text-xl flex-shrink-0
+                        group-hover:bg-primary group-hover:text-white
+                        transition duration-500">
                 🤝
               </div>
               <div>
@@ -280,8 +289,10 @@ const PatientCare = () => {
                 </p>
               </div>
             </div>
-            <div className="flex gap-5 bg-bgLight rounded-2xl p-6 border border-borderLight">
-              <div className="w-14 h-14 bg-primary/10 text-primary flex items-center justify-center rounded-full text-xl">
+            <div className="flex gap-5 bg-bgLight rounded-2xl p-6 border border-borderLight hover:shadow-xl hover:-translate-y-2 transition-transform duration-500 group">
+              <div className="w-14 h-14 bg-primary/10 text-primary flex items-center justify-center rounded-full text-xl flex-shrink-0
+                        group-hover:bg-primary group-hover:text-white
+                        transition duration-500">
                 🍲
               </div>
               <div>
@@ -294,8 +305,10 @@ const PatientCare = () => {
               </div>
             </div>
 
-            <div className="flex gap-5 bg-bgLight rounded-2xl p-6 border border-borderLight">
-              <div className="w-14 h-14 bg-primary/10 text-primary flex items-center justify-center rounded-full text-xl">
+            <div className="flex gap-5 bg-bgLight rounded-2xl p-6 border border-borderLight hover:shadow-xl hover:-translate-y-2 transition-transform duration-500 group">
+              <div className="w-14 h-14 bg-primary/10 text-primary flex items-center justify-center rounded-full text-xl flex-shrink-0
+                        group-hover:bg-primary group-hover:text-white
+                        transition duration-500">
                 🚶
               </div>
               <div>
@@ -325,8 +338,10 @@ const PatientCare = () => {
           </div>
 
           <div className="grid md:grid-cols-2 gap-8">
-            <div className="flex gap-5 bg-bgLight rounded-2xl p-6 border border-borderLight">
-              <div className="w-14 h-14 bg-primary/10 text-primary flex items-center justify-center rounded-full text-xl">
+            <div className="flex gap-5 bg-bgLight rounded-2xl p-6 border border-borderLight hover:shadow-xl hover:-translate-y-2 transition-transform duration-500 group">
+              <div className="w-14 h-14 bg-primary/10 text-primary flex items-center justify-center rounded-full text-xl flex-shrink-0
+                        group-hover:bg-primary group-hover:text-white
+                        transition duration-500">
                 🔄
               </div>
               <div>
@@ -339,8 +354,10 @@ const PatientCare = () => {
               </div>
             </div>
 
-            <div className="flex gap-5 bg-bgLight rounded-2xl p-6 border border-borderLight">
-              <div className="w-14 h-14 bg-primary/10 text-primary flex items-center justify-center rounded-full text-xl">
+            <div className="flex gap-5 bg-bgLight rounded-2xl p-6 border border-borderLight hover:shadow-xl hover:-translate-y-2 transition-transform duration-500 group">
+              <div className="w-14 h-14 bg-primary/10 text-primary flex items-center justify-center rounded-full text-xl flex-shrink-0
+                        group-hover:bg-primary group-hover:text-white
+                        transition duration-500">
                 🛡️
               </div>
               <div>
@@ -352,8 +369,10 @@ const PatientCare = () => {
                 </p>
               </div>
             </div>
-            <div className="flex gap-5 bg-bgLight rounded-2xl p-6 border border-borderLight">
-              <div className="w-14 h-14 bg-primary/10 text-primary flex items-center justify-center rounded-full text-xl">
+            <div className="flex gap-5 bg-bgLight rounded-2xl p-6 border border-borderLight hover:shadow-xl hover:-translate-y-2 transition-transform duration-500 group">
+              <div className="w-14 h-14 bg-primary/10 text-primary flex items-center justify-center rounded-full text-xl flex-shrink-0
+                        group-hover:bg-primary group-hover:text-white
+                        transition duration-500">
                 💊
               </div>
               <div>
@@ -366,8 +385,10 @@ const PatientCare = () => {
               </div>
             </div>
 
-            <div className="flex gap-5 bg-bgLight rounded-2xl p-6 border border-borderLight">
-              <div className="w-14 h-14 bg-primary/10 text-primary flex items-center justify-center rounded-full text-xl">
+            <div className="flex gap-5 bg-bgLight rounded-2xl p-6 border border-borderLight hover:shadow-xl hover:-translate-y-2 transition-transform duration-500 group">
+              <div className="w-14 h-14 bg-primary/10 text-primary flex items-center justify-center rounded-full text-xl flex-shrink-0
+                        group-hover:bg-primary group-hover:text-white
+                        transition duration-500">
                 🧼
               </div>
               <div>
@@ -378,8 +399,10 @@ const PatientCare = () => {
               </div>
             </div>
 
-            <div className="flex gap-5 bg-bgLight rounded-2xl p-6 border border-borderLight">
-              <div className="w-14 h-14 bg-primary/10 text-primary flex items-center justify-center rounded-full text-xl">
+            <div className="flex gap-5 bg-bgLight rounded-2xl p-6 border border-borderLight hover:shadow-xl hover:-translate-y-2 transition-transform duration-500 group">
+              <div className="w-14 h-14 bg-primary/10 text-primary flex items-center justify-center rounded-full text-xl flex-shrink-0
+                        group-hover:bg-primary group-hover:text-white
+                        transition duration-500">
                 🤝
               </div>
               <div>
@@ -390,8 +413,10 @@ const PatientCare = () => {
               </div>
             </div>
 
-            <div className="flex gap-5 bg-bgLight rounded-2xl p-6 border border-borderLight">
-              <div className="w-14 h-14 bg-primary/10 text-primary flex items-center justify-center rounded-full text-xl">
+            <div className="flex gap-5 bg-bgLight rounded-2xl p-6 border border-borderLight hover:shadow-xl hover:-translate-y-2 transition-transform duration-500 group">
+              <div className="w-14 h-14 bg-primary/10 text-primary flex items-center justify-center rounded-full text-xl flex-shrink-0
+                        group-hover:bg-primary group-hover:text-white
+                        transition duration-500 ">
                 🏥
               </div>
               <div>

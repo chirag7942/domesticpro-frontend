@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import useScrollReveal from "../hooks/useScrollReveal";
 
 const steps = [
   {
@@ -36,36 +37,57 @@ const CSS = `
     from { opacity: 0; transform: translateY(28px); }
     to   { opacity: 1; transform: translateY(0); }
   }
+
   @keyframes lineGrow {
     from { width: 0%; }
     to   { width: 100%; }
   }
+
+  /* default visible (SSR-safe) */
   .hiw-card {
-    opacity: 0;
-    transform: translateY(28px);
+    opacity: 1;
+    transform: none;
     transition: box-shadow 0.3s ease, transform 0.3s ease;
   }
+
+  /* only animate when JS exists */
+  .js .hiw-section .hiw-card {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+
   .hiw-card:hover {
     box-shadow: 0 20px 48px rgba(236,95,54,0.13);
     transform: translateY(-4px) !important;
   }
-  .hiw-section.show .hiw-card {
+
+  .js .hiw-section.show .hiw-card {
     animation: fadeUp 0.55s ease forwards;
   }
-  .hiw-section.show .hiw-card:nth-child(1) { animation-delay: 0.05s; }
-  .hiw-section.show .hiw-card:nth-child(2) { animation-delay: 0.17s; }
-  .hiw-section.show .hiw-card:nth-child(3) { animation-delay: 0.29s; }
-  .hiw-section.show .hiw-card:nth-child(4) { animation-delay: 0.41s; }
-  .hiw-section.show .hiw-line {
+
+  .js .hiw-section.show .hiw-card:nth-child(1) { animation-delay: 0.05s; }
+  .js .hiw-section.show .hiw-card:nth-child(2) { animation-delay: 0.17s; }
+  .js .hiw-section.show .hiw-card:nth-child(3) { animation-delay: 0.29s; }
+  .js .hiw-section.show .hiw-card:nth-child(4) { animation-delay: 0.41s; }
+
+  /* line visible by default */
+  .hiw-line {
+    width: 100%;
+  }
+
+  /* animate only when JS exists */
+  .js .hiw-section .hiw-line {
+    width: 0%;
+  }
+
+  .js .hiw-section.show .hiw-line {
     animation: lineGrow 0.9s ease 0.1s forwards;
   }
-  .hiw-line { width: 0%; }
 
   .hiw-icon-ring {
     transition: all 0.2s ease;
   }
 
-  /* Updated hover for images */
   .hiw-card:hover .hiw-icon-ring {
     background: rgba(236,95,54,0.12);
     transform: scale(1.05);
@@ -73,20 +95,8 @@ const CSS = `
 `;
 
 export default function HowItWorks() {
-  const sectionRef = useRef(null);
 
-  useEffect(() => {
-    const el = sectionRef.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) el.classList.add("show");
-      },
-      { threshold: 0.15 }
-    );
-    observer.observe(el);
-    return () => observer.unobserve(el);
-  }, []);
+  useScrollReveal();
 
   return (
     <>
@@ -109,7 +119,7 @@ export default function HowItWorks() {
           </div>
 
           {/* ── TIMELINE ── */}
-          <div ref={sectionRef} className="hiw-section">
+          <div className="hiw-section scroll-section">
 
             {/* Top connecting line */}
             <div className="hidden md:block relative mb-0 mx-4">

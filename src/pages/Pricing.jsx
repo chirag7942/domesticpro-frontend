@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import HeroWizard from "../components/HeroWizard";
 import PricingSection from "../components/PricingSection";
 import { Check } from "lucide-react";
 import SEO from "../components/SEO";
 import useScrollReveal from "../hooks/useScrollReveal";
+import HeroWizard from "../components/HeroWizard";
+// const HeroWizard = lazy(() => import("../components/HeroWizard"));
 
 /* ── only what Tailwind cannot do ── */
 const CSS = `

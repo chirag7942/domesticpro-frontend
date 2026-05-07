@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
-import HeroWizard from "../../components/HeroWizard";
 import useScrollReveal from "../../hooks/useScrollReveal";
 import SEO from "../../components/SEO";
+import HeroWizard from "../../components/HeroWizard";
+// const HeroWizard = lazy(() => import("../../components/HeroWizard"));
 
 const HouseHelp = () => {
   const [modalType, setModalType] = useState(null);

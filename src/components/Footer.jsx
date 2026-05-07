@@ -170,7 +170,7 @@ export default function Footer() {
                 transition
               "
             >
-              <img src="./whatsapp.svg" alt="whatsapp icon" width={25} height={25} className="mr-2" /> Chat on WhatsApp
+              <img src="/whatsapp.svg" alt="whatsapp icon" width={25} height={25} className="mr-2" /> Chat on WhatsApp
             </a>
           </div>
         </div>
@@ -179,7 +179,7 @@ export default function Footer() {
         <div className="border-t border-borderLight/20">
           <div className="max-w-7xl mx-auto px-6 py-5 flex flex-col md:flex-row justify-between items-center text-sm text-gray-400">
             <p>
-              © {new Date().getFullYear()} DomesticPro. All rights reserved.
+              © 2026 DomesticPro. All rights reserved.
             </p>
 
             <div className="flex gap-6 mt-3 md:mt-0">
@@ -219,7 +219,7 @@ export default function Footer() {
           bg-[#25D366]
           hover:bg-[#25D366]
           text-white
-          px-2
+          px-3
           py-3
           rounded-full
           shadow-lg
@@ -229,7 +229,7 @@ export default function Footer() {
           z-50
         "
       >
-        <img src="./whatsapp.svg" alt="whatsapp icon" width={40} height={40} />
+        <img src="/whatsapp.svg" alt="whatsapp icon" width={40} height={40} />
       </a>
     </>
   );

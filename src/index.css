@@ -73,15 +73,21 @@ body {
   animation: slideFromRight 0.8s ease-out forwards;
 }
 
-/* Initial state (hidden below) */
 .scroll-section {
-  opacity: 0;
-  transform: translateY(80px); /* start from bottom */
-  transition: all 0.8s ease;
+  opacity: 1;
+  transform: none;
 }
 
-/* When visible */
-.scroll-section.show {
+/* only hide when JS exists */
+.js .scroll-section {
+  opacity: 0;
+  transform: translateY(30px);
+  transition:
+    opacity 0.6s ease,
+    transform 0.6s ease;
+}
+
+.js .scroll-section.show {
   opacity: 1;
   transform: translateY(0);
 }

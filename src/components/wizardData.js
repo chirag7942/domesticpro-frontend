@@ -1,3 +1,37 @@
+// Cook Tasks
+import breakfast from "../assets/breakfast.jpeg";
+import lunch from "../assets/lunch.jpeg";
+import dinner from "../assets/dinner.jpeg";
+import cleanUtensils from "../assets/clean-utensils.jpeg";
+import kitchenHygiene from "../assets/kitchen-hygiene.jpeg";
+
+// Baby Caretaker (0–3 years)
+import babyBath from "../assets/baby-bath.png";
+import diaperChanging from "../assets/diaper-changing.png";
+import sterilizingBottles from "../assets/sterilizing-bottles.png";
+import hygieneSupport from "../assets/Hygiene-support.png";
+import healthMonitoring from "../assets/health-monitering.png";
+import massage from "../assets/message.png";
+import childStimulation from "../assets/child-stimulation.jpeg";
+
+// Baby Caretaker (3+ years)
+import toddlerFeeding from "../assets/toddler-feeding.png";
+import schoolReadiness from "../assets/school-readiness.png";
+import childSafety from "../assets/child-safety.jpeg";
+import childSupervision from "../assets/child-supervision.jpeg";
+import routineManagement from "../assets/routine-management.jpeg";
+
+// Driver Tasks
+import dailyDrive from "../assets/daily-drive.jpeg";
+import tenHourDriver from "../assets/10-hour-driver.jpeg";
+import twelveHourDriver from "../assets/12-hour-driver.jpeg";
+import flexibleHourDriver from "../assets/fexible-hour-driver.jpeg";
+import vehicleCleaning from "../assets/vehicle-cleaning.jpeg";
+import vehicleUpkeep from "../assets/vehicle-upkeep.jpeg";
+import safeAndTimelyTravel from "../assets/safe-and-timely-travel.jpeg";
+
+import mopping from "../assets/mopping.png";
+
 import {
   Home,
   Users,
@@ -21,6 +55,7 @@ import {
   Coffee,
   Sparkles,
 } from "lucide-react";
+import diperChange from "../assets/diaper-changing.png";
 
 const CDN = "https://res.cloudinary.com/dhtzknkdr/image/upload";
 
@@ -98,28 +133,15 @@ export const GENDER_OPTIONS_DATA = [
     label: "Female",
     image: `${CDN}/v1773031900/female_zo7iwn.webp`,
   },
-  {
-    id: "Any",
-    label: "Any",
-    image: `${CDN}/v1773031900/any_cvq417.webp`,
-  },
+  { id: "Any", label: "Any", image: `${CDN}/v1773031900/any_cvq417.webp` },
 ];
 
+// ── LIVE-IN SUPPORT TASKS ─────────────────────────────────────────────────────
 export const TASKS = [
   {
-    id: "Cleaning",
-    label: "Cleaning",
+    id: "General House Cleaning",
+    label: "General Cleaning",
     image: `${CDN}/v1773037121/cleaning_fszds1.webp`,
-  },
-  {
-    id: "Utensils",
-    label: "Utensils",
-    image: `${CDN}/v1773037127/utensils_fyurgi.webp`,
-  },
-  {
-    id: "Laundry",
-    label: "Laundry",
-    image: `${CDN}/v1773037122/laundry_qowye6.webp`,
   },
   {
     id: "Dusting",
@@ -127,19 +149,30 @@ export const TASKS = [
     image: `${CDN}/v1773037119/dusting_hw9vbr.webp`,
   },
   {
-    id: "Bathroom",
-    label: "Bathroom",
+    id: "Sweeping and Mopping",
+    label: "Sweep & Mop",
+    // image: `${CDN}/v1773034370/other_s1pon0.webp`,
+    image: mopping,
+  },
+  {
+    id: "Washroom Cleaning",
+    label: "Washroom",
     image: `${CDN}/v1773037119/bathroom_phzorr.webp`,
   },
   {
-    id: "Groceries",
-    label: "Groceries",
-    image: `${CDN}/v1773037120/grocery_teclqd.webp`,
+    id: "Basic Help in Kitchen",
+    label: "Kitchen Help",
+    image: `${CDN}/v1773037719/full-cook_yomiur.webp`,
   },
   {
-    id: "Other",
-    label: "Other",
-    image: `${CDN}/v1773034370/other_s1pon0.webp`,
+    id: "Assist with Laundry",
+    label: "Laundry",
+    image: `${CDN}/v1773037122/laundry_qowye6.webp`,
+  },
+  {
+    id: "Spend Time with Kids",
+    label: "Kids Supervision",
+    image: `${CDN}/v1773038058/playtime_udha2d.webp`,
   },
 ];
 
@@ -215,56 +248,167 @@ export const CUISINES = [
   },
 ];
 
-export const CHILD_DUTIES = [
+// ── COOK TASKS ─────────────────────────────────────────────────────────────────
+export const COOK_TASKS = [
   {
-    id: "Feeding",
+    id: "Prepare Breakfast",
+    label: "Breakfast",
+    // image: `${CDN}/v1773037719/full-cook_yomiur.webp`,
+    image: breakfast,
+  },
+  {
+    id: "Prepare Lunch",
+    label: "Lunch",
+    // image: `${CDN}/v1773037726/north-indian_uxc5tl.webp`,
+    image: lunch,
+  },
+  {
+    id: "Prepare Dinner",
+    label: "Dinner",
+    // image: `${CDN}/v1773037724/non-veg_e3ji5g.webp`,
+    image: dinner,
+  },
+  {
+    id: "Clean Utensils",
+    label: "Clean Utensils",
+    // image: `${CDN}/v1773037127/utensils_fyurgi.webp`,
+    image: cleanUtensils,
+  },
+  {
+    id: "Maintain Kitchen Hygiene",
+    label: "Kitchen Hygiene",
+    // image: `${CDN}/v1773037121/cleaning_fszds1.webp`,
+    image: kitchenHygiene,
+  },
+  {
+    id: "Manage Basic Groceries",
+    label: "Groceries",
+    image: `${CDN}/v1773037120/grocery_teclqd.webp`,
+  },
+  {
+    id: "Assist in Dusting (afternoon)",
+    label: "Assist Dusting (afternoon)",
+    image: `${CDN}/v1773037119/dusting_hw9vbr.webp`,
+  },
+  {
+    id: "Assist in Laundry (afternoon)",
+    label: "Assist Laundry (afternoon)",
+    image: `${CDN}/v1773037122/laundry_qowye6.webp`,
+  },
+];
+
+// ── BABY CARETAKER — AGE RANGES ───────────────────────────────────────────────
+// Changed from 4 ranges to 2 to match task-split boundary at 3 years.
+export const CHILD_AGE_RANGES = [
+  { id: "0 - 3 Years", label: "0 – 3 Years (Infant / Toddler)" },
+  { id: "3+ Years", label: "3+ Years (Child)" },
+];
+
+// ── BABY CARETAKER — AGE-SPLIT TASK DEFINITIONS ───────────────────────────────
+
+/** Duties for infants and toddlers aged 0–3 years */
+export const CHILD_DUTIES_INFANT = [
+  {
+    id: "Feeding (Milk/Solids)",
     label: "Feeding",
     image: `${CDN}/v1773038057/feeding_kvsvwk.webp`,
   },
   {
+    id: "Sterilizing Bottles",
+    label: "Sterilize Bottles",
+    // image: `${CDN}/v1773034370/other_s1pon0.webp`,
+    image: sterilizingBottles,
+  },
+  {
+    id: "Maintaining Hygiene",
+    label: "Hygiene",
+    // image: `${CDN}/v1773038311/hygiene_de4gcu.webp`,
+    image: hygieneSupport,
+  },
+  {
+    id: "Diaper Changing",
+    label: "Diaper Change",
+    image: diperChange,
+  },
+  {
     id: "Bathing",
     label: "Bathing",
-    image: `${CDN}/v1773038057/bathing_bykrvq.webp`,
+    // image: `${CDN}/v1773038057/bathing_bykrvq.webp`,
+    image: babyBath,
   },
   {
-    id: "Homework",
-    label: "Homework",
-    image: `${CDN}/v1773038059/homework_g3jbdz.webp`,
+    id: "Massage",
+    label: "Massage",
+    // image: `${CDN}/v1773038315/support_erb1uy.webp`,
+    image: massage,
   },
   {
-    id: "Playtime",
-    label: "Playtime",
-    image: `${CDN}/v1773038058/playtime_udha2d.webp`,
-  },
-  {
-    id: "Putting to sleep",
-    label: "Putting to sleep",
+    id: "Sleep Routine",
+    label: "Sleep Routine",
     image: `${CDN}/v1773038061/sleeping_uk5vqm.webp`,
+    // image:
   },
   {
-    id: "Other",
-    label: "Other",
-    image: `${CDN}/v1773034370/other_s1pon0.webp`,
+    id: "Monitoring Health",
+    label: "Monitor Health",
+    // image: `${CDN}/v1773038312/medicine_kjlkd0.webp`,
+    image: healthMonitoring,
+  },
+  {
+    id: "Basic Stimulation (play, sensory activities)",
+    label: "Play & Stimulation",
+    // image: `${CDN}/v1773038058/playtime_udha2d.webp`,
+    image: childStimulation,
   },
 ];
 
-// Add this export near CHILD_DUTIES:
-export const CHILD_AGE_RANGES = [
+/** Duties for children aged 3+ years */
+export const CHILD_DUTIES_OLDER = [
   {
-    id: "0 - 1 Year",
-    label: "0 - 1 Year",
+    id: "Meal Prep / Feeding",
+    label: "Meal / Feeding",
+    // image: `${CDN}/v1773038057/feeding_kvsvwk.webp`,
+    image: toddlerFeeding,
   },
   {
-    id: "2 - 5 Years",
-    label: "2 - 5 Years",
+    id: "School Readiness",
+    label: "School Readiness",
+    // image: `${CDN}/v1773038059/homework_g3jbdz.webp`,
+    image: schoolReadiness,
   },
   {
-    id: "6 - 12 Years",
-    label: "6 - 12 Years",
+    id: "Engaging in Play",
+    label: "Engaging In Play",
+    image: `${CDN}/v1773038058/playtime_udha2d.webp`,
   },
   {
-    id: "13 + Years",
-    label: "13 + Years",
+    id: "Basic Learning Support",
+    label: "Learning Support",
+    image: `${CDN}/v1773038059/homework_g3jbdz.webp`,
+  },
+  {
+    id: "Activity Supervision",
+    label: "Activity Supervision",
+    // image: `${CDN}/v1773034370/other_s1pon0.webp`,
+    image: childSupervision,
+  },
+  {
+    id: "Maintaining Routine",
+    label: "Maintaining Routine",
+    // image: `${CDN}/v1773034370/other_s1pon0.webp`,
+    image: routineManagement,
+  },
+  {
+    id: "Hygiene Support",
+    label: "Hygiene Support",
+    // image: `${CDN}/v1773038311/hygiene_de4gcu.webp`,
+    image: hygieneSupport,
+  },
+  {
+    id: "Child Safety Supervision",
+    label: "Safety & Supervision",
+    // image: `${CDN}/v1773034370/other_s1pon0.webp`,
+    image: childSafety,
   },
 ];
 
@@ -315,6 +459,52 @@ export const VEHICLE_TYPES = [
   },
 ];
 
+// ── DRIVER TASKS ──────────────────────────────────────────────────────────────
+export const DRIVER_TASKS = [
+  {
+    id: "Drive as per Daily Requirement",
+    label: "Daily Driving",
+    // image: `${CDN}/v1773038638/manual_f78sol.webp`,
+    image: dailyDrive,
+  },
+  {
+    id: "Can Work for 10 Hours",
+    label: "10-Hour Shift",
+    // image: `${CDN}/v1773034370/other_s1pon0.webp`,
+    image: tenHourDriver,
+  },
+  {
+    id: "Can Work for 12 Hours",
+    label: "12-Hour Shift",
+    // image: `${CDN}/v1773034370/other_s1pon0.webp`,
+    image: twelveHourDriver,
+  },
+  {
+    id: "Flexible with Working Hours",
+    label: "Flexible Hours",
+    // image: `${CDN}/v1773034370/other_s1pon0.webp`,
+    image: flexibleHourDriver,
+  },
+  {
+    id: "Maintain Vehicle Cleanliness",
+    label: "Vehicle Cleaning",
+    // image: `${CDN}/v1773037121/cleaning_fszds1.webp`,
+    image: vehicleCleaning,
+  },
+  {
+    id: "Basic Vehicle Upkeep",
+    label: "Vehicle Upkeep",
+    // image: `${CDN}/v1773038641/SUV_hzrcgr.webp`,
+    image: vehicleUpkeep,
+  },
+  {
+    id: "Ensure Safe and Timely Travel",
+    label: "Safe Travel",
+    // image: `${CDN}/v1773038636/automatic_dmyqva.webp`,
+    image: safeAndTimelyTravel,
+  },
+];
+
 export const HOME_TYPES = [
   {
     id: "Apartment",
@@ -351,12 +541,8 @@ export const BUDGETS = [
   },
 ];
 
-// FIX: cleaned up — no unused label/badge fields
 export const SUBSTITUTE_BUDGETS = [
-  {
-    id: "sub-5k",
-    desc: "One-time placement fee. Helper salary is separate.",
-  },
+  { id: "sub-5k", desc: "One-time placement fee. Helper salary is separate." },
 ];
 
 export const URGENCY_OPTIONS = [
@@ -383,8 +569,7 @@ export const URGENCY_OPTIONS = [
   },
 ];
 
-// ── JAPA ─────────────────────────────────────────────────────────────────────
-// What the Japa maid does FOR THE NEWBORN
+// ── JAPA ──────────────────────────────────────────────────────────────────────
 export const JAPA_DUTIES = [
   {
     id: "Newborn Bath",
@@ -413,7 +598,6 @@ export const JAPA_DUTIES = [
   },
 ];
 
-// What the Japa maid does FOR THE MOTHER
 export const JAPA_MOTHER_NEEDS = [
   {
     id: "Body Massage",
@@ -585,7 +769,7 @@ export const PLANS = {
 };
 
 // ── SERVICE FLOWS ─────────────────────────────────────────────────────────────
-// NOTE: All keys must exactly match SERVICES[].id (case-sensitive)
+// All keys must exactly match SERVICES[].id (case-sensitive).
 export const SERVICE_FLOWS = {
   "Live-In Support": [
     "service",
@@ -600,9 +784,11 @@ export const SERVICE_FLOWS = {
     "plan",
     "done",
   ],
+  // "cooktasks" added after format so user picks duties before meal prefs.
   "Cooking Help": [
     "service",
     "format",
+    "cooktasks",
     "mealpref",
     "cuisine",
     "cookmembers",
@@ -650,10 +836,12 @@ export const SERVICE_FLOWS = {
     "plan",
     "done",
   ],
+  // "drivertasks" added after vehicletype — driver picks vehicle then duties.
   Driver: [
     "service",
     "format",
     "vehicletype",
+    "drivertasks",
     "helpergender",
     "budget",
     "urgency",
@@ -677,6 +865,8 @@ export const PROG_META = {
   service: { label: "Service", icon: Briefcase },
   format: { label: "Format", icon: Layers },
   tasks: { label: "Tasks", icon: Layers },
+  cooktasks: { label: "Tasks", icon: ChefHat }, // ← new
+  drivertasks: { label: "Duties", icon: Car }, // ← new
   housesize: { label: "Home", icon: Home },
   pets: { label: "Pets", icon: PawPrint },
   mealpref: { label: "Diet", icon: Utensils },
@@ -696,7 +886,6 @@ export const PROG_META = {
   budget: { label: "Budget", icon: DollarSign },
   contact: { label: "Contact", icon: Phone },
   plan: { label: "Plan", icon: CreditCard },
-  // Japa
   japaduties: { label: "Duties", icon: HandHeart },
   japamotherneeds: { label: "Mother", icon: HeartPulse },
 };
@@ -721,6 +910,7 @@ export const INIT = {
   PetsAtHome: "",
   HomeType: "",
   // Cook
+  CookTasks: [], // ← new: selected cook duties
   MealPref: "",
   MealsNeeded: [],
   CuisinePref: [],
@@ -728,7 +918,9 @@ export const INIT = {
   CookMembers: 0,
   // Baby Caretaker
   ChildAge: "",
-  ChildDuties: [],
+  // ChildDuties: [],
+  ChildDutiesInfant: [],
+  ChildDutiesOlder: [],
   // Japa
   JapaDuties: [],
   JapaMotherNeeds: [],
@@ -738,6 +930,7 @@ export const INIT = {
   CareNeeded: [],
   // Driver
   VehicleType: [],
+  DriverTasks: [], // ← new: selected driver duties
   // Common
   Budget: "",
   Urgency: "",

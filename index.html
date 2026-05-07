@@ -6,8 +6,17 @@
     <link rel="icon" type="image/svg+xml" href="/logoOnly.webp" />
     <meta name="theme-color" content="#EC5F36" />
     <meta name="robots" content="index, follow" />
-
+    
+    <meta name="ssr-route" content="" />   <!-- ← add this -->
     <!--helmet-outlet-->
+
+        <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-WQDNNRFP');</script>
+    <!-- End Google Tag Manager -->
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -16,6 +25,7 @@
     <meta property="og:site_name" content="Domestic Pro" />
     <meta property="og:locale" content="en_IN" />
 
+    <link rel="preload" as="image" href="/hero-image.webp" imagesrcset="/hero-mobile.webp 480w, /hero-tablet.webp 768w, /hero-image.webp 1027w" imagesizes="100vw" fetchpriority="high" />
     <link rel="preload" as="style"
       href="https://fonts.googleapis.com/css2?family=Fraunces:wght@700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;0,800;1,700&family=DM+Sans:wght@400;500;600;700&display=swap"
       onload="this.onload=null;this.rel='stylesheet'">
@@ -26,15 +36,19 @@
 
     <title>Domestic Pro</title>
 
-    <script type="text/javascript">
+    <!-- <script type="text/javascript">
       (function(c,l,a,r,i,t,y){
           c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
           t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
           y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
       })(window, document, "clarity", "script", "w3tks1dmyb");
-    </script>
+    </script> -->
   </head>
   <body>
+        <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WQDNNRFP"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
     <div id="root"><!--ssr-outlet--></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
