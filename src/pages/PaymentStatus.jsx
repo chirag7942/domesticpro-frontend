@@ -8,11 +8,21 @@ import {
   ArrowLeft,
   MessageSquare,
   CalendarCheck,
+  CreditCard,
 } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 
 const API_BASE = import.meta.env.VITE_REACT_APP_API;
 const MAX_POLLS = 10;
+
+// ── Detect plan type from order ID prefix ────────────────────────────────────
+// DPL_ = GeneratePaymentLink (general)
+// DP-  = HeroWizard demand form (priority / commitment)
+function detectPlanFromOrderId(orderId) {
+  if (!orderId) return null;
+  if (orderId.startsWith("DPL_")) return "general";
+  return null;
+}
 
 const PLAN_CONFIG = {
   priority: {
@@ -21,6 +31,7 @@ const PLAN_CONFIG = {
     accentBg: "#FFF2EE",
     accentBorder: "#F5D8CF",
     accentText: "#EC5F36",
+    loadingIcon: Zap,
     successTitle: "Payment Successful! 🚀",
     successSub: "Your Priority request is now active. We're fast-tracking your requirement.",
     steps: [
@@ -35,12 +46,28 @@ const PLAN_CONFIG = {
     accentBg: "#EFF6FF",
     accentBorder: "#BFDBFE",
     accentText: "#2563EB",
+    loadingIcon: CalendarCheck,
     successTitle: "Payment Confirmed! 🎉",
     successSub: "Your Commitment plan is active. We'll begin shortlisting your profiles.",
     steps: [
       { dot: "bg-blue-500", label: "Our team reviews your requirement" },
       { dot: "bg-blue-400", label: "2 verified profiles shortlisted" },
       { dot: "bg-blue-300", label: "Profiles shared within 2 working days" },
+    ],
+  },
+  // ── General payment (via GeneratePaymentLink) ─────────────────────────────
+  general: {
+    label: "Payment",
+    color: "#059669",
+    accentBg: "#F0FDF4",
+    accentBorder: "#BBF7D0",
+    accentText: "#059669",
+    loadingIcon: CreditCard,
+    successTitle: "Payment Received! 🎉",
+    successSub: "Your payment was successful. Our team will reach out to you shortly.",
+    steps: [
+      { dot: "bg-emerald-500", label: "Payment confirmed & recorded" },
+      { dot: "bg-emerald-400", label: "Our team will contact you within 2 hours" },
     ],
   },
 };
@@ -54,13 +81,22 @@ export default function PaymentStatus() {
 
   useEffect(() => {
     const oid = searchParams.get("order_id") || "";
-    const savedPlan = sessionStorage.getItem("dp_plan") || "priority";
     setOrderId(oid);
-    setPlan(savedPlan);
+
+    // Priority order for plan detection:
+    // 1. sessionStorage (set by HeroWizard or GeneratePaymentLink before redirect)
+    // 2. Order ID prefix (DPL_ = general)
+    // 3. Fallback to "priority"
+    const storedPlan = sessionStorage.getItem("dp_plan");
+    const detectedPlan = storedPlan || detectPlanFromOrderId(oid) || "priority";
+    setPlan(detectedPlan);
+
     if (!oid) { setStatus("error"); return; }
+
     const alreadyPaid = sessionStorage.getItem("dp_payment_done");
     if (alreadyPaid === oid) { setStatus("paid"); return; }
-    verify(oid, 0, savedPlan);
+
+    verify(oid, 0, detectedPlan);
   }, []);
 
   const verify = async (oid, attempt, savedPlan) => {
@@ -71,6 +107,7 @@ export default function PaymentStatus() {
         body: JSON.stringify({ order_id: oid, plan: savedPlan }),
       });
       const data = await res.json();
+
       if (data.status === "PAID") {
         sessionStorage.setItem("dp_payment_done", oid);
         sessionStorage.removeItem("dp_order_id");
@@ -95,9 +132,11 @@ export default function PaymentStatus() {
   };
 
   const pc = PLAN_CONFIG[plan] || PLAN_CONFIG.priority;
+  const isGeneral = plan === "general";
+  const LoadingIcon = pc.loadingIcon || Zap;
 
   const stripColor = {
-    loading: plan === "commitment" ? "bg-blue-500" : "bg-orange-500",
+    loading: plan === "commitment" ? "bg-blue-500" : plan === "general" ? "bg-emerald-500" : "bg-orange-500",
     paid: "bg-green-400",
     failed: "bg-red-400",
     pending: "bg-amber-400",
@@ -158,14 +197,15 @@ export default function PaymentStatus() {
                   />
                   <div className="absolute inset-3 rounded-full flex items-center justify-center"
                     style={{ background: pc.accentBg }}>
-                    {plan === "commitment"
-                      ? <CalendarCheck size={14} color={pc.color} />
-                      : <Zap size={14} color={pc.color} />}
+                    <LoadingIcon size={14} color={pc.color} />
                   </div>
                 </div>
                 <div>
-                  <p className="text-[10px] font-extrabold tracking-widest uppercase mb-2"
-                    style={{ color: pc.color }}>{pc.label}</p>
+                  {/* Only show plan label for non-general payments */}
+                  {!isGeneral && (
+                    <p className="text-[10px] font-extrabold tracking-widest uppercase mb-2"
+                      style={{ color: pc.color }}>{pc.label}</p>
+                  )}
                   <p className="text-xl font-bold text-gray-900 mb-1.5" style={{ fontFamily: "'Fraunces', serif" }}>
                     Verifying payment…
                   </p>
@@ -195,16 +235,21 @@ export default function PaymentStatus() {
                   <CircleCheck size={30} className="text-green-500" />
                 </div>
                 <div className="anim-fade-up" style={{ animationDelay: "0.15s" }}>
-                  <div className="inline-flex items-center gap-1.5 text-[10px] font-extrabold tracking-widest uppercase rounded-full px-3 py-1 mb-3 border"
-                    style={{ background: pc.accentBg, borderColor: pc.accentBorder, color: pc.accentText }}>
-                    {plan === "commitment" ? <CalendarCheck size={10} /> : <Zap size={10} />}
-                    {pc.label}
-                  </div>
+                  {/* Plan badge — only for non-general payments */}
+                  {!isGeneral && (
+                    <div className="inline-flex items-center gap-1.5 text-[10px] font-extrabold tracking-widest uppercase rounded-full px-3 py-1 mb-3 border"
+                      style={{ background: pc.accentBg, borderColor: pc.accentBorder, color: pc.accentText }}>
+                      <LoadingIcon size={10} />
+                      {pc.label}
+                    </div>
+                  )}
                   <p className="text-xl font-bold text-gray-900 mb-1" style={{ fontFamily: "'Fraunces', serif" }}>
                     {pc.successTitle}
                   </p>
                   <p className="text-xs text-gray-500 font-medium leading-relaxed">{pc.successSub}</p>
                 </div>
+
+                {/* "What happens next" steps */}
                 <div className="anim-fade-up w-full rounded-2xl p-4 text-left flex flex-col gap-3 border"
                   style={{ animationDelay: "0.25s", background: pc.accentBg, borderColor: pc.accentBorder }}>
                   <p className="text-[10px] font-extrabold text-gray-400 tracking-widest uppercase">
@@ -217,6 +262,7 @@ export default function PaymentStatus() {
                     </div>
                   ))}
                 </div>
+
                 {orderId && (
                   <div className="w-full rounded-xl px-4 py-2.5 flex items-center justify-between border"
                     style={{ background: pc.accentBg, borderColor: pc.accentBorder }}>
@@ -248,7 +294,10 @@ export default function PaymentStatus() {
                 </div>
                 <div className="w-full flex flex-col gap-3">
                   <div className="bg-red-50 border border-red-100 rounded-2xl px-4 py-3 text-xs text-red-600 font-medium leading-relaxed text-left">
-                    Your <strong>{pc.label}</strong> request was not processed. No charges were applied.
+                    {isGeneral
+                      ? "Your payment was not processed. No charges were applied."
+                      : <>Your <strong>{pc.label}</strong> request was not processed. No charges were applied.</>
+                    }
                   </div>
                   <button
                     onClick={() => { sessionStorage.removeItem("dp_order_id"); window.history.back(); }}
@@ -283,8 +332,10 @@ export default function PaymentStatus() {
                 </div>
                 <div className="w-full flex flex-col gap-3">
                   <div className="bg-amber-50 border border-amber-100 rounded-2xl px-4 py-3 text-xs text-amber-700 font-medium leading-relaxed text-left">
-                    If money was deducted, your <strong>{pc.label}</strong> request will be activated
-                    automatically. Our team will call you within 2 hours.
+                    {isGeneral
+                      ? "If money was deducted, your payment will be confirmed automatically. Our team will call you within 2 hours."
+                      : <>If money was deducted, your <strong>{pc.label}</strong> request will be activated automatically. Our team will call you within 2 hours.</>
+                    }
                   </div>
                   {orderId && (
                     <div className="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-2.5 flex items-center justify-between">
@@ -319,7 +370,7 @@ export default function PaymentStatus() {
                     </div>
                   )}
                   <a
-                    href={`https://wa.me/919211298139?text=Payment+issue+%E2%80%93+${pc.label}+%E2%80%93+Order+ID:+${orderId}`}
+                    href={`https://wa.me/919211298139?text=Payment+issue+%E2%80%93+${isGeneral ? "General+Payment" : pc.label}+%E2%80%93+Order+ID:+${orderId}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-full flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#1ebe5d] text-white font-bold text-sm rounded-2xl py-3.5 transition hover:shadow-md"
