@@ -121,6 +121,7 @@ export default function ContactPage() {
     message: "",
   });
   const [submitted, setSubmitted] = useState(false);
+  const [submitError, setSubmitError] = useState("");
 
   const navigate = useNavigate();
 
@@ -133,18 +134,35 @@ export default function ContactPage() {
     setSubmitted(false);
     setForm({ name: "", phone: "", reason: "", message: "" });
   };
+
   const submit = async (e) => {
     e.preventDefault();
-    const res = await fetch(`${API_BASE}/api/contact`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-internal-secret": INTERNAL_SECRET,
-      },
-      body: JSON.stringify(form),
-    });
-    console.log(res)
-    if (res.ok) setSubmitted(true);
+    setSubmitError("");
+
+    try {
+      const res = await fetch(`${API_BASE}/api/contact`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-internal-secret": INTERNAL_SECRET,
+        },
+        body: JSON.stringify(form),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        // ✅ FIX 2: Show the server's error message instead of success screen
+        setSubmitError(
+          data?.error || "Something went wrong. Please try calling us directly."
+        );
+        return;
+      }
+
+      setSubmitted(true); // only reached on genuine 200 success
+    } catch {
+      setSubmitError("Network error. Please check your connection and try again.");
+    }
   };
 
   /* shared input classes */
@@ -316,6 +334,15 @@ export default function ContactPage() {
                       onChange={set("message")}
                     />
                   </div>
+
+                  {submitError && (
+                    <div className="flex items-start gap-2.5 bg-red-50 border border-red-200 rounded-xl px-4 py-3">
+                      <svg className="text-red-500 mt-0.5 flex-shrink-0" width={15} height={15} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                        <circle cx="12" cy="12" r="10" /><path d="M12 8v4M12 16h.01" />
+                      </svg>
+                      <p className="text-sm text-red-600 leading-snug">{submitError}</p>
+                    </div>
+                  )}
 
                   {/* Submit */}
                   <button

@@ -20,6 +20,7 @@ const AgentForm = lazy(() => import("./components/AgentForm"));
 const SupplyForm = lazy(() => import("./components/SupplyForm"));
 const ThankYou = lazy(() => import("./components/ThankYou"));
 const PaymentStatus = lazy(() => import("./pages/PaymentStatus"));
+const Pay = lazy(() => import("./pages/PaymentPage"))
 
 const AboutUs = lazy(() => import("./pages/AboutUs"));
 const ReferHelper = lazy(() => import("./pages/ReferAHelper"));
@@ -62,6 +63,7 @@ const HIDE_LAYOUT_PATHS = new Set([
   "/thank-you",
   "/payment-status",
   "/generate-payment-link",
+  "/pay"
 ]);
 
 // Module-level set — persists across renders, never causes re-render
@@ -123,6 +125,7 @@ export default function AppRoutes() {
           <Route path="/thank-you" element={<ThankYou />} />
           <Route path="/payment-status" element={<PaymentStatus />} />
           <Route path="/generate-payment-link" element={<GeneratePaymentLink />} />
+          <Route path="/pay" element={<Pay />} />
           <Route path="/404" element={<NotFound />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

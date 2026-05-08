@@ -31,10 +31,10 @@ const PLAN_CONFIG = {
   },
   commitment: {
     label: "Commitment Plan",
-    color: "#3B82F6",
+    color: "#2563EB",
     accentBg: "#EFF6FF",
     accentBorder: "#BFDBFE",
-    accentText: "#3B82F6",
+    accentText: "#2563EB",
     successTitle: "Payment Confirmed! 🎉",
     successSub: "Your Commitment plan is active. We'll begin shortlisting your profiles.",
     steps: [
@@ -53,24 +53,13 @@ export default function PaymentStatus() {
   const [searchParams] = useSearchParams();
 
   useEffect(() => {
-    const oid = searchParams.get('order_id') || '';
+    const oid = searchParams.get("order_id") || "";
     const savedPlan = sessionStorage.getItem("dp_plan") || "priority";
-
     setOrderId(oid);
     setPlan(savedPlan);
-
-    if (!oid) {
-      setStatus("error");
-      return;
-    }
-
+    if (!oid) { setStatus("error"); return; }
     const alreadyPaid = sessionStorage.getItem("dp_payment_done");
-    if (alreadyPaid === oid) {
-      console.log("[VERIFY] Already confirmed paid — skipping verify call");
-      setStatus("paid");
-      return;
-    }
-
+    if (alreadyPaid === oid) { setStatus("paid"); return; }
     verify(oid, 0, savedPlan);
   }, []);
 
@@ -81,9 +70,7 @@ export default function PaymentStatus() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ order_id: oid, plan: savedPlan }),
       });
-
       const data = await res.json();
-
       if (data.status === "PAID") {
         sessionStorage.setItem("dp_payment_done", oid);
         sessionStorage.removeItem("dp_order_id");
@@ -93,33 +80,24 @@ export default function PaymentStatus() {
         setStatus("paid");
         return;
       }
-
       if (data.status === "ACTIVE" && attempt < MAX_POLLS) {
         setPollCount(attempt + 1);
         setTimeout(() => verify(oid, attempt + 1, savedPlan), 3000);
         return;
       }
-
-      if (attempt >= MAX_POLLS && data.status === "ACTIVE") {
-        setStatus("pending");
-        return;
-      }
-
+      if (attempt >= MAX_POLLS && data.status === "ACTIVE") { setStatus("pending"); return; }
       setStatus("failed");
     } catch (err) {
       console.error("[VERIFY] Network error:", err.message);
-      if (attempt < MAX_POLLS) {
-        setTimeout(() => verify(oid, attempt + 1, savedPlan), 3000);
-      } else {
-        setStatus("error");
-      }
+      if (attempt < MAX_POLLS) setTimeout(() => verify(oid, attempt + 1, savedPlan), 3000);
+      else setStatus("error");
     }
   };
 
   const pc = PLAN_CONFIG[plan] || PLAN_CONFIG.priority;
 
   const stripColor = {
-    loading: plan === "commitment" ? "bg-blue-400" : "bg-orange-500",
+    loading: plan === "commitment" ? "bg-blue-500" : "bg-orange-500",
     paid: "bg-green-400",
     failed: "bg-red-400",
     pending: "bg-amber-400",
@@ -128,10 +106,34 @@ export default function PaymentStatus() {
 
   return (
     <div
-      className="min-h-screen bg-gray-50 flex items-center justify-center p-4"
-      style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+      className="min-h-screen flex items-center justify-center p-4"
+      style={{
+        fontFamily: "'DM Sans', sans-serif",
+        background: "linear-gradient(135deg, #EFF6FF 0%, #F8FAFC 50%, #EFF6FF 100%)",
+      }}
     >
-      {/* Background blobs — pure CSS, no motion needed */}
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Fraunces:wght@700&display=swap');
+        @keyframes fadeUp {
+          from { opacity: 0; transform: translateY(10px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes springPop {
+          0%   { transform: scale(0.6); opacity: 0; }
+          60%  { transform: scale(1.1); opacity: 1; }
+          80%  { transform: scale(0.95); }
+          100% { transform: scale(1); }
+        }
+        @keyframes statusEnter {
+          from { opacity: 0; transform: translateY(16px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        .anim-status-enter { animation: statusEnter 0.4s ease forwards; }
+        .anim-spring-pop   { animation: springPop 0.55s cubic-bezier(.22,1,.36,1) forwards; }
+        .anim-fade-up      { animation: fadeUp 0.4s ease forwards; opacity: 0; }
+      `}</style>
+
+      {/* Background blobs */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <div className="absolute -top-40 -right-40 w-[480px] h-[480px] rounded-full"
           style={{ background: `${pc.color}0D` }} />
@@ -139,11 +141,8 @@ export default function PaymentStatus() {
           style={{ background: `${pc.color}08` }} />
       </div>
 
-      <div
-        key={status}
-        className="anim-status-enter relative w-full max-w-sm"
-      >
-        <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
+      <div key={status} className="anim-status-enter relative w-full max-w-sm">
+        <div className="bg-white rounded-3xl border border-gray-100 shadow-xl overflow-hidden">
           <div className={`h-1 w-full ${stripColor}`} />
 
           <div className="px-7 pt-7 pb-6 flex flex-col items-center text-center gap-5">
@@ -161,11 +160,9 @@ export default function PaymentStatus() {
                     style={{ background: pc.accentBg }}>
                     {plan === "commitment"
                       ? <CalendarCheck size={14} color={pc.color} />
-                      : <Zap size={14} color={pc.color} />
-                    }
+                      : <Zap size={14} color={pc.color} />}
                   </div>
                 </div>
-
                 <div>
                   <p className="text-[10px] font-extrabold tracking-widest uppercase mb-2"
                     style={{ color: pc.color }}>{pc.label}</p>
@@ -176,11 +173,10 @@ export default function PaymentStatus() {
                     Please wait. Do not close or refresh this tab.
                   </p>
                 </div>
-
                 <div className="flex gap-1.5 items-center">
                   {Array.from({ length: MAX_POLLS }).map((_, i) => (
                     <div key={i} className="h-1.5 rounded-full transition-all duration-500"
-                      style={{ width: i < pollCount ? 16 : 6, background: i < pollCount ? pc.color : "#F1E3DE" }} />
+                      style={{ width: i < pollCount ? 16 : 6, background: i < pollCount ? pc.color : "#E2E8F0" }} />
                   ))}
                 </div>
                 {pollCount > 3 && (
@@ -194,15 +190,10 @@ export default function PaymentStatus() {
             {/* ══════════ PAID ══════════ */}
             {status === "paid" && (
               <>
-                {/* Spring pop — CSS animation replaces motion spring */}
-                <div
-                  className="anim-spring-pop w-16 h-16 rounded-full flex items-center justify-center"
-                  style={{ background: "#f0fdf4", boxShadow: "0 0 0 8px #bbf7d040" }}
-                >
+                <div className="anim-spring-pop w-16 h-16 rounded-full flex items-center justify-center"
+                  style={{ background: "#F0FDF4", boxShadow: "0 0 0 8px #BBF7D040" }}>
                   <CircleCheck size={30} className="text-green-500" />
                 </div>
-
-                {/* Fade up with delay — replaces motion initial/animate + delay:0.15 */}
                 <div className="anim-fade-up" style={{ animationDelay: "0.15s" }}>
                   <div className="inline-flex items-center gap-1.5 text-[10px] font-extrabold tracking-widest uppercase rounded-full px-3 py-1 mb-3 border"
                     style={{ background: pc.accentBg, borderColor: pc.accentBorder, color: pc.accentText }}>
@@ -212,12 +203,8 @@ export default function PaymentStatus() {
                   <p className="text-xl font-bold text-gray-900 mb-1" style={{ fontFamily: "'Fraunces', serif" }}>
                     {pc.successTitle}
                   </p>
-                  <p className="text-xs text-gray-500 font-medium leading-relaxed">
-                    {pc.successSub}
-                  </p>
+                  <p className="text-xs text-gray-500 font-medium leading-relaxed">{pc.successSub}</p>
                 </div>
-
-                {/* Fade up with delay — replaces motion delay:0.25 */}
                 <div className="anim-fade-up w-full rounded-2xl p-4 text-left flex flex-col gap-3 border"
                   style={{ animationDelay: "0.25s", background: pc.accentBg, borderColor: pc.accentBorder }}>
                   <p className="text-[10px] font-extrabold text-gray-400 tracking-widest uppercase">
@@ -230,7 +217,6 @@ export default function PaymentStatus() {
                     </div>
                   ))}
                 </div>
-
                 {orderId && (
                   <div className="w-full rounded-xl px-4 py-2.5 flex items-center justify-between border"
                     style={{ background: pc.accentBg, borderColor: pc.accentBorder }}>
@@ -239,7 +225,6 @@ export default function PaymentStatus() {
                       style={{ color: pc.color }}>{orderId}</span>
                   </div>
                 )}
-
                 <p className="text-[11px] text-gray-400 font-medium">
                   You can safely close this tab. We'll call you shortly.
                 </p>
@@ -249,14 +234,10 @@ export default function PaymentStatus() {
             {/* ══════════ FAILED ══════════ */}
             {status === "failed" && (
               <>
-                {/* Spring pop replaces motion spring */}
-                <div
-                  className="anim-spring-pop w-16 h-16 rounded-full bg-red-50 flex items-center justify-center"
-                  style={{ boxShadow: "0 0 0 8px #fee2e240" }}>
+                <div className="anim-spring-pop w-16 h-16 rounded-full bg-red-50 flex items-center justify-center"
+                  style={{ boxShadow: "0 0 0 8px #FEE2E240" }}>
                   <CircleX size={30} className="text-red-400" />
                 </div>
-
-                {/* Fade up replaces motion delay:0.15 */}
                 <div className="anim-fade-up" style={{ animationDelay: "0.15s" }}>
                   <p className="text-xl font-bold text-gray-900 mb-1" style={{ fontFamily: "'Fraunces', serif" }}>
                     Payment Failed
@@ -265,20 +246,21 @@ export default function PaymentStatus() {
                     No amount was deducted. Please try again.
                   </p>
                 </div>
-
                 <div className="w-full flex flex-col gap-3">
                   <div className="bg-red-50 border border-red-100 rounded-2xl px-4 py-3 text-xs text-red-600 font-medium leading-relaxed text-left">
                     Your <strong>{pc.label}</strong> request was not processed. No charges were applied.
                   </div>
                   <button
-                    onClick={() => {
-                      sessionStorage.removeItem("dp_order_id");
-                      window.history.back();
+                    onClick={() => { sessionStorage.removeItem("dp_order_id"); window.history.back(); }}
+                    className="w-full flex items-center justify-center gap-2 font-bold text-sm rounded-2xl py-3.5 text-white"
+                    style={{
+                      background: "linear-gradient(135deg, #1D4ED8 0%, #2563EB 100%)",
+                      transition: "all 0.2s ease",
                     }}
-                    className="w-full flex items-center justify-center gap-2 font-bold text-sm rounded-2xl py-3.5 text-white transition"
-                    style={{ background: "linear-gradient(135deg,#EC5F36,#D84E28)" }}>
-                    <ArrowLeft size={13} />
-                    Go back &amp; try again
+                    onMouseEnter={e => e.currentTarget.style.transform = "translateY(-1px)"}
+                    onMouseLeave={e => e.currentTarget.style.transform = "translateY(0)"}
+                  >
+                    <ArrowLeft size={13} /> Go back &amp; try again
                   </button>
                 </div>
               </>
@@ -287,14 +269,10 @@ export default function PaymentStatus() {
             {/* ══════════ PENDING ══════════ */}
             {status === "pending" && (
               <>
-                {/* Spring pop replaces motion spring */}
-                <div
-                  className="anim-spring-pop w-16 h-16 rounded-full bg-amber-50 flex items-center justify-center"
-                  style={{ boxShadow: "0 0 0 8px #fef3c740" }}>
+                <div className="anim-spring-pop w-16 h-16 rounded-full bg-amber-50 flex items-center justify-center"
+                  style={{ boxShadow: "0 0 0 8px #FEF3C740" }}>
                   <Clock size={28} className="text-amber-400" />
                 </div>
-
-                {/* Fade up replaces motion delay:0.15 */}
                 <div className="anim-fade-up" style={{ animationDelay: "0.15s" }}>
                   <p className="text-xl font-bold text-gray-900 mb-1" style={{ fontFamily: "'Fraunces', serif" }}>
                     Payment Processing
@@ -303,11 +281,10 @@ export default function PaymentStatus() {
                     Your bank is still confirming. This can take a few minutes.
                   </p>
                 </div>
-
                 <div className="w-full flex flex-col gap-3">
                   <div className="bg-amber-50 border border-amber-100 rounded-2xl px-4 py-3 text-xs text-amber-700 font-medium leading-relaxed text-left">
-                    If money was deducted, your <strong>{pc.label}</strong> request will be activated automatically.
-                    Our team will call you within 2 hours.
+                    If money was deducted, your <strong>{pc.label}</strong> request will be activated
+                    automatically. Our team will call you within 2 hours.
                   </div>
                   {orderId && (
                     <div className="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-2.5 flex items-center justify-between">
@@ -322,14 +299,10 @@ export default function PaymentStatus() {
             {/* ══════════ ERROR ══════════ */}
             {status === "error" && (
               <>
-                {/* Spring pop replaces motion spring */}
-                <div
-                  className="anim-spring-pop w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center"
-                  style={{ boxShadow: "0 0 0 8px #f3f4f640" }}>
+                <div className="anim-spring-pop w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center"
+                  style={{ boxShadow: "0 0 0 8px #F3F4F640" }}>
                   <TriangleAlert size={26} className="text-gray-400" />
                 </div>
-
-                {/* Fade up replaces motion delay:0.15 */}
                 <div className="anim-fade-up" style={{ animationDelay: "0.15s" }}>
                   <p className="text-xl font-bold text-gray-900 mb-1" style={{ fontFamily: "'Fraunces', serif" }}>
                     Something went wrong
@@ -338,7 +311,6 @@ export default function PaymentStatus() {
                     We couldn't verify your payment. Contact support if money was deducted.
                   </p>
                 </div>
-
                 <div className="w-full flex flex-col gap-3">
                   {orderId && (
                     <div className="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-2.5 flex items-center justify-between">
@@ -350,9 +322,9 @@ export default function PaymentStatus() {
                     href={`https://wa.me/919211298139?text=Payment+issue+%E2%80%93+${pc.label}+%E2%80%93+Order+ID:+${orderId}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-full flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#1ebe5d] text-white font-bold text-sm rounded-2xl py-3.5 transition hover:shadow-md">
-                    <MessageSquare size={14} />
-                    WhatsApp Support
+                    className="w-full flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#1ebe5d] text-white font-bold text-sm rounded-2xl py-3.5 transition hover:shadow-md"
+                  >
+                    <MessageSquare size={14} /> WhatsApp Support
                   </a>
                 </div>
               </>
@@ -372,7 +344,6 @@ export default function PaymentStatus() {
           )}
         </div>
 
-        {/* Fade in — replaces motion delay:0.4 */}
         <p className="anim-fade-up text-center mt-5 text-[11px] font-bold text-gray-400 tracking-widest uppercase"
           style={{ animationDelay: "0.4s" }}>
           Domestic Pro · Secure Checkout
