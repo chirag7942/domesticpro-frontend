@@ -75,7 +75,7 @@ const PaymentPage = () => {
       // FIX 2: cashfreeMode comes from server — never hardcode or use a default
       const cashfree = await load({ mode: data.cashfreeMode });
       sessionStorage.setItem("dp_plan", "general"); // tells PaymentStatus to show neutral UI
-      sessionStorage.setItem("dp_order_id", order.order_id);
+      sessionStorage.setItem("dp_order_id", data.order_id);
       await cashfree.checkout({
         paymentSessionId: data.payment_session_id,
         redirectTarget: "_self",
