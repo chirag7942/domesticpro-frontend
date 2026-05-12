@@ -147,6 +147,9 @@ import ThankYou from "./components/ThankYou";
 import PaymentStatus from "./pages/PaymentStatus";
 import NotFound from "./pages/NotFound";
 
+
+
+
 export const routes = [
   { path: "/", element: <Home /> },
   { path: "/about", element: <AboutUs /> },
@@ -197,6 +200,7 @@ export default function AppRoutesServer() {
         <Route path="/thank-you" element={<ThankYou />} />
         <Route path="/payment-status" element={<PaymentStatus />} />
         <Route path="*" element={<NotFound />} />
+        
       </Routes>
 
       {showLayout && <Footer />}
