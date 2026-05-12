@@ -37,6 +37,7 @@ const TermsAndCondition = lazy(() => import("./pages/TermsAndCondition"));
 const RefundPolicy = lazy(() => import("./pages/RefundPolicy"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const NotFound = lazy(() => import("./pages/NotFound"));
+const FeedbackForm = lazy(() => import("./pages/FeedbackForm") );
 
 export const routes = [
   { path: "/", element: <Home /> },
@@ -128,6 +129,7 @@ export default function AppRoutes() {
           <Route path="/pay" element={<Pay />} />
           <Route path="/404" element={<NotFound />} />
           <Route path="*" element={<NotFound />} />
+          <Route path="/feedback" element={<FeedbackForm />} />
         </Routes>
       </Suspense>
       {showLayout && <Footer />}
