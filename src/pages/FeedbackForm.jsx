@@ -295,7 +295,7 @@ const s = {
   },
   subtitle: {
     fontSize: 13,
-    color: "#555",
+    color: "#444",
     margin: 0,
     display: "flex",
     alignItems: "center",
@@ -305,8 +305,8 @@ const s = {
   timeBadge: {
     display: "inline-block",
     fontSize: 11,
-    color: "#888",
-    background: "#f5f5f5",
+    color: "#555",
+    background: "#f0eeea",
     borderRadius: 20,
     padding: "2px 10px",
   },
@@ -371,7 +371,7 @@ const s = {
   },
   qHint: {
     fontSize: 11,
-    color: "#999",
+    color: "#666",
     margin: "2px 0 8px 30px",
     lineHeight: 1.5,
   },
@@ -412,7 +412,7 @@ const s = {
   optLabel: {
     fontSize: 10,
     fontWeight: 600,
-    color: "#444",
+    color: "#222",
   },
 
   /* ── Textarea ── */
@@ -469,20 +469,22 @@ const s = {
 
   /* ── Footer ── */
   footer: {
-    borderTop: "1px solid #f0eeea",
+    borderTop: "none",
     padding: "12px 28px",
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
+    background: "#1c2644",
   },
   footerText: {
     fontSize: 11,
-    color: "#aaa",
+    color: "#fff",
     margin: 0,
   },
   footerLink: {
     color: "#EC5F36",
     textDecoration: "none",
+    fontWeight: 700,
   },
 
   /* ── Success screen ── */
