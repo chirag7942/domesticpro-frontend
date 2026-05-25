@@ -4,70 +4,43 @@ import { useNavigate } from "react-router-dom";
 
 const API_BASE = import.meta.env.VITE_REACT_APP_API || "";
 
-// ─── SC List ──────────────────────────────────────────────────────────────────
 export const scList = [
   { id: "SC-01", name: "Pallavi", email: "pallavi.domesticpro@gmail.com", phone: "9211298139" }
 ];
 
 // ─── Constants ────────────────────────────────────────────────────────────────
-const SERVICE_TYPES = [
-  "Live-In Support", "Cooking Help", "Baby Caretaker", "Patient Care", "Driver", "Japa",
-];
+const SERVICE_TYPES = ["Live-In Support", "Cooking Help", "Baby Caretaker", "Patient Care", "Driver", "Japa"];
 const SERVICE_FORMATS = ["Live-In", "Substitute"];
 const GENDER_OPTIONS = ["Male", "Female", "Other"];
 const MARITAL_OPTIONS = ["Yes", "No"];
 const STATUS_OPTIONS = ["Active", "Inactive", "Will be Available Soon"];
 const PIPELINE_STAGE_DEFAULT = "Profile Created";
 const AVAILABILITY_OPTIONS = ["Immediately", "Within 15-20 days", "Within 30 days"];
-
-// Service-type-specific options
-const TASK_OPTIONS = [
-  "General House Cleaning", "Dusting", "Sweeping and Mopping",
-  "Washroom Cleaning", "Basic Help in Kitchen", "Assist with Laundry",
-  "Spend Time with Kids",
-];
-const COOK_TASK_OPTIONS = [
-  "Prepare Breakfast", "Prepare Lunch", "Prepare Dinner",
-  "Clean Utensils", "Maintain Kitchen Hygiene", "Manage Basic Groceries",
-  "Assist in Dusting", "Assist in Laundry",
-];
-
-const DRIVER_TASK_OPTIONS = [
-  "Drive as per Daily Requirement", "Can Work for 10 Hours", "Can Work for 12 Hours",
-  "Flexible with Working Hours", "Maintain Vehicle Cleanliness",
-  "Basic Vehicle Upkeep", "Ensure Safe and Timely Travel",
-];
+const TASK_OPTIONS = ["General House Cleaning", "Dusting", "Sweeping and Mopping", "Washroom Cleaning", "Basic Help in Kitchen", "Assist with Laundry", "Spend Time with Kids"];
+const COOK_TASK_OPTIONS = ["Prepare Breakfast", "Prepare Lunch", "Prepare Dinner", "Clean Utensils", "Maintain Kitchen Hygiene", "Manage Basic Groceries", "Assist in Dusting", "Assist in Laundry"];
+const DRIVER_TASK_OPTIONS = ["Drive as per Daily Requirement", "Can Work for 10 Hours", "Can Work for 12 Hours", "Flexible with Working Hours", "Maintain Vehicle Cleanliness", "Basic Vehicle Upkeep", "Ensure Safe and Timely Travel"];
 const HOUSE_SIZE_OPTIONS = ["1BHK", "2BHK", "3BHK", "4BHK", "Villa"];
-// NOTE: "Non- Veg" matches the exact choice value in Zoho Creator (space before Veg)
 const MEAL_PREF_OPTIONS = ["Veg", "Non- Veg", "Both"];
 const CUISINE_OPTIONS = ["North Indian", "South Indian", "Chinese", "Continental", "Diet Food", "Other"];
 const CHILD_AGE_OPTIONS = ["0 - 3 Years", "3+ Years"];
-const CHILD_DUTY_OPTIONS_INFANT = [
-  "Feeding (Milk/Solids)", "Sterilizing Bottles", "Maintaining Hygiene",
-  "Diaper Changing", "Bathing", "Massage", "Sleep Routine",
-  "Monitoring Health", "Basic Stimulation",
-];
-const CHILD_DUTY_OPTIONS_OLDER = [
-  "Meal Prep / Feeding", "School Readiness", "Engaging in Play",
-  "Basic Learning Support", "Activity Supervision", "Maintaining Routine",
-  "Hygiene Support", "Child Safety Supervision",
-];
+const CHILD_DUTY_OPTIONS_INFANT = ["Feeding (Milk/Solids)", "Sterilizing Bottles", "Maintaining Hygiene", "Diaper Changing", "Bathing", "Massage", "Sleep Routine", "Monitoring Health", "Basic Stimulation (play, sensory activities)"];
+const CHILD_DUTY_OPTIONS_OLDER = ["Meal Prep / Feeding", "School Readiness", "Engaging in Play", "Basic Learning Support", "Activity Supervision", "Maintaining Routine", "Hygiene Support", "Child Safety Supervision"];
 const CARE_NEEDED_OPTIONS = ["Basic Support", "Personal Hygiene", "Mobility Support", "Medicine Reminders", "Full Care"];
 const PATIENT_GENDER_OPTIONS = ["Male", "Female", "Other"];
 const VEHICLE_TYPE_OPTIONS = ["Manual", "Automatic", "SUV", "Sedan"];
 const DRIVING_LICENSE_OPTIONS = ["Yes", "No"];
 const JAPA_DUTY_OPTIONS = ["Newborn Bath", "Feeding Support", "Swaddling", "Night Watch", "Other"];
 const JAPA_MOTHER_OPTIONS = ["Body Massage", "Diet & Nutrition", "Light Cooking", "Night Support", "Personal Hygiene", "Other"];
+const PARTNER_GENDER_OPTIONS = ["Male", "Female", "Other"];
 
 // ─── INIT STATE ───────────────────────────────────────────────────────────────
 const INIT = {
   FullName: "", Phone: "", Gender: "", Age: "", MaritalStatus: "",
   Street: "", CurrentCity: "", State: "",
-  NativeCity: "", PreferredWorkAreas: "", PrefCity: "", PrefState: "",
+  NativeCity: "", PrefCity: "", PrefState: "",
   Status: "", ServiceType: "", ServiceFormat: "",
   Email: "", ReferredBy: "", SCAssigned: "",
-  AvailableFrom: "",
-  Availability: "", SalaryExpectation: "", YearsOfExperience: "", Instructions: "",
+  AvailableFrom: "", Availability: "", SalaryExpectation: "", YearsOfExperience: "", Instructions: "",
   Photograph: null, AadharCard: null, AadharCardBack: null,
   // service-type fields
   Tasks: [], HouseSize: "", PeopleAtHome: "", PetsAtHome: "", ComfortablePets: "",
@@ -77,9 +50,32 @@ const INIT = {
   PatientAge: "", PatientGender: "", CareNeeded: [],
   VehicleType: [], DrivingLicense: "",
   JapaDuties: [], JapaMotherNeeds: [],
+  // ── Partner (couple) ──────────────────────────────────────────────────────
+  AddPartner: "No",
+  PartnerFullName: "", PartnerAge: "", PartnerGender: "",
+  PartnerServiceType: "", PartnerExperience: "", PartnerPhotograph: null, PartnerAadharCard: null, PartnerAadharCardBack: null,
+  PartnerComfortablePets: "",
+  PartnerCookTasks: [], PartnerMealPref: "", PartnerCuisinePref: [], PartnerFamilySize: "",
+  PartnerChildAge: "", PartnerChildDutiesInfant: [], PartnerChildDutiesOlder: [],
+  PartnerPatientAge: "", PartnerPatientGender: "", PartnerCareNeeded: [],
+  PartnerVehicleType: [], PartnerDrivingLicense: "",
+  PartnerJapaDuties: [], PartnerJapaMotherNeeds: [],
+  PartnerDriverTasks: [], PartnerTasks: [],
 };
 
-// ─── Styles (matching demand form) ───────────────────────────────────────────
+const PARTNER_RESET = {
+  PartnerFullName: "", PartnerAge: "", PartnerGender: "",
+  PartnerServiceType: "", PartnerExperience: "",
+  PartnerComfortablePets: "",
+  PartnerCookTasks: [], PartnerMealPref: "", PartnerCuisinePref: [], PartnerFamilySize: "",
+  PartnerChildAge: "", PartnerChildDutiesInfant: [], PartnerChildDutiesOlder: [],
+  PartnerPatientAge: "", PartnerPatientGender: "", PartnerCareNeeded: [],
+  PartnerVehicleType: [], PartnerDrivingLicense: "",
+  PartnerJapaDuties: [], PartnerJapaMotherNeeds: [],
+  PartnerDriverTasks: [], PartnerTasks: [],
+};
+
+// ─── Styles ───────────────────────────────────────────────────────────────────
 const s = {
   page: { minHeight: "100vh", background: "#F5F5F5", padding: "24px 16px 48px", fontFamily: "'Segoe UI', Arial, sans-serif" },
   card: { maxWidth: "50rem", margin: "0 auto", background: "#fff", borderRadius: 4, border: "1px solid #ddd", overflow: "hidden" },
@@ -103,7 +99,6 @@ const s = {
   checkLabel: { display: "flex", alignItems: "center", gap: 8, fontSize: 14, color: "#222", cursor: "pointer", fontWeight: 400 },
   checkInput: { width: 14, height: 14, accentColor: "#EC5F36", cursor: "pointer", margin: 0 },
   row2: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 },
-  row3: { display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 14 },
   phoneWrap: { display: "flex" },
   phonePrefix: { background: "#f4f4f4", border: "1px solid #ccc", borderRight: "none", borderRadius: "3px 0 0 3px", padding: "7px 10px", fontSize: 14, color: "#555", whiteSpace: "nowrap", display: "flex", alignItems: "center" },
   phoneInput: { flex: 1, border: "1px solid #ccc", borderRadius: "0 3px 3px 0", padding: "7px 10px", fontSize: 14, color: "#111", background: "#fff", outline: "none", fontFamily: "inherit" },
@@ -112,14 +107,24 @@ const s = {
   submitBtnDisabled: { width: "100%", padding: "11px", background: "#ddd", color: "#999", border: "none", borderRadius: 3, fontSize: 15, fontWeight: 700, cursor: "not-allowed", marginTop: 24 },
   successBanner: { background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: 3, padding: "12px 14px", fontSize: 13, color: "#166534", fontWeight: 600, marginTop: 14 },
   errorBanner: { background: "#fff5f5", border: "1px solid #fecaca", borderRadius: 3, padding: "12px 14px", fontSize: 13, color: "#991b1b", fontWeight: 600, marginTop: 14 },
-  // Photo upload styles
   photoUploadBox: { border: "1.5px dashed #ccc", borderRadius: 4, padding: "14px 12px", display: "flex", alignItems: "center", gap: 12, cursor: "pointer", background: "#fafafa", transition: "border-color 0.2s" },
-  photoUploadBoxActive: { borderColor: "#EC5F36", background: "#fdf6f3" },
+  photoUploadBoxActive: { border: "1.5px dashed #EC5F36", background: "#fdf6f3" },
   photoPreview: { width: 54, height: 54, objectFit: "cover", borderRadius: 3, border: "1px solid #ddd", flexShrink: 0 },
   photoPlaceholder: { width: 54, height: 54, background: "#f0f0f0", borderRadius: 3, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 },
   photoText: { fontSize: 13, color: "#555" },
   photoChange: { fontSize: 11, color: "#EC5F36", marginTop: 2 },
-  infoTag: { display: "inline-block", fontSize: 11, background: "#fff3cd", color: "#856404", border: "1px solid #ffc107", borderRadius: 3, padding: "2px 7px", marginBottom: 10 },
+  // Partner card
+  partnerBanner: { border: "1px solid #e8e8e8", borderRadius: 6, background: "#fafafa", margin: "20px 0 4px", overflow: "hidden" },
+  partnerBannerActive: { border: "1px solid #EC5F36", borderRadius: 6, background: "#fff8f5", margin: "20px 0 4px", overflow: "hidden" },
+  partnerHeaderRow: { display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 16px", cursor: "pointer", userSelect: "none" },
+  partnerIconTitle: { display: "flex", alignItems: "center", gap: 10 },
+  partnerIconBox: { width: 36, height: 36, background: "#EC5F361A", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, flexShrink: 0 },
+  partnerTitle: { fontSize: 14, fontWeight: 700, color: "#111" },
+  partnerSub: { fontSize: 12, color: "#777", marginTop: 2 },
+  togglePill: { position: "relative", width: 44, height: 24, borderRadius: 12, border: "none", cursor: "pointer", transition: "background 0.2s", flexShrink: 0, padding: 0 },
+  toggleKnob: { position: "absolute", top: 3, width: 18, height: 18, borderRadius: "50%", background: "#fff", boxShadow: "0 1px 3px rgba(0,0,0,0.25)", transition: "left 0.2s" },
+  partnerBody: { borderTop: "1px solid #f0e6e0", padding: "16px 16px 20px" },
+  partnerSectionLabel: { fontSize: 12, fontWeight: 700, color: "#EC5F36", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 12 },
 };
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
@@ -166,30 +171,19 @@ const CheckboxGroup = ({ label, required, values, onChange, options, horizontal 
   </div>
 );
 
-const PhotoUpload = ({ label, required, value, onChange, fieldKey }) => {
+const PhotoUpload = ({ label, required, value, onChange }) => {
   const inputRef = useRef();
   const [hover, setHover] = useState(false);
   const preview = value ? URL.createObjectURL(value) : null;
   return (
     <div style={s.field}>
       <label style={s.label}>{label}{required && <span style={s.req}>*</span>}</label>
-      <div
-        style={{ ...s.photoUploadBox, ...(hover ? s.photoUploadBoxActive : {}) }}
+      <div style={{ ...s.photoUploadBox, ...(hover ? s.photoUploadBoxActive : {}) }}
         onClick={() => inputRef.current.click()}
-        onMouseEnter={() => setHover(true)}
-        onMouseLeave={() => setHover(false)}
-      >
+        onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
         {preview
           ? <img src={preview} alt="preview" style={s.photoPreview} />
-          : (
-            <div style={s.photoPlaceholder}>
-              <svg width="22" height="22" fill="none" stroke="#bbb" strokeWidth="1.8" viewBox="0 0 24 24">
-                <rect x="3" y="3" width="18" height="18" rx="2" />
-                <circle cx="8.5" cy="8.5" r="1.5" />
-                <polyline points="21 15 16 10 5 21" />
-              </svg>
-            </div>
-          )
+          : <div style={s.photoPlaceholder}><svg width="22" height="22" fill="none" stroke="#bbb" strokeWidth="1.8" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></svg></div>
         }
         <div>
           <div style={s.photoText}>{value ? value.name : "Click to select image"}</div>
@@ -202,18 +196,21 @@ const PhotoUpload = ({ label, required, value, onChange, fieldKey }) => {
   );
 };
 
-// ─── Date formatter — Zoho Creator expects dd-MMM-yyyy e.g. 05-May-2026 ──────
+const TogglePill = ({ on, onToggle }) => (
+  <button type="button" onClick={(e) => { e.stopPropagation(); onToggle(); }}
+    style={{ ...s.togglePill, background: on ? "#EC5F36" : "#ccc" }}
+    aria-label={on ? "Partner mode on" : "Partner mode off"}>
+    <span style={{ ...s.toggleKnob, left: on ? 23 : 3 }} />
+  </button>
+);
+
 function formatZohoDate(isoDate) {
   if (!isoDate) return "";
   const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-  const d = new Date(isoDate + "T00:00:00"); // force local midnight, avoid UTC shift
-  const dd = String(d.getDate()).padStart(2, "0");
-  const mmm = MONTHS[d.getMonth()];
-  const yyyy = d.getFullYear();
-  return `${dd}-${mmm}-${yyyy}`;
+  const d = new Date(isoDate + "T00:00:00");
+  return `${String(d.getDate()).padStart(2, "0")}-${MONTHS[d.getMonth()]}-${d.getFullYear()}`;
 }
 
-// ─── Build Zoho Fields ────────────────────────────────────────────────────────
 function buildZohoFields(f, sc, pipelineStage) {
   return {
     Full_Name: f.FullName,
@@ -243,7 +240,7 @@ function buildZohoFields(f, sc, pipelineStage) {
     People_At_Home: f.PeopleAtHome,
     Pets_At_Home: f.PetsAtHome,
     Comfortable_With_Pets: f.ComfortablePets,
-    Child_Age: f.ChildAge,
+    Child_Age: f.ChildAge ? [f.ChildAge] : [],
     Child_Duties_Infant: f.ChildDutiesInfant,
     Child_Duties_Older: f.ChildDutiesOlder,
     Cook_Tasks: f.CookTasks,
@@ -258,7 +255,171 @@ function buildZohoFields(f, sc, pipelineStage) {
     Patient_Age: f.PatientAge,
     Patient_Gender: f.PatientGender,
     Care_Needed: f.CareNeeded,
+    // ── Partner (couple) fields ───────────────────────────────────────────────
+    Add_Partner: f.AddPartner || "No",
+    Partner_Full_Name: f.PartnerFullName || "",
+    Partner_Age: f.PartnerAge || "",
+    Partner_Gender: f.PartnerGender || "",
+    Partner_Service_Type: f.PartnerServiceType || "",
+    Partner_Experience: f.PartnerExperience || "",
+    Partner_Pets_At_Home: f.PartnerComfortablePets || "",
+    Partner_Cook_Tasks: f.PartnerCookTasks || [],
+    Partner_Meals_Needed: f.PartnerMealPref || "",
+    Partner_Cuisine_Preference: f.PartnerCuisinePref || [],
+    Partner_Comfortable_Family_Size: f.PartnerFamilySize || "",
+    Partner_Child_Age: f.PartnerChildAge ? [f.PartnerChildAge] : [],
+    Partner_Child_Duties_Infant: f.PartnerChildDutiesInfant || [],
+    Partner_Child_Duties_Older: f.PartnerChildDutiesOlder || [],
+    Partner_Patient_Age: f.PartnerPatientAge || "",
+    Partner_Patient_Gender: f.PartnerPatientGender || "",
+    Partner_Care_Needed: f.PartnerCareNeeded || [],
+    Partner_Vehicle_Type: f.PartnerVehicleType || [],
+    Partner_Driving_License: f.PartnerDrivingLicense || "",
+    Partner_Japa_Child_Duties: f.PartnerJapaDuties || [],
+    Partner_Japa_Mother_Duties: f.PartnerJapaMotherNeeds || [],
+    Partner_Driver_Tasks: f.PartnerDriverTasks || [],
+    Partner_Tasks_Needed: f.PartnerTasks || [],
   };
+}
+
+// ─── Partner ServiceBlock ─────────────────────────────────────────────────────
+function PartnerServiceBlock({ svc, form, setForm, setF, togglePartner, errors }) {
+  if (!svc) return null;
+
+  const tog = (k, v) => togglePartner(k, v);
+
+  if (svc === "Live-In Support") return (
+    <>
+      <CheckboxGroup label="Tasks Partner Can Perform" required values={form.PartnerTasks}
+        onChange={(v) => tog("PartnerTasks", v)} options={TASK_OPTIONS} />
+      <Err msg={errors.PartnerTasks} />
+      <div style={s.field}>
+        <label style={s.label}>Comfortable With Pets?</label>
+        <div style={s.radioRowH}>
+          {["Yes", "No"].map((o) => (
+            <label key={o} style={s.radioLabel}>
+              <input type="radio" style={s.radioInput} name="partnerPets"
+                checked={form.PartnerComfortablePets === o} onChange={() => setF("PartnerComfortablePets", o)} />
+              {o}
+            </label>
+          ))}
+        </div>
+      </div>
+    </>
+  );
+
+  if (svc === "Cooking Help") return (
+    <>
+      <CheckboxGroup label="Cooking Tasks" required values={form.PartnerCookTasks}
+        onChange={(v) => tog("PartnerCookTasks", v)} options={COOK_TASK_OPTIONS} />
+      <Err msg={errors.PartnerCookTasks} />
+      <div style={s.field}>
+        <label style={s.label}>Meal Preference</label>
+        <div style={s.radioRowH}>
+          {MEAL_PREF_OPTIONS.map((o) => (
+            <label key={o} style={s.radioLabel}>
+              <input type="radio" style={s.radioInput} name="partnerMealPref"
+                checked={form.PartnerMealPref === o} onChange={() => setF("PartnerMealPref", o)} />
+              {o}
+            </label>
+          ))}
+        </div>
+      </div>
+      <CheckboxGroup label="Cuisine Expertise" required values={form.PartnerCuisinePref}
+        onChange={(v) => tog("PartnerCuisinePref", v)} options={CUISINE_OPTIONS} />
+      <Err msg={errors.PartnerCuisinePref} />
+      <div style={s.field}>
+        <label style={s.label}>Comfortable Cooking for Family Size</label>
+        <input type="number" value={form.PartnerFamilySize} onChange={(e) => setF("PartnerFamilySize", e.target.value)} placeholder="e.g. 4" style={s.input} min="1" max="20" />
+      </div>
+    </>
+  );
+
+  if (svc === "Baby Caretaker") return (
+    <>
+      <div style={s.field}>
+        <label style={s.label}>Child Age Groups Handled<span style={s.req}>*</span></label>
+        {CHILD_AGE_OPTIONS.map((o) => (
+          <label key={o} style={s.radioLabel}>
+            <input type="radio" style={s.radioInput} name="partnerChildAge" checked={form.PartnerChildAge === o}
+              onChange={() => setForm(f => ({ ...f, PartnerChildAge: o, PartnerChildDutiesInfant: [], PartnerChildDutiesOlder: [] }))} />
+            {o}
+          </label>
+        ))}
+        <Err msg={errors.PartnerChildAge} />
+      </div>
+      {form.PartnerChildAge && (() => {
+        const isInfant = form.PartnerChildAge === "0 - 3 Years";
+        const field = isInfant ? "PartnerChildDutiesInfant" : "PartnerChildDutiesOlder";
+        return (
+          <>
+            <CheckboxGroup label="Skills / Tasks Can Perform" required values={form[field]}
+              onChange={(v) => tog(field, v)} options={isInfant ? CHILD_DUTY_OPTIONS_INFANT : CHILD_DUTY_OPTIONS_OLDER} />
+            <Err msg={errors.PartnerChildDuties} />
+          </>
+        );
+      })()}
+    </>
+  );
+
+  if (svc === "Patient Care") return (
+    <>
+      <div style={s.field}>
+        <label style={s.label}>Patient Age Group<span style={s.req}>*</span></label>
+        <input type="text" value={form.PartnerPatientAge} onChange={(e) => setF("PartnerPatientAge", e.target.value)} placeholder="e.g. 60–70 years" style={s.input} />
+        <Err msg={errors.PartnerPatientAge} />
+      </div>
+      <div style={s.field}>
+        <label style={s.label}>Patient Gender</label>
+        <div style={s.radioRowH}>
+          {PATIENT_GENDER_OPTIONS.map((o) => (
+            <label key={o} style={s.radioLabel}>
+              <input type="radio" style={s.radioInput} name="partnerPatientGender"
+                checked={form.PartnerPatientGender === o} onChange={() => setF("PartnerPatientGender", o)} />
+              {o}
+            </label>
+          ))}
+        </div>
+      </div>
+      <CheckboxGroup label="Care Types Provided" required values={form.PartnerCareNeeded}
+        onChange={(v) => tog("PartnerCareNeeded", v)} options={CARE_NEEDED_OPTIONS} />
+      <Err msg={errors.PartnerCareNeeded} />
+    </>
+  );
+
+  if (svc === "Driver") return (
+    <>
+      <CheckboxGroup label="Vehicle Types Can Drive" required values={form.PartnerVehicleType}
+        onChange={(v) => tog("PartnerVehicleType", v)} options={VEHICLE_TYPE_OPTIONS} />
+      <Err msg={errors.PartnerVehicleType} />
+      <CheckboxGroup label="Driver Duties" values={form.PartnerDriverTasks}
+        onChange={(v) => tog("PartnerDriverTasks", v)} options={DRIVER_TASK_OPTIONS} />
+      <div style={s.field}>
+        <label style={s.label}>Has Driving License?</label>
+        <div style={s.radioRowH}>
+          {DRIVING_LICENSE_OPTIONS.map((o) => (
+            <label key={o} style={s.radioLabel}>
+              <input type="radio" style={s.radioInput} name="partnerDrivingLicense"
+                checked={form.PartnerDrivingLicense === o} onChange={() => setF("PartnerDrivingLicense", o)} />
+              {o}
+            </label>
+          ))}
+        </div>
+      </div>
+    </>
+  );
+
+  if (svc === "Japa") return (
+    <>
+      <CheckboxGroup label="Japa Duties (Newborn)" required values={form.PartnerJapaDuties}
+        onChange={(v) => tog("PartnerJapaDuties", v)} options={JAPA_DUTY_OPTIONS} />
+      <Err msg={errors.PartnerJapaDuties} />
+      <CheckboxGroup label="Mother's Care Services" values={form.PartnerJapaMotherNeeds}
+        onChange={(v) => tog("PartnerJapaMotherNeeds", v)} options={JAPA_MOTHER_OPTIONS} />
+    </>
+  );
+
+  return null;
 }
 
 // ─── Main Form Component ──────────────────────────────────────────────────────
@@ -276,21 +437,36 @@ export default function SupplyForm() {
   };
 
   const toggleArr = (k, v) => {
-    setForm((f) => ({
-      ...f,
-      [k]: f[k].includes(v) ? f[k].filter((x) => x !== v) : [...f[k], v],
-    }));
+    setForm((f) => ({ ...f, [k]: f[k].includes(v) ? f[k].filter((x) => x !== v) : [...f[k], v] }));
     if (errors[k]) setErrors((e) => { const c = { ...e }; delete c[k]; return c; });
+  };
+
+  const togglePartner = (k, v) => {
+    setForm((f) => ({ ...f, [k]: f[k].includes(v) ? f[k].filter((x) => x !== v) : [...f[k], v] }));
+    if (errors[k]) setErrors((e) => { const c = { ...e }; delete c[k]; return c; });
+  };
+
+  const handlePartnerToggle = () => {
+    const nowOn = form.AddPartner !== "Yes";
+    if (!nowOn) {
+      setForm(f => ({ ...f, AddPartner: "No", ...PARTNER_RESET }));
+      setErrors(e => {
+        const c = { ...e };
+        Object.keys(PARTNER_RESET).forEach(k => delete c[k]);
+        delete c.PartnerServiceType;
+        return c;
+      });
+    } else {
+      setF("AddPartner", "Yes");
+    }
   };
 
   const validate = () => {
     const e = {};
     if (!form.FullName.trim()) e.FullName = "Full name is required";
-    if (!form.Phone || form.Phone.length !== 10 || !/^[6-9]/.test(form.Phone))
-      e.Phone = "Enter a valid 10-digit Indian mobile number";
+    if (!form.Phone || form.Phone.length !== 10 || !/^[6-9]/.test(form.Phone)) e.Phone = "Enter a valid 10-digit Indian mobile number";
     if (!form.Gender) e.Gender = "Gender is required";
-    if (!form.Age || isNaN(form.Age) || Number(form.Age) < 18 || Number(form.Age) > 70)
-      e.Age = "Enter a valid age (18–70)";
+    if (!form.Age || isNaN(form.Age) || Number(form.Age) < 18 || Number(form.Age) > 70) e.Age = "Enter a valid age (18–70)";
     if (!form.Street.trim()) e.Street = "Street / area is required";
     if (!form.CurrentCity.trim()) e.CurrentCity = "City is required";
     if (!form.NativeCity.trim()) e.NativeCity = "Native city is required";
@@ -298,44 +474,51 @@ export default function SupplyForm() {
     if (!form.Status) e.Status = "Status is required";
     if (!form.ServiceType) e.ServiceType = "Please select a service type";
     if (!form.ServiceFormat) e.ServiceFormat = "Service format is required";
-    // if (!form.ReferredBy.trim()) e.ReferredBy = "Referred by is required";
     if (!form.SCAssigned) e.SCAssigned = "SC Assigned is required";
     if (!form.Availability) e.Availability = "Availability is required";
     if (!form.SalaryExpectation.trim()) e.SalaryExpectation = "Salary expectation is required";
-
-    // Status-based validation
     if (form.Status === "Will be Available Soon") {
-      if (!form.AvailableFrom) {
-        e.AvailableFrom = "Please set Helper's Available From date when status is 'Will be Available Soon'";
-      } else {
-        const today = new Date(); today.setHours(0, 0, 0, 0);
-        const avDate = new Date(form.AvailableFrom);
-        if (avDate < today) e.AvailableFrom = "Available From date cannot be in the past";
-      }
+      if (!form.AvailableFrom) { e.AvailableFrom = "Please set Helper's Available From date"; }
+      else { const today = new Date(); today.setHours(0, 0, 0, 0); if (new Date(form.AvailableFrom) < today) e.AvailableFrom = "Available From date cannot be in the past"; }
     }
-
     // Service-type specific
     if (form.ServiceType === "Live-In Support" && form.Tasks.length === 0) e.Tasks = "Select at least one task";
     if (form.ServiceType === "Live-In Support" && !form.ComfortablePets) e.ComfortablePets = "Please select pet preference";
     if (form.ServiceType === "Cooking Help" && form.CuisinePref.length === 0) e.CuisinePref = "Select at least one cuisine";
     if (form.ServiceType === "Baby Caretaker" && !form.ChildAge) e.ChildAge = "Select child's age group";
     if (form.ServiceType === "Baby Caretaker") {
-      const isInfant = form.ChildAge === "0 - 3 Years";
-      const duties = isInfant ? form.ChildDutiesInfant : form.ChildDutiesOlder;
+      const duties = form.ChildAge === "0 - 3 Years" ? form.ChildDutiesInfant : form.ChildDutiesOlder;
       if (duties.length === 0) e.ChildDuties = "Select at least one duty";
     }
     if (form.ServiceType === "Patient Care" && !form.PatientAge.trim()) e.PatientAge = "Patient age is required";
     if (form.ServiceType === "Patient Care" && form.CareNeeded.length === 0) e.CareNeeded = "Select at least one care type";
     if (form.ServiceType === "Driver" && form.VehicleType.length === 0) e.VehicleType = "Select at least one vehicle type";
     if (form.ServiceType === "Japa" && form.JapaDuties.length === 0) e.JapaDuties = "Select at least one Japa duty";
-
+    // Partner validations
+    if (form.AddPartner === "Yes") {
+      if (!form.PartnerFullName.trim()) e.PartnerFullName = "Partner's full name is required";
+      if (!form.PartnerAge || isNaN(form.PartnerAge) || Number(form.PartnerAge) < 18 || Number(form.PartnerAge) > 70) e.PartnerAge = "Enter a valid age (18–70)";
+      if (!form.PartnerGender) e.PartnerGender = "Partner's gender is required";
+      if (!form.PartnerServiceType) e.PartnerServiceType = "Please select partner's service type";
+      const ps = form.PartnerServiceType;
+      if (ps === "Live-In Support" && form.PartnerTasks.length === 0) e.PartnerTasks = "Select at least one task for partner";
+      if (ps === "Cooking Help" && form.PartnerCuisinePref.length === 0) e.PartnerCuisinePref = "Select at least one cuisine for partner";
+      if (ps === "Baby Caretaker" && !form.PartnerChildAge) e.PartnerChildAge = "Select child's age for partner";
+      if (ps === "Baby Caretaker") {
+        const duties = form.PartnerChildAge === "0 - 3 Years" ? form.PartnerChildDutiesInfant : form.PartnerChildDutiesOlder;
+        if (duties.length === 0) e.PartnerChildDuties = "Select at least one duty for partner";
+      }
+      if (ps === "Patient Care" && !form.PartnerPatientAge.trim()) e.PartnerPatientAge = "Patient age is required for partner";
+      if (ps === "Patient Care" && form.PartnerCareNeeded.length === 0) e.PartnerCareNeeded = "Select at least one care type for partner";
+      if (ps === "Driver" && form.PartnerVehicleType.length === 0) e.PartnerVehicleType = "Select at least one vehicle type for partner";
+      if (ps === "Japa" && form.PartnerJapaDuties.length === 0) e.PartnerJapaDuties = "Select at least one Japa duty for partner";
+    }
     setErrors(e);
     return Object.keys(e).length === 0;
   };
 
   const handleSubmit = async () => {
     if (!validate()) {
-      // scroll to first error
       const firstErrEl = document.querySelector("[data-err='true']");
       if (firstErrEl) firstErrEl.scrollIntoView({ behavior: "smooth", block: "center" });
       return;
@@ -345,17 +528,16 @@ export default function SupplyForm() {
     try {
       const sc = scList.find((x) => x.name === form.SCAssigned);
       const zohoFields = buildZohoFields(form, sc, PIPELINE_STAGE_DEFAULT);
-
       const formData = new FormData();
       formData.append("zohoFields", JSON.stringify(zohoFields));
       if (form.Photograph) formData.append("Photograph", form.Photograph);
       if (form.AadharCard) formData.append("Aadhaar_Card", form.AadharCard);
       if (form.AadharCardBack) formData.append("Aadhar_Card_Back", form.AadharCardBack);
-
-      await axios.post(`${API_BASE}/submit-supply`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-
+      if (form.PartnerPhotograph) formData.append("Partner_Photograph", form.PartnerPhotograph);
+      if (form.PartnerAadharCard) formData.append("Partner_Aadhaar_Card", form.PartnerAadharCard);
+      if (form.PartnerAadharCardBack) formData.append("Partner_Aadhaar_Back", form.PartnerAadharCardBack);
+      // if (form.partner)
+      await axios.post(`${API_BASE}/submit-supply`, formData, { headers: { "Content-Type": "multipart/form-data" } });
       setStatus("success");
       setStatusMsg("Helper profile submitted successfully! Our team will review it shortly.");
       setForm({ ...INIT });
@@ -368,11 +550,11 @@ export default function SupplyForm() {
   };
 
   const svc = form.ServiceType;
+  const hasPartner = form.AddPartner === "Yes";
 
   return (
     <div style={s.page}>
       <div style={s.card}>
-
         {/* Header */}
         <div style={s.header}>
           <div style={s.logoBox}>
@@ -387,18 +569,25 @@ export default function SupplyForm() {
 
         <div style={s.body}>
 
+          <div style={s.partnerHeaderRow} onClick={handlePartnerToggle}>
+            <div style={s.partnerIconTitle}>
+              <div style={s.partnerIconBox}>👫</div>
+              <div>
+                <div style={s.partnerTitle}>Are you onboarding with a partner?</div>
+                <div style={s.partnerSub}>
+                  {hasPartner ? "Couple profile — fill partner's details below" : "Register as a couple (e.g. husband-wife pair)"}
+                </div>
+              </div>
+            </div>
+            <TogglePill on={hasPartner} onToggle={handlePartnerToggle} />
+          </div>
           {/* ── PERSONAL DETAILS ── */}
           <SectionBar>Personal Details</SectionBar>
-
-          {/* Full Name */}
           <div style={s.field}>
             <label style={s.label}>Full Name<span style={s.req}>*</span></label>
-            <input type="text" value={form.FullName} onChange={(e) => setF("FullName", e.target.value)}
-              placeholder="e.g. Priya Kumari" style={s.input} />
+            <input type="text" value={form.FullName} onChange={(e) => setF("FullName", e.target.value)} placeholder="e.g. Priya Kumari" style={s.input} />
             <Err msg={errors.FullName} />
           </div>
-
-          {/* Phone */}
           <div style={s.field}>
             <label style={s.label}>Mobile Number<span style={s.req}>*</span></label>
             <div style={s.phoneWrap}>
@@ -409,8 +598,6 @@ export default function SupplyForm() {
             </div>
             <Err msg={errors.Phone} />
           </div>
-
-          {/* Gender & Age */}
           <div style={s.row2}>
             <div style={s.field}>
               <label style={s.label}>Gender<span style={s.req}>*</span></label>
@@ -422,13 +609,10 @@ export default function SupplyForm() {
             </div>
             <div style={s.field}>
               <label style={s.label}>Age<span style={s.req}>*</span></label>
-              <input type="number" value={form.Age} onChange={(e) => setF("Age", e.target.value)}
-                placeholder="e.g. 28" style={s.input} min="18" max="70" />
+              <input type="number" value={form.Age} onChange={(e) => setF("Age", e.target.value)} placeholder="e.g. 28" style={s.input} min="18" max="70" />
               <Err msg={errors.Age} />
             </div>
           </div>
-
-          {/* Marital Status */}
           <div style={s.field}>
             <label style={s.label}>Marital Status</label>
             <select value={form.MaritalStatus} onChange={(e) => setF("MaritalStatus", e.target.value)} style={s.select}>
@@ -436,50 +620,65 @@ export default function SupplyForm() {
               {MARITAL_OPTIONS.map((o) => <option key={o} value={o}>{o}</option>)}
             </select>
           </div>
-
-          {/* Current Address */}
           <div style={s.field}>
             <label style={s.label}>Current Address<span style={s.req}>*</span></label>
-            <input type="text" value={form.Street} onChange={(e) => setF("Street", e.target.value)}
-              placeholder="Street / Area / Locality" style={{ ...s.input, marginBottom: 8 }} />
+            <input type="text" value={form.Street} onChange={(e) => setF("Street", e.target.value)} placeholder="Street / Area / Locality" style={{ ...s.input, marginBottom: 8 }} />
             <Err msg={errors.Street} />
             <div style={s.row2}>
               <div>
-                <input type="text" value={form.CurrentCity} onChange={(e) => setF("CurrentCity", e.target.value)}
-                  placeholder="City" style={s.input} />
+                <input type="text" value={form.CurrentCity} onChange={(e) => setF("CurrentCity", e.target.value)} placeholder="City" style={s.input} />
                 <Err msg={errors.CurrentCity} />
               </div>
-              <input type="text" value={form.State} onChange={(e) => setF("State", e.target.value)}
-                placeholder="State" style={s.input} />
+              <input type="text" value={form.State} onChange={(e) => setF("State", e.target.value)} placeholder="State" style={s.input} />
             </div>
           </div>
-
-          {/* Native City */}
           <div style={s.field}>
             <label style={s.label}>Native City<span style={s.req}>*</span></label>
-            <input type="text" value={form.NativeCity} onChange={(e) => setF("NativeCity", e.target.value)}
-              placeholder="e.g. Patna" style={s.input} />
+            <input type="text" value={form.NativeCity} onChange={(e) => setF("NativeCity", e.target.value)} placeholder="e.g. Patna" style={s.input} />
             <Err msg={errors.NativeCity} />
           </div>
-
-          {/* Preferred Work Areas */}
           <div style={s.field}>
-            <label style={s.label}>Preferred Work Areas<span style={s.req}>*</span></label>
+            <label style={s.label}>Preferred Work Area<span style={s.req}>*</span></label>
             <div style={s.row2}>
               <div>
-                <input type="text" value={form.PrefCity} onChange={(e) => setF("PrefCity", e.target.value)}
-                  placeholder="City" style={s.input} />
+                <input type="text" value={form.PrefCity} onChange={(e) => setF("PrefCity", e.target.value)} placeholder="City" style={s.input} />
                 <Err msg={errors.PrefCity} />
               </div>
-              <input type="text" value={form.PrefState} onChange={(e) => setF("PrefState", e.target.value)}
-                placeholder="State" style={s.input} />
+              <input type="text" value={form.PrefState} onChange={(e) => setF("PrefState", e.target.value)} placeholder="State" style={s.input} />
             </div>
+          </div>
+
+          {/* ── PARTNER TOGGLE CARD ── */}
+          <div style={hasPartner ? s.partnerBannerActive : s.partnerBanner}>
+            {hasPartner && (
+              <div style={s.partnerBody}>
+                <div style={s.partnerSectionLabel}>Partner — Basic Info</div>
+                <div style={s.field}>
+                  <label style={s.label}>Partner's Full Name<span style={s.req}>*</span></label>
+                  <input type="text" value={form.PartnerFullName} onChange={(e) => setF("PartnerFullName", e.target.value)} placeholder="e.g. Ramesh Kumar" style={s.input} />
+                  <Err msg={errors.PartnerFullName} />
+                </div>
+                <div style={s.row2}>
+                  <div style={s.field}>
+                    <label style={s.label}>Partner's Age<span style={s.req}>*</span></label>
+                    <input type="number" value={form.PartnerAge} onChange={(e) => setF("PartnerAge", e.target.value)} placeholder="e.g. 30" style={s.input} min="18" max="70" />
+                    <Err msg={errors.PartnerAge} />
+                  </div>
+                  <div style={s.field}>
+                    <label style={s.label}>Partner's Gender<span style={s.req}>*</span></label>
+                    <select value={form.PartnerGender} onChange={(e) => setF("PartnerGender", e.target.value)} style={s.select}>
+                      <option value="" disabled>Select…</option>
+                      {PARTNER_GENDER_OPTIONS.map((o) => <option key={o} value={o}>{o}</option>)}
+                    </select>
+                    <Err msg={errors.PartnerGender} />
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* ── STATUS & SERVICE ── */}
           <SectionBar>Status &amp; Service</SectionBar>
-
-          {/* Status */}
           <div style={s.field}>
             <label style={s.label}>Status<span style={s.req}>*</span></label>
             <div style={s.radioRowH}>
@@ -492,12 +691,10 @@ export default function SupplyForm() {
             </div>
             <Err msg={errors.Status} />
           </div>
-
-          {/* Available From (conditional) */}
           {form.Status === "Will be Available Soon" && (
             <div style={s.field} data-err={!!errors.AvailableFrom ? "true" : "false"}>
               <label style={s.label}>Helper's Available From<span style={s.req}>*</span></label>
-              <div style={{ ...{ fontSize: 11, color: "#856404", background: "#fff3cd", border: "1px solid #ffc107", borderRadius: 3, padding: "4px 8px", marginBottom: 8, display: "inline-block" } }}>
+              <div style={{ fontSize: 11, color: "#856404", background: "#fff3cd", border: "1px solid #ffc107", borderRadius: 3, padding: "4px 8px", marginBottom: 8, display: "inline-block" }}>
                 Required when status is "Will be Available Soon"
               </div>
               <input type="date" value={form.AvailableFrom} onChange={(e) => setF("AvailableFrom", e.target.value)}
@@ -505,8 +702,6 @@ export default function SupplyForm() {
               <Err msg={errors.AvailableFrom} />
             </div>
           )}
-
-          {/* Service Type */}
           <div style={s.field}>
             <label style={s.label}>Service Type<span style={s.req}>*</span></label>
             <select value={form.ServiceType} onChange={(e) => setF("ServiceType", e.target.value)} style={s.select}>
@@ -516,7 +711,24 @@ export default function SupplyForm() {
             <Err msg={errors.ServiceType} />
           </div>
 
-          {/* Service Format */}
+          {
+            hasPartner && (
+              <div style={s.field}>
+                <label style={s.label}>Partner's Service Type<span style={s.req}>*</span></label>
+                <select value={form.PartnerServiceType}
+                  onChange={(e) => {
+                    setForm(f => ({ ...f, ...PARTNER_RESET, AddPartner: "Yes", PartnerFullName: f.PartnerFullName, PartnerAge: f.PartnerAge, PartnerGender: f.PartnerGender, PartnerServiceType: e.target.value }));
+                    if (errors.PartnerServiceType) setErrors(er => { const c = { ...er }; delete c.PartnerServiceType; return c; });
+                  }}
+                  style={s.select}>
+                  <option value="" disabled>Please Select</option>
+                  {SERVICE_TYPES.map((o) => <option key={o} value={o}>{o}</option>)}
+                </select>
+                <Err msg={errors.PartnerServiceType} />
+              </div>
+            )
+          }
+
           <div style={s.field}>
             <label style={s.label}>Service Format<span style={s.req}>*</span></label>
             <div style={s.radioRowH}>
@@ -530,14 +742,11 @@ export default function SupplyForm() {
             <Err msg={errors.ServiceFormat} />
           </div>
 
-
-
-          {/* ── SERVICE-TYPE SPECIFIC SECTIONS ── */}
+          {/* ── SERVICE-TYPE SPECIFIC ── */}
           {svc === "Live-In Support" && (
             <>
-              <SectionBar>Live-In Support Details</SectionBar>
-              <CheckboxGroup label="Tasks Helper Can Perform" required values={form.Tasks}
-                onChange={(v) => toggleArr("Tasks", v)} options={TASK_OPTIONS} />
+              <SectionBar>{hasPartner && (Partners)}Live-In Support Details</SectionBar>
+              < CheckboxGroup label="Tasks Helper Can Perform" required values={form.Tasks} onChange={(v) => toggleArr("Tasks", v)} options={TASK_OPTIONS} />
               <Err msg={errors.Tasks} />
               <div style={s.field}>
                 <label style={s.label}>House Size Comfortable With</label>
@@ -551,8 +760,7 @@ export default function SupplyForm() {
                 <div style={s.radioRowH}>
                   {["Yes", "No"].map((o) => (
                     <label key={o} style={s.radioLabel}>
-                      <input type="radio" style={s.radioInput} name="comfortablePets"
-                        checked={form.ComfortablePets === o} onChange={() => setF("ComfortablePets", o)} />
+                      <input type="radio" style={s.radioInput} name="comfortablePets" checked={form.ComfortablePets === o} onChange={() => setF("ComfortablePets", o)} />
                       {o}
                     </label>
                   ))}
@@ -565,12 +773,7 @@ export default function SupplyForm() {
           {svc === "Cooking Help" && (
             <>
               <SectionBar>Cooking Help Details</SectionBar>
-              <CheckboxGroup
-                label="Cooking Tasks" required
-                values={form.CookTasks}
-                onChange={(v) => toggleArr("CookTasks", v)}
-                options={COOK_TASK_OPTIONS}
-              />
+              <CheckboxGroup label="Cooking Tasks" required values={form.CookTasks} onChange={(v) => toggleArr("CookTasks", v)} options={COOK_TASK_OPTIONS} />
               <div style={s.field}>
                 <label style={s.label}>Meal Preference</label>
                 <div style={s.radioRowH}>
@@ -582,14 +785,11 @@ export default function SupplyForm() {
                   ))}
                 </div>
               </div>
-              <CheckboxGroup label="Cuisine Expertise" required values={form.CuisinePref}
-                onChange={(v) => toggleArr("CuisinePref", v)} options={CUISINE_OPTIONS} />
+              <CheckboxGroup label="Cuisine Expertise" required values={form.CuisinePref} onChange={(v) => toggleArr("CuisinePref", v)} options={CUISINE_OPTIONS} />
               <Err msg={errors.CuisinePref} />
               <div style={s.field}>
                 <label style={s.label}>Comfortable Cooking for Family Size of</label>
-                <input type="number" value={form.ComfortableFamilySize}
-                  onChange={(e) => setF("ComfortableFamilySize", e.target.value)}
-                  placeholder="e.g. 4" style={s.input} min="1" max="20" />
+                <input type="number" value={form.ComfortableFamilySize} onChange={(e) => setF("ComfortableFamilySize", e.target.value)} placeholder="e.g. 4" style={s.input} min="1" max="20" />
               </div>
             </>
           )}
@@ -601,27 +801,23 @@ export default function SupplyForm() {
                 <label style={s.label}>Child Age Groups Handled<span style={s.req}>*</span></label>
                 {CHILD_AGE_OPTIONS.map((o) => (
                   <label key={o} style={s.radioLabel}>
-                    <input type="radio" style={s.radioInput} name="childAge" checked={form.ChildAge === o} onChange={() => setForm(f => ({ ...f, ChildAge: o, ChildDutiesInfant: [], ChildDutiesOlder: [] }))} />
+                    <input type="radio" style={s.radioInput} name="childAge" checked={form.ChildAge === o}
+                      onChange={() => setForm(f => ({ ...f, ChildAge: o, ChildDutiesInfant: [], ChildDutiesOlder: [] }))} />
                     {o}
                   </label>
                 ))}
                 <Err msg={errors.ChildAge} />
               </div>
-              {(() => {
+              {form.ChildAge && (() => {
                 const isInfant = form.ChildAge === "0 - 3 Years";
                 const field = isInfant ? "ChildDutiesInfant" : "ChildDutiesOlder";
-                const opts = isInfant ? CHILD_DUTY_OPTIONS_INFANT : CHILD_DUTY_OPTIONS_OLDER;
-                return form.ChildAge ? (
+                return (
                   <>
-                    <CheckboxGroup
-                      label="Skills / Tasks Can Perform" required
-                      values={form[field]}
-                      onChange={(v) => toggleArr(field, v)}
-                      options={opts}
-                    />
+                    <CheckboxGroup label="Skills / Tasks Can Perform" required values={form[field]}
+                      onChange={(v) => toggleArr(field, v)} options={isInfant ? CHILD_DUTY_OPTIONS_INFANT : CHILD_DUTY_OPTIONS_OLDER} />
                     <Err msg={errors.ChildDuties} />
                   </>
-                ) : null;
+                );
               })()}
             </>
           )}
@@ -631,8 +827,7 @@ export default function SupplyForm() {
               <SectionBar>Patient Care Details</SectionBar>
               <div style={s.field}>
                 <label style={s.label}>Patient Age Group<span style={s.req}>*</span></label>
-                <input type="text" value={form.PatientAge} onChange={(e) => setF("PatientAge", e.target.value)}
-                  placeholder="e.g. 60–70 years" style={s.input} />
+                <input type="text" value={form.PatientAge} onChange={(e) => setF("PatientAge", e.target.value)} placeholder="e.g. 60–70 years" style={s.input} />
                 <Err msg={errors.PatientAge} />
               </div>
               <div style={s.field}>
@@ -646,8 +841,7 @@ export default function SupplyForm() {
                   ))}
                 </div>
               </div>
-              <CheckboxGroup label="Care Types Provided" required values={form.CareNeeded}
-                onChange={(v) => toggleArr("CareNeeded", v)} options={CARE_NEEDED_OPTIONS} />
+              <CheckboxGroup label="Care Types Provided" required values={form.CareNeeded} onChange={(v) => toggleArr("CareNeeded", v)} options={CARE_NEEDED_OPTIONS} />
               <Err msg={errors.CareNeeded} />
             </>
           )}
@@ -655,15 +849,9 @@ export default function SupplyForm() {
           {svc === "Driver" && (
             <>
               <SectionBar>Driver Details</SectionBar>
-              <CheckboxGroup label="Vehicle Types Can Drive" required values={form.VehicleType}
-                onChange={(v) => toggleArr("VehicleType", v)} options={VEHICLE_TYPE_OPTIONS} />
+              <CheckboxGroup label="Vehicle Types Can Drive" required values={form.VehicleType} onChange={(v) => toggleArr("VehicleType", v)} options={VEHICLE_TYPE_OPTIONS} />
               <Err msg={errors.VehicleType} />
-              <CheckboxGroup
-                label="Driver Duties" required
-                values={form.DriverTasks}
-                onChange={(v) => toggleArr("DriverTasks", v)}
-                options={DRIVER_TASK_OPTIONS}
-              />
+              <CheckboxGroup label="Driver Duties" required values={form.DriverTasks} onChange={(v) => toggleArr("DriverTasks", v)} options={DRIVER_TASK_OPTIONS} />
               <div style={s.field}>
                 <label style={s.label}>Has Driving License?</label>
                 <div style={s.radioRowH}>
@@ -681,29 +869,30 @@ export default function SupplyForm() {
           {svc === "Japa" && (
             <>
               <SectionBar>Japa Details</SectionBar>
-              <CheckboxGroup label="Japa Duties (Newborn)" required values={form.JapaDuties}
-                onChange={(v) => toggleArr("JapaDuties", v)} options={JAPA_DUTY_OPTIONS} />
+              <CheckboxGroup label="Japa Duties (Newborn)" required values={form.JapaDuties} onChange={(v) => toggleArr("JapaDuties", v)} options={JAPA_DUTY_OPTIONS} />
               <Err msg={errors.JapaDuties} />
-              <CheckboxGroup label="Mother's Care Services" values={form.JapaMotherNeeds}
-                onChange={(v) => toggleArr("JapaMotherNeeds", v)} options={JAPA_MOTHER_OPTIONS} />
+              <CheckboxGroup label="Mother's Care Services" values={form.JapaMotherNeeds} onChange={(v) => toggleArr("JapaMotherNeeds", v)} options={JAPA_MOTHER_OPTIONS} />
+            </>
+          )}
+
+          {hasPartner && form.PartnerServiceType && (
+            <>
+              <SectionBar>Partner — {form.PartnerServiceType} Details</SectionBar>
+              <PartnerServiceBlock svc={form.PartnerServiceType} form={form} setForm={setForm}
+                setF={setF} togglePartner={togglePartner} errors={errors} />
             </>
           )}
 
           {/* ── ASSIGNMENT ── */}
           <SectionBar>Assignment &amp; Contact</SectionBar>
-
           <div style={s.field}>
             <label style={s.label}>Email Address</label>
-            <input type="email" value={form.Email} onChange={(e) => setF("Email", e.target.value)}
-              placeholder="helper@example.com" style={s.input} />
+            <input type="email" value={form.Email} onChange={(e) => setF("Email", e.target.value)} placeholder="helper@example.com" style={s.input} />
           </div>
-
           <div style={s.row2}>
             <div style={s.field}>
               <label style={s.label}>Referred By</label>
-              <input type="text" value={form.ReferredBy} onChange={(e) => setF("ReferredBy", e.target.value)}
-                placeholder="e.g. DP001 (Agent's code)" style={s.input} />
-              {/* <Err msg={errors.ReferredBy} /> */}
+              <input type="text" value={form.ReferredBy} onChange={(e) => setF("ReferredBy", e.target.value)} placeholder="e.g. DP001 (Agent's code)" style={s.input} />
             </div>
             <div style={s.field}>
               <label style={s.label}>SC Assigned<span style={s.req}>*</span></label>
@@ -717,17 +906,29 @@ export default function SupplyForm() {
 
           {/* ── DOCUMENTS ── */}
           <SectionBar>Documents &amp; Photo</SectionBar>
+          <PhotoUpload label="Photograph" value={form.Photograph} onChange={(f) => setF("Photograph", f)} hasPartner={hasPartner} />
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, }} >
+            <PhotoUpload label="Aadhar Card (Front)" value={form.AadharCard} onChange={(f) => setF("AadharCard", f)} />
 
-          <PhotoUpload label="Photograph" value={form.Photograph}
-            onChange={(f) => setF("Photograph", f)} fieldKey="Photograph" />
-          <PhotoUpload label="Aadhar Card (Front)" value={form.AadharCard}
-            onChange={(f) => setF("AadharCard", f)} fieldKey="AadharCard" />
-          <PhotoUpload label="Aadhar Card (Back)" value={form.AadharCardBack}
-            onChange={(f) => setF("AadharCardBack", f)} fieldKey="AadharCardBack" />
+            <PhotoUpload label="Aadhar Card (Back)" value={form.AadharCardBack} onChange={(f) => setF("AadharCardBack", f)} />
+          </div>
+
+          {
+            hasPartner && (
+              <>
+                <SectionBar>Partner's Documents &amp; Photo</SectionBar>
+                <PhotoUpload label="Photograph" value={form.PartnerPhotograph} onChange={(f) => setF("PartnerPhotograph", f)} hasPartner={hasPartner} />
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, }} >
+                  <PhotoUpload label="Aadhar Card (Front)" value={form.PartnerAadharCard} onChange={(f) => setF("PartnerAadharCard", f)} />
+
+                  <PhotoUpload label="Aadhar Card (Back)" value={form.PartnerAadharCardBack} onChange={(f) => setF("PartnerAadharCardBack", f)} />
+                </div>
+              </>
+            )
+          }
 
           {/* ── AVAILABILITY & EXPECTATIONS ── */}
           <SectionBar>Availability &amp; Expectations</SectionBar>
-
           <div style={s.field}>
             <label style={s.label}>Availability<span style={s.req}>*</span></label>
             <div style={s.radioRowH}>
@@ -740,39 +941,38 @@ export default function SupplyForm() {
             </div>
             <Err msg={errors.Availability} />
           </div>
-
           <div style={s.row2}>
             <div style={s.field}>
               <label style={s.label}>Salary Expectation (₹/month)<span style={s.req}>*</span></label>
-              <input type="text" value={form.SalaryExpectation} onChange={(e) => setF("SalaryExpectation", e.target.value)}
-                placeholder="e.g. ₹12,000" style={s.input} />
+              <input type="text" value={form.SalaryExpectation} onChange={(e) => setF("SalaryExpectation", e.target.value)} placeholder="e.g. ₹12,000" style={s.input} />
               <Err msg={errors.SalaryExpectation} />
             </div>
             <div style={s.field}>
               <label style={s.label}>Years of Experience</label>
-              <input type="number" value={form.YearsOfExperience} onChange={(e) => setF("YearsOfExperience", e.target.value)}
-                placeholder="e.g. 3" style={s.input} min="0" max="40" />
+              <input type="number" value={form.YearsOfExperience} onChange={(e) => setF("YearsOfExperience", e.target.value)} placeholder="e.g. 3" style={s.input} min="0" max="40" />
             </div>
+            {
+              hasPartner && (
+                <>
+                  <div style={s.field}>
+                    <label style={s.label}>Partner's Experience (yrs)</label>
+                    <input type="number" value={form.PartnerExperience} onChange={(e) => setF("PartnerExperience", e.target.value)} placeholder="e.g. 3" style={s.input} min="0" max="40" />
+                  </div>
+                </>
+              )}
           </div>
-
-          {/* Special Instructions */}
           <div style={s.field}>
             <label style={s.label}>Special Instructions</label>
             <textarea rows={3} maxLength={500} value={form.Instructions}
               onChange={(e) => setF("Instructions", e.target.value)}
-              placeholder="Any specific notes, language spoken, health conditions, restrictions…"
-              style={s.textarea} />
+              placeholder="Any specific notes, language spoken, health conditions, restrictions…" style={s.textarea} />
           </div>
 
-          {/* Submit */}
-          <button type="button" onClick={handleSubmit} disabled={submitting}
-            style={submitting ? s.submitBtnDisabled : s.submitBtn}>
+          <button type="button" onClick={handleSubmit} disabled={submitting} style={submitting ? s.submitBtnDisabled : s.submitBtn}>
             {submitting ? "Submitting…" : "Submit Helper Profile →"}
           </button>
-
           {status === "success" && <div style={s.successBanner}>✓ {statusMsg}</div>}
           {status === "error" && <div style={s.errorBanner}>⚠ {statusMsg}</div>}
-
         </div>
       </div>
     </div>
