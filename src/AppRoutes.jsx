@@ -37,7 +37,7 @@ const TermsAndCondition = lazy(() => import("./pages/TermsAndCondition"));
 const RefundPolicy = lazy(() => import("./pages/RefundPolicy"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const NotFound = lazy(() => import("./pages/NotFound"));
-const FeedbackForm = lazy(() => import("./pages/FeedbackForm") );
+const FeedbackForm = lazy(() => import("./pages/FeedbackForm"));
 
 export const routes = [
   { path: "/", element: <Home /> },
