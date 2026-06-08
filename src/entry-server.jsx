@@ -61,6 +61,7 @@ const ROUTE_PRELOADS = {
   "/terms-and-conditions": () => import("./pages/TermsAndCondition.jsx"),
   "/refund-policy": () => import("./pages/RefundPolicy.jsx"),
   "/privacy-policy": () => import("./pages/PrivacyPolicy.jsx"),
+  "/pay": () => import("./pages/PaymentPage.jsx")
 };
 
 /**

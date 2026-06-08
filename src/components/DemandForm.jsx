@@ -167,7 +167,8 @@ const Err = ({ msg }) => msg ? <span style={s.errText}>{msg}</span> : null;
 
 const CheckboxGroup = ({ label, required, values, onChange, options, horizontal }) => (
   <div style={s.field}>
-    <label style={s.label}>{label}{required && <span style={s.req}>*</span>}</label>
+    {/* {required && <span style={s.req}>*</span>} */}
+    <label style={s.label}>{label}</label>
     <div style={horizontal ? s.radioRowH : s.radioRow}>
       {options.map((o) => (
         <label key={o} style={s.checkLabel}>
@@ -253,7 +254,7 @@ function ServiceBlock({ svc, form, toggleArr, setF, setForm, errors, keyPrefix =
     <>
       <SectionBar>Baby Caretaker Details{labelSuffix}</SectionBar>
       <div style={s.field}>
-        <label style={s.label}>Child's Age Group<span style={s.req}>*</span></label>
+        <label style={s.label}>Child's Age Group{/* <span style={s.req}>*</span> */}</label>
         {CHILD_AGE_OPTIONS.map((o) => (
           <label key={o} style={s.radioLabel}>
             <input type="radio" style={s.radioInput} name={`ChildAge${keyPrefix}`} checked={form[k("ChildAge")] === o}
@@ -284,7 +285,7 @@ function ServiceBlock({ svc, form, toggleArr, setF, setForm, errors, keyPrefix =
     <>
       <SectionBar>Patient Care Details{labelSuffix}</SectionBar>
       <div style={s.field}>
-        <label style={s.label}>Patient's Age<span style={s.req}>*</span></label>
+        <label style={s.label}>Patient's Age{/* <span style={s.req}>*</span> */}</label>
         <input type="number" value={form[k("PatientAge")] || ""} onChange={(e) => setF(k("PatientAge"), e.target.value)} placeholder="e.g. 68" style={s.input} min="1" />
         <Err msg={errors[k("PatientAge")]} />
       </div>
@@ -371,41 +372,47 @@ export default function DemandForm() {
     const e = {};
     if (!form.FirstName.trim()) e.FirstName = "First name is required";
     if (!form.Phone || form.Phone.length !== 10 || !/^[6-9]/.test(form.Phone)) e.Phone = "Enter a valid 10-digit Indian mobile number";
-    if (!form.City.trim()) e.City = "City is required";
-    if (!form.Street.trim()) e.Street = "Street / area is required";
+    // if (!form.City.trim()) e.City = "City is required";
+    // if (!form.Street.trim()) e.Street = "Street / area is required";
     if (!form.ServiceType) e.ServiceType = "Please select a service type";
     if (!form.Cook_Gender) e.Cook_Gender = "Helper's gender is required";
     if (!form.ServiceFormat) e.ServiceFormat = "Service format is required";
-    if (!form.Urgency) e.Urgency = "Urgency is required";
+    // if (!form.Urgency) e.Urgency = "Urgency is required";
     if (isCouple) {
-      if (!form.PartnerBudget) e.PartnerBudget = "Please select a budget";
-    } else if (!form.Budge) e.Budget = "Please select a budget";
-    if (form.ServiceType === "Live-In Support" && form.Tasks.length === 0) e.Tasks = "Select at least one task";
-    if (form.ServiceType === "Cooking Help" && form.CuisinePref.length === 0) e.CuisinePref = "Select at least one cuisine";
-    if (form.ServiceType === "Baby Caretaker" && !form.ChildAge) e.ChildAge = "Select child's age";
-    if (form.ServiceType === "Baby Caretaker") {
-      const duties = form.ChildAge === "0 - 3 Years" ? form.ChildDutiesInfant : form.ChildDutiesOlder;
-      if (duties.length === 0) e.ChildDuties = "Select at least one duty";
+      if (!form.PartnerBudget) {
+        e.PartnerBudget = "Please select a budget";
+      }
+    } else {
+      if (!form.Budget) {
+        e.Budget = "Please select a budget";
+      }
     }
-    if (form.ServiceType === "Patient Care" && !String(form.PatientAge).trim()) e.PatientAge = "Patient age is required";
-    if (form.ServiceType === "Patient Care" && form.CareNeeded.length === 0) e.CareNeeded = "Select at least one care type";
-    if (form.ServiceType === "Driver" && form.VehicleType.length === 0) e.VehicleType = "Select at least one vehicle type";
-    if (form.ServiceType === "Japa" && form.JapaDuties.length === 0) e.JapaDuties = "Select at least one Japa duty";
+    // if (form.ServiceType === "Live-In Support" && form.Tasks.length === 0) e.Tasks = "Select at least one task";
+    // if (form.ServiceType === "Cooking Help" && form.CuisinePref.length === 0) e.CuisinePref = "Select at least one cuisine";
+    // if (form.ServiceType === "Baby Caretaker" && !form.ChildAge) e.ChildAge = "Select child's age";
+    // if (form.ServiceType === "Baby Caretaker") {
+    //   const duties = form.ChildAge === "0 - 3 Years" ? form.ChildDutiesInfant : form.ChildDutiesOlder;
+    //   if (duties.length === 0) e.ChildDuties = "Select at least one duty";
+    // }
+    // if (form.ServiceType === "Patient Care" && !String(form.PatientAge).trim()) e.PatientAge = "Patient age is required";
+    // if (form.ServiceType === "Patient Care" && form.CareNeeded.length === 0) e.CareNeeded = "Select at least one care type";
+    // if (form.ServiceType === "Driver" && form.VehicleType.length === 0) e.VehicleType = "Select at least one vehicle type";
+    // if (form.ServiceType === "Japa" && form.JapaDuties.length === 0) e.JapaDuties = "Select at least one Japa duty";
     if (form.IsCouple) {
       if (!form.helper2ServiceType) e.helper2ServiceType = "Please select Helper 2's service type";
       if (!form.helper2Gender) e.helper2Gender = "Helper 2's gender preference is required";
-      const p2svc = form.helper2ServiceType;
-      if (p2svc === "Live-In Support" && form.helper2Tasks.length === 0) e.helper2Tasks = "Select at least one task for Helper 2";
-      if (p2svc === "Cooking Help" && form.helper2CuisinePref.length === 0) e.helper2CuisinePref = "Select at least one cuisine for Helper 2";
-      if (p2svc === "Baby Caretaker" && !form.helper2ChildAge) e.helper2ChildAge = "Select child's age for Helper 2";
-      if (p2svc === "Baby Caretaker") {
-        const duties = form.helper2ChildAge === "0 - 3 Years" ? form.helper2ChildDutiesInfant : form.helper2ChildDutiesOlder;
-        if (duties.length === 0) e.helper2ChildDuties = "Select at least one duty for Helper 2";
-      }
-      if (p2svc === "Patient Care" && !String(form.helper2PatientAge).trim()) e.helper2PatientAge = "Patient age is required for Helper 2";
-      if (p2svc === "Patient Care" && form.helper2CareNeeded.length === 0) e.helper2CareNeeded = "Select at least one care type for Helper 2";
-      if (p2svc === "Driver" && form.helper2VehicleType.length === 0) e.helper2VehicleType = "Select at least one vehicle type for Helper 2";
-      if (p2svc === "Japa" && form.helper2JapaDuties.length === 0) e.helper2JapaDuties = "Select at least one Japa duty for Helper 2";
+      // const p2svc = form.helper2ServiceType;
+      // if (p2svc === "Live-In Support" && form.helper2Tasks.length === 0) e.helper2Tasks = "Select at least one task for Helper 2";
+      // if (p2svc === "Cooking Help" && form.helper2CuisinePref.length === 0) e.helper2CuisinePref = "Select at least one cuisine for Helper 2";
+      // if (p2svc === "Baby Caretaker" && !form.helper2ChildAge) e.helper2ChildAge = "Select child's age for Helper 2";
+      // if (p2svc === "Baby Caretaker") {
+      //   const duties = form.helper2ChildAge === "0 - 3 Years" ? form.helper2ChildDutiesInfant : form.helper2ChildDutiesOlder;
+      //   if (duties.length === 0) e.helper2ChildDuties = "Select at least one duty for Helper 2";
+      // }
+      // if (p2svc === "Patient Care" && !String(form.helper2PatientAge).trim()) e.helper2PatientAge = "Patient age is required for Helper 2";
+      // if (p2svc === "Patient Care" && form.helper2CareNeeded.length === 0) e.helper2CareNeeded = "Select at least one care type for Helper 2";
+      // if (p2svc === "Driver" && form.helper2VehicleType.length === 0) e.helper2VehicleType = "Select at least one vehicle type for Helper 2";
+      // if (p2svc === "Japa" && form.helper2JapaDuties.length === 0) e.helper2JapaDuties = "Select at least one Japa duty for Helper 2";
     }
     setErrors(e);
     return Object.keys(e).length === 0;
@@ -469,7 +476,7 @@ export default function DemandForm() {
             <SectionBar>Personal Details</SectionBar>
             <div style={s.row2}>
               <div style={s.field}>
-                <label style={s.label}>First Name<span style={s.req}>*</span></label>
+                <label style={s.label}>First Name{/* <span style={s.req}>*</span> */}</label>
                 <input type="text" value={form.FirstName} onChange={(e) => setF("FirstName", e.target.value)} placeholder="Rahul" style={s.input} />
                 <Err msg={errors.FirstName} />
               </div>
@@ -479,7 +486,7 @@ export default function DemandForm() {
               </div>
             </div>
             <div style={s.field}>
-              <label style={s.label}>Phone Number<span style={s.req}>*</span></label>
+              <label style={s.label}>Phone Number{/* <span style={s.req}>*</span> */}</label>
               <div style={s.phoneWrap}>
                 <span style={s.phonePrefix}>+91</span>
                 <input type="tel" inputMode="numeric" maxLength={10} value={form.Phone}
@@ -493,7 +500,7 @@ export default function DemandForm() {
               <input type="email" value={form.Email} onChange={(e) => setF("Email", e.target.value)} placeholder="rahul@example.com" style={s.input} />
             </div>
             <div style={s.field}>
-              <label style={s.label}>Current Address<span style={s.req}>*</span></label>
+              <label style={s.label}>Current Address{/* <span style={s.req}>*</span> */}</label>
               <input type="text" value={form.Street} onChange={(e) => setF("Street", e.target.value)} placeholder="Street / Area / Locality" style={{ ...s.input, marginBottom: 8 }} />
               <Err msg={errors.Street} />
               <div style={s.row2}>
@@ -510,7 +517,7 @@ export default function DemandForm() {
             <div style={s.field}>
               <label style={s.label}>
                 {isCouple ? "Helper 1's Service Type" : "Which type of household help are you looking for?"}
-                <span style={s.req}>*</span>
+                {/* <span style={s.req}>*</span> */}
               </label>
               <select value={form.ServiceType} onChange={(e) => setF("ServiceType", e.target.value)} style={s.select}>
                 <option value="" disabled>Please Select</option>
@@ -519,7 +526,7 @@ export default function DemandForm() {
               <Err msg={errors.ServiceType} />
             </div>
             <div style={s.field}>
-              <label style={s.label}>Service Format<span style={s.req}>*</span></label>
+              <label style={s.label}>Service Format{/* <span style={s.req}>*</span> */}</label>
               <div style={s.radioRowH}>
                 {SERVICE_FORMATS.map((o) => (
                   <label key={o} style={s.radioLabel}>
@@ -531,7 +538,7 @@ export default function DemandForm() {
               <Err msg={errors.ServiceFormat} />
             </div>
             <div style={s.field}>
-              <label style={s.label}>{isCouple ? "Helper 1's Gender Preference" : "Helper's Gender Preference"}<span style={s.req}>*</span></label>
+              <label style={s.label}>{isCouple ? "Helper 1's Gender Preference" : "Helper's Gender Preference"}{/* <span style={s.req}>*</span> */}</label>
               <div style={s.radioRowH}>
                 {GENDER_OPTIONS.map((o) => (
                   <label key={o} style={s.radioLabel}>
@@ -556,7 +563,7 @@ export default function DemandForm() {
                 <>
                   <SectionBar style={s.partnerSectionLabel}>Helper 2 — Service Details  </SectionBar>
                   <div style={s.field}>
-                    <label style={s.label}>Helper 2's Service Type<span style={s.req}>*</span></label>
+                    <label style={s.label}>Helper 2's Service Type{/* <span style={s.req}>*</span> */}</label>
                     <select value={form.helper2ServiceType}
                       onChange={(e) => {
                         setForm(f => ({ ...f, ...P2_RESET, IsCouple: true, helper2ServiceType: e.target.value }));
@@ -569,7 +576,7 @@ export default function DemandForm() {
                     <Err msg={errors.helper2ServiceType} />
                   </div>
                   <div style={s.field}>
-                    <label style={s.label}>Helper 2's Gender Preference<span style={s.req}>*</span></label>
+                    <label style={s.label}>Helper 2's Gender Preference{/* <span style={s.req}>*</span> */}</label>
                     <div style={s.radioRowH}>
                       {GENDER_OPTIONS.map((o) => (
                         <label key={o} style={s.radioLabel}>
@@ -594,7 +601,7 @@ export default function DemandForm() {
             {/* ── PREFERENCES & PLAN ── */}
             <SectionBar>Preferences &amp; Plan</SectionBar>
             <div style={s.field}>
-              <label style={s.label}>Urgency<span style={s.req}>*</span></label>
+              <label style={s.label}>Urgency{/* <span style={s.req}>*</span> */}</label>
               <select value={form.Urgency} onChange={(e) => setF("Urgency", e.target.value)} style={s.select}>
                 <option value="" disabled>How soon?</option>
                 {URGENCY_OPTIONS.map((o) => <option key={o} value={o}>{o}</option>)}
@@ -603,7 +610,7 @@ export default function DemandForm() {
             </div>
             <div style={s.field}>
               {!isCouple && <>
-                <label style={s.label}>Monthly Budget<span style={s.req}>*</span></label>
+                <label style={s.label}>Monthly Budget{/* <span style={s.req}>*</span> */}</label>
                 <select value={form.Budget} onChange={(e) => setF("Budget", e.target.value)} style={s.select}>
                   <option value="" disabled>Select budget…</option>
                   {BUDGET_OPTIONS.map((o) => <option key={o} value={o}>{o}</option>)}
@@ -615,7 +622,7 @@ export default function DemandForm() {
 
             <div style={s.field}>
               {isCouple && <>
-                <label style={s.label}>Monthly Budget For Couple's<span style={s.req}>*</span></label>
+                <label style={s.label}>Monthly Budget For Couple's{/* <span style={s.req}>*</span> */}</label>
                 <select value={form.PartnerBudget} onChange={(e) => setF("PartnerBudget", e.target.value)} style={s.select}>
                   <option value="" disabled>Select budget…</option>
                   {PARTNER_BUDGET_OPTIONS.map((o) => <option key={o} value={o}>{o}</option>)}

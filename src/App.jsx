@@ -201,7 +201,6 @@ export default function AppRoutesServer() {
         <Route path="/thank-you" element={<ThankYou />} />
         <Route path="/payment-status" element={<PaymentStatus />} />
         <Route path="*" element={<NotFound />} />
-        
       </Routes>
 
       {showLayout && <Footer />}

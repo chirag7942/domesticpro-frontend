@@ -21,6 +21,7 @@ const ROUTES_TO_PRERENDER = [
   "/terms-and-conditions",
   "/refund-policy",
   "/privacy-policy",
+  "/pay",
 ];
 
 const distClient = path.resolve(__dirname, "dist");

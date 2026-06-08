@@ -131,9 +131,9 @@ export default function AppRoutes() {
           <Route path="/payment-status" element={<PaymentStatus />} />
           <Route path="/generate-payment-link" element={<GeneratePaymentLink />} />
           <Route path="/pay" element={<Pay />} />
+          <Route path="/feedback" element={<FeedbackForm />} />
           <Route path="/404" element={<NotFound />} />
           <Route path="*" element={<NotFound />} />
-          <Route path="/feedback" element={<FeedbackForm />} />
         </Routes>
       </Suspense>
       {showLayout && <Footer />}
