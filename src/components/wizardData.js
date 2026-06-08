@@ -9,7 +9,7 @@ import kitchenHygiene from "../assets/kitchen-hygiene.jpeg";
 import babyBath from "../assets/baby-bath.png";
 import diaperChanging from "../assets/diaper-changing.png";
 import sterilizingBottles from "../assets/sterilizing-bottles.png";
-import hygieneSupport from "../assets/hygiene-support.png";
+import hygieneSupport from "../assets/Hygiene-support.png";
 import healthMonitoring from "../assets/health-monitering.png";
 import massage from "../assets/message.png";
 import childStimulation from "../assets/child-stimulation.jpeg";

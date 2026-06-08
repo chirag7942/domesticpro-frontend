@@ -4,14 +4,10 @@ import react from "@vitejs/plugin-react";
 export default defineConfig({
   plugins: [react()],
 
-  // ── SSR configuration ─────────────────────────────────────────────────────
-  // noExternal: packages that must be bundled (not externalized) in SSR mode.
-  // react-helmet-async uses ESM exports that need to be transformed by Vite.
   ssr: {
     noExternal: ["react-helmet-async"],
   },
 
-  // ── Preview server (unchanged) ─────────────────────────────────────────────
   preview: {
     allowedHosts: [
       "domesticpro.in",
@@ -20,11 +16,17 @@ export default defineConfig({
     ],
   },
 
-  // ── Build config (unchanged from your original) ───────────────────────────
+  optimizeDeps: {
+    include: ["lucide-react"],
+  },
+
   build: {
     target: "es2020",
     chunkSizeWarningLimit: 350,
     rollupOptions: {
+      treeshake: {
+        moduleSideEffects: false,
+      },
       output: {
         manualChunks(id) {
           if (

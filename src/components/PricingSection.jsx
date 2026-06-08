@@ -158,8 +158,11 @@ export default function PricingSection() {
                     <p className="text-sm text-textLight leading-relaxed mb-6">{plan.tagline}</p>
 
                     {/* Price block */}
-                    <div className={`rounded-2xl px-5 py-4 mb-6 ${plan.highlighted ? "bg-primary/5 border border-primary/10" : "bg-bgLight"}`}>
-                      <div className="flex items-end gap-1">
+                    <div className={`relative rounded-2xl px-5 py-4 mb-6 ${plan.highlighted ? "bg-primary/5 border border-primary/10" : "bg-bgLight"}`}>
+                      <span className="absolute top-2 right-2 text-[10px] px-2 py-1  rounded-md bg-primary/10 text-primary font-semibold whitespace-nowrap">
+                        🔁 Renewal at just ₹6,999/yr
+                      </span>
+                      <div className="flex items-end gap-1 my-2">
                         <span className="text-4xl font-bold text-textDark">
                           ₹{plan.price.toLocaleString()}
                         </span>
