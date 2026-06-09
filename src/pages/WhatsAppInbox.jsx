@@ -49,7 +49,7 @@ export default function WhatsAppInbox() {
       {/* LEFT — Conversation List */}
       <div style={{ width: 320, borderRight: "1px solid #e5e7eb", overflowY: "auto", background: "#fff" }}>
         <div style={{ padding: "16px", background: "#075E54", color: "white", fontSize: 18, fontWeight: 700 }}>
-          💬 WhatsApp Inbox
+          💬 WhatsApp Inboxxxxx
         </div>
         {conversations.map(c => (
           <div key={c.phone}
