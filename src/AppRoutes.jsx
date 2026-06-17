@@ -68,7 +68,8 @@ const HIDE_LAYOUT_PATHS = new Set([
   "/thank-you",
   "/payment-status",
   "/generate-payment-link",
-  "/pay"
+  "/pay",
+  "/whatsapp-inbox"
 ]);
 
 // Module-level set — persists across renders, never causes re-render

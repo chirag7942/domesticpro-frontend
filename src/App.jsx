@@ -175,6 +175,7 @@ const HIDE_LAYOUT_PATHS = new Set([
   "/supply-form",
   "/thank-you",
   "/payment-status",
+  "/whatsapp-inbox"
 ]);
 
 export default function AppRoutesServer() {
