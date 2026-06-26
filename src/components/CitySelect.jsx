@@ -5,7 +5,8 @@ import INDIAN_CITIES from "./indianCities";
 import { ChevronDown, Search, X, MapPin } from "lucide-react";
 import { isBrowser } from "../utils/browserOnly";
 
-const CSS = `
+const CSS =
+  `
   .cs-wrap    { position: relative; width: 100%; font-family: 'Plus Jakarta Sans', sans-serif; }
 
   .cs-trigger {
