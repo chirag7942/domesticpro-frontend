@@ -15,6 +15,7 @@ import GeneratePaymentLink from "./components/GeneratePaymentLink";
 // import ThankYou from "./components/ThankYou";
 // import PaymentStatus from "./pages/PaymentStatus";
 
+
 const DemandForm = lazy(() => import("./components/DemandForm"));
 const AgentForm = lazy(() => import("./components/AgentForm"));
 const SupplyForm = lazy(() => import("./components/SupplyForm"));
@@ -38,6 +39,8 @@ const RefundPolicy = lazy(() => import("./pages/RefundPolicy"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const FeedbackForm = lazy(() => import("./pages/FeedbackForm"));
+const WhatsAppInbox = lazy(() => import("./pages/WhatsAppInbox"));
+
 
 export const routes = [
   { path: "/", element: <Home /> },
@@ -55,6 +58,7 @@ export const routes = [
   { path: "/terms-and-conditions", element: <TermsAndCondition /> },
   { path: "/refund-policy", element: <RefundPolicy /> },
   { path: "/privacy-policy", element: <PrivacyPolicy /> },
+  { path: "/whatsapp-inbox", element: <WhatsAppInbox /> },
 ];
 
 const HIDE_LAYOUT_PATHS = new Set([
@@ -64,7 +68,8 @@ const HIDE_LAYOUT_PATHS = new Set([
   "/thank-you",
   "/payment-status",
   "/generate-payment-link",
-  "/pay"
+  "/pay",
+  "/whatsapp-inbox"
 ]);
 
 // Module-level set — persists across renders, never causes re-render

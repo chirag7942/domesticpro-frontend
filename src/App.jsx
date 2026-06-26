@@ -147,6 +147,9 @@ import ThankYou from "./components/ThankYou";
 import PaymentStatus from "./pages/PaymentStatus";
 import NotFound from "./pages/NotFound";
 
+import WhatsAppInbox from "./pages/WhatsappInbox";
+
+
 export const routes = [
   { path: "/", element: <Home /> },
   { path: "/about", element: <AboutUs /> },
@@ -163,6 +166,7 @@ export const routes = [
   { path: "/terms-and-conditions", element: <TermsAndCondition /> },
   { path: "/refund-policy", element: <RefundPolicy /> },
   { path: "/privacy-policy", element: <PrivacyPolicy /> },
+  { path: "/whatsapp-inbox", element: <WhatsAppInbox /> },
 ];
 
 const HIDE_LAYOUT_PATHS = new Set([
@@ -171,6 +175,7 @@ const HIDE_LAYOUT_PATHS = new Set([
   "/supply-form",
   "/thank-you",
   "/payment-status",
+  "/whatsapp-inbox"
 ]);
 
 export default function AppRoutesServer() {
