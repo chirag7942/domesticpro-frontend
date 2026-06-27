@@ -40,6 +40,7 @@ const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const FeedbackForm = lazy(() => import("./pages/FeedbackForm"));
 const WhatsAppInbox = lazy(() => import("./pages/WhatsAppInbox"));
+const TrialFeedbackForm = lazy(() => import("./pages/TrialFeedbackForm"));
 
 
 export const routes = [
@@ -59,6 +60,7 @@ export const routes = [
   { path: "/refund-policy", element: <RefundPolicy /> },
   { path: "/privacy-policy", element: <PrivacyPolicy /> },
   { path: "/whatsapp-inbox", element: <WhatsAppInbox /> },
+  
 ];
 
 const HIDE_LAYOUT_PATHS = new Set([
@@ -69,7 +71,8 @@ const HIDE_LAYOUT_PATHS = new Set([
   "/payment-status",
   "/generate-payment-link",
   "/pay",
-  "/whatsapp-inbox"
+  "/whatsapp-inbox",
+  "/trial-feedback"
 ]);
 
 // Module-level set — persists across renders, never causes re-render
@@ -135,6 +138,7 @@ export default function AppRoutes() {
           <Route path="/feedback" element={<FeedbackForm />} />
           <Route path="/404" element={<NotFound />} />
           <Route path="*" element={<NotFound />} />
+          <Route path="/trial-feedback" element={<TrialFeedbackForm />} />
         </Routes>
       </Suspense>
       {showLayout && <Footer />}

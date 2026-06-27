@@ -148,6 +148,7 @@ import PaymentStatus from "./pages/PaymentStatus";
 import NotFound from "./pages/NotFound";
 
 import WhatsAppInbox from "./pages/WhatsappInbox";
+const TrialFeedbackForm = lazy(() => import("./pages/TrialFeedbackForm"));
 
 
 export const routes = [
@@ -175,7 +176,8 @@ const HIDE_LAYOUT_PATHS = new Set([
   "/supply-form",
   "/thank-you",
   "/payment-status",
-  "/whatsapp-inbox"
+  "/whatsapp-inbox",
+  "/trial-feedback"
 ]);
 
 export default function AppRoutesServer() {
@@ -201,6 +203,11 @@ export default function AppRoutesServer() {
         <Route path="/supply-form" element={<SupplyForm />} />
         <Route path="/thank-you" element={<ThankYou />} />
         <Route path="/payment-status" element={<PaymentStatus />} />
+        <Route path="/trial-feedback" element={
+          <Suspense fallback={null}>
+            <TrialFeedbackForm />
+          </Suspense>
+        } />
         <Route path="*" element={<NotFound />} />
       </Routes>
 
