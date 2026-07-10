@@ -1,12 +1,12 @@
 // CitySelect.jsx — Searchable Indian city dropdown with portal (fixes overflow clipping)
+// City/state data now sourced from the `country-state-city` package instead of a static JSON file.
 import { useState, useRef, useEffect, useMemo } from "react";
 import { createPortal } from "react-dom";
-import INDIAN_CITIES from "./indianCities";
 import { ChevronDown, Search, X, MapPin } from "lucide-react";
 import { isBrowser } from "../utils/browserOnly";
+import { getIndianCities } from "./CityState";
 
-const CSS =
-  `
+const CSS = `
   .cs-wrap    { position: relative; width: 100%; font-family: 'Plus Jakarta Sans', sans-serif; }
 
   .cs-trigger {
@@ -21,7 +21,8 @@ const CSS =
     box-shadow: 0 0 0 3px rgba(236,95,54,0.10);
   }
   .cs-trigger-placeholder { color: #d1c9c5; flex: 1; font-size: 13px; }
-  .cs-trigger-value       { color: #1a1a2e; flex: 1; font-size: 13px; font-weight: 600; }
+  .cs-trigger-value       { color: #1a1a2e; flex: 1; font-size: 13px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .cs-trigger-value-state { color: #9ca3af; font-weight: 500; }
   .cs-trigger-chevron     { color: #9ca3af; flex-shrink: 0; transition: transform .2s; }
   .cs-trigger-chevron.open { transform: rotate(180deg); }
 
@@ -93,6 +94,11 @@ const CSS =
     background: #EC5F36; flex-shrink: 0; opacity: 0;
   }
   .cs-item.active .cs-item-dot { opacity: 1; }
+  .cs-item-state {
+    margin-left: auto; padding-left: 8px; flex-shrink: 0;
+    font-size: 11px; font-weight: 500; color: #b0aaa6;
+  }
+  .cs-item.active .cs-item-state { color: #EC5F36; opacity: 0.75; }
 
   .cs-empty {
     padding: 16px; text-align: center;
@@ -100,6 +106,10 @@ const CSS =
   }
 `;
 
+/**
+ * value:    { name, state } | null
+ * onChange: (loc: { name, state } | null) => void
+ */
 export default function CitySelect({
   value,
   onChange,
@@ -107,24 +117,13 @@ export default function CitySelect({
 }) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
-  const [cities, setCities] = useState([]);
   const [dropdownStyle, setDropdownStyle] = useState({});
   const wrapRef = useRef(null);
   const triggerRef = useRef(null);
   const searchRef = useRef(null);
 
-  useEffect(() => {
-    if (!open || cities.length > 0) return;
-
-    import("./indianCities.json").then((module) => {
-      const sorted = module.default.indianCities.sort((a, b) =>
-        a.localeCompare(b)
-      );
-      setCities(sorted);
-    });
-  }, [open]);
-
-  const allCities = cities;
+  // Static package data — computed once, memoized across renders.
+  const allCities = useMemo(() => getIndianCities(), []);
 
   const updatePosition = () => {
     if (!triggerRef.current) return;
@@ -188,18 +187,25 @@ export default function CitySelect({
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return allCities;
-    const startsWith = allCities.filter((c) => c.toLowerCase().startsWith(q));
+    const startsWith = allCities.filter((c) =>
+      c.name.toLowerCase().startsWith(q)
+    );
     const contains = allCities.filter(
-      (c) => !c.toLowerCase().startsWith(q) && c.toLowerCase().includes(q),
+      (c) =>
+        !c.name.toLowerCase().startsWith(q) &&
+        c.name.toLowerCase().includes(q)
     );
     return [...startsWith, ...contains];
   }, [query, allCities]);
 
-  const select = (city) => {
-    onChange(city);
+  const select = (loc) => {
+    onChange(loc);
     setOpen(false);
     setQuery("");
   };
+
+  const isActive = (loc) =>
+    value && value.name === loc.name && value.state === loc.state;
 
   const dropdown = open ? (
     <div className="cs-dropdown" style={dropdownStyle}>
@@ -228,18 +234,18 @@ export default function CitySelect({
         </div>
       )}
       <div className="cs-list">
-        {cities.length === 0 ? (
-          <div className="cs-empty">Loading cities...</div>
-        ) : filtered.length > 0 ? (
-          filtered.map((city) => (
+        {filtered.length > 0 ? (
+          // Cap rendered rows for performance on the unfiltered full list
+          filtered.slice(0, 200).map((loc) => (
             <button
-              key={city}
+              key={`${loc.name}|${loc.state}`}
               type="button"
-              className={`cs-item${value === city ? " active" : ""}`}
-              onClick={() => select(city)}
+              className={`cs-item${isActive(loc) ? " active" : ""}`}
+              onClick={() => select(loc)}
             >
               <span className="cs-item-dot" />
-              {city}
+              {loc.name}
+              <span className="cs-item-state">{loc.state}</span>
             </button>
           ))
         ) : (
@@ -268,7 +274,12 @@ export default function CitySelect({
             style={{ flexShrink: 0 }}
           />
           {value ? (
-            <span className="cs-trigger-value">{value}</span>
+            <span className="cs-trigger-value">
+              {value.name}
+              {/* {value.state ? (
+                <span className="cs-trigger-value-state">, {value.state}</span>
+              ) : null} */}
+            </span>
           ) : (
             <span className="cs-trigger-placeholder">{placeholder}</span>
           )}
@@ -278,7 +289,7 @@ export default function CitySelect({
               className="cs-clear"
               onClick={(e) => {
                 e.stopPropagation();
-                onChange("");
+                onChange(null);
               }}
               aria-label="Clear city"
             >

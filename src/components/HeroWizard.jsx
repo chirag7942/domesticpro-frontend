@@ -1,58 +1,61 @@
 import { useState, useRef, useEffect } from "react";
+import { Check, ArrowLeft, X, CheckCircle2, Briefcase, Loader2 } from "lucide-react";
+
 import CitySelect from "./CitySelect";
-import { Check, ArrowLeft, X, CheckCircle2, Minus, Plus, Briefcase } from "lucide-react";
+
 import {
-  Zap, IdCard, UserCheck, Headphones, Handshake, RotateCcw,
-  Gauge, CreditCard, ContactRound, Filter, Target,
-  Clock, Gift, CircleCheck, Phone, Users, Ban, Loader2,
-} from "lucide-react";
-import {
-  SERVICES, SERVICE_FORMATS, GENDER_OPTIONS_DATA, TASKS, HOUSE_SIZES,
-  PETS_OPTIONS, MEAL_PREFS, CUISINES,
-  // ── Baby Caretaker ──────────────────────────────────────────────────────────
-  // CHILD_DUTIES removed; replaced by two age-specific exports:
-  CHILD_DUTIES_INFANT, CHILD_DUTIES_OLDER,
-  CHILD_AGE_RANGES,
-  // ── Cook ────────────────────────────────────────────────────────────────────
-  COOK_TASKS,
-  // ── Driver ──────────────────────────────────────────────────────────────────
-  DRIVER_TASKS,
-  // ── shared ──────────────────────────────────────────────────────────────────
-  CARE_NEEDED, VEHICLE_TYPES, HOME_TYPES, BUDGETS, SUBSTITUTE_BUDGETS,
-  URGENCY_OPTIONS, PLANS,
-  SERVICE_FLOWS, DEFAULT_FLOW, PROG_META, INIT,
-  JAPA_DUTIES, JAPA_MOTHER_NEEDS,
+  SERVICES,
+  GENDER_OPTIONS_DATA,
+  TASK_PREF_OPTIONS,
+  COOK_TYPE_OPTIONS,
+  CHILD_AGE_OPTIONS,
+  TOTAL_CHILDREN_OPTIONS,
+  DRIVER_HOURS_OPTIONS,
+  BUDGETS,
+  ACCOMMODATION_OPTIONS,
+  MEAL_OPTIONS,
+  SERVICE_FLOWS,
+  DEFAULT_FLOW,
+  PROG_META,
+  INIT,
 } from "./wizardData";
+
 import { safeSessionStorage } from "../utils/browserOnly";
 
 const API_BASE = import.meta.env.VITE_REACT_APP_API || "";
 const INTERNAL_SECRET = import.meta.env.VITE_INTERNAL_SECRET || "";
-const ENABLE_PAYMENT = import.meta.env.VITE_ENABLE_PAYMENT === "true";
 
-// Maps the string keys from wizardData plan inclusions to Lucide components
-const ICON_MAP = {
-  "bolt": Zap, "id-card": IdCard, "user-check": UserCheck,
-  "headset": Headphones, "handshake": Handshake, "rotate": RotateCcw,
-  "gauge-high": Gauge, "credit-card": CreditCard, "address-card": ContactRound,
-  "filter": Filter, "bullseye": Target, "clock": Clock,
-  "gift": Gift, "check": Check, "circle-check": CircleCheck,
-  "phone": Phone, "users": Users, "ban": Ban,
-};
+// ── Zoho field builder — matches DemandForm's buildZohoFields exactly ─────────
+// NOTE: Cook type, child age group, and driver hours are all stored in the
+// single `TaskPreference` field now (see ServiceSubOptions-equivalent steps
+// below), same as DemandForm. There is no separate CookType/ChildAgeGroup/
+// DriverHours state anymore, so those are not mapped here — mapping them
+// would just send empty strings to Zoho.
+function buildZohoFields(f) {
+  return {
+    Full_Name: f.FullName,
+    Mobile_Number: f.Phone,
+    Email: f.Email,
+    Street_Address: f.Address,
+    City1: f.City,
+    State: f.State,
+    Service_Type: f.ServiceType,
+    Helper_s_Gender: f.HelperGender,
+    Task_Preference: f.TaskPreference,   // cook type / age group / driver hours / live-in task all land here
+    Total_Number_of_Children: f.TotalChildren,
+    Monthly_Budget: f.Budget,
+    Accommodation: f.Accommodation,
+    Meals: f.Meals,
+    Special_Instructions: f.Instructions,
+    Plan_Type: f.PlanType,
+    Payment_Status: f.PaymentStatus,
+    Status: "Active"
+  };
+}
 
-const createCashfreeOrder = async ({ plan, customer, zohoFields, dropLeadId }) => {
-  if (!API_BASE) throw new Error("VITE_REACT_APP_API is not set. Check your .env file.");
-  const res = await fetch(`${API_BASE}/create-order`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ plan, customer, zohoFields, dropLeadId }),
-  });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.error || "Order creation failed");
-  return data;
-};
-
+// ── Submit helper ─────────────────────────────────────────────────────────────
 const submitNoPay = async (zohoFields) => {
-  if (!API_BASE) throw new Error("VITE_REACT_APP_API is not set. Check your .env file.");
+  if (!API_BASE) throw new Error("VITE_REACT_APP_API is not set.");
   const res = await fetch(`${API_BASE}/submit-nopay`, {
     method: "POST",
     headers: {
@@ -66,17 +69,20 @@ const submitNoPay = async (zohoFields) => {
   return data;
 };
 
-export default function HeroWizard({ asModal = false, isOpen = true, onClose, onSubmit, initialService, initialFormat }) {
+// ─────────────────────────────────────────────────────────────────────────────
+export default function HeroWizard({
+  asModal = false,
+  isOpen = true,
+  onClose,
+  onSubmit,
+  initialService,
+}) {
+  // ── Initial state ──────────────────────────────────────────────────────────
   const getInitialState = () => {
     if (initialService) {
       const svc = SERVICES.find((s) => s.id === initialService);
       if (svc) {
-        return {
-          ...INIT,
-          ServiceType: svc.id,
-          ServiceLabel: svc.label,
-          ...(initialFormat ? { ServiceFormat: initialFormat } : {}),
-        };
+        return { ...INIT, ServiceType: svc.id, ServiceLabel: svc.label };
       }
     }
     return { ...INIT };
@@ -85,76 +91,84 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
   const getInitialStep = () => {
     if (!initialService) return 0;
     const svc = SERVICES.find((s) => s.id === initialService);
-    if (!svc) return 0;
-    const flow = SERVICE_FLOWS[initialService] || DEFAULT_FLOW;
-    if (initialFormat) {
-      const formatIdx = flow.indexOf("format");
-      return formatIdx >= 0 ? formatIdx + 1 : 1;
-    }
-    return 1;
+    return svc ? 1 : 0;
   };
 
   const [stepIdx, setStepIdx] = useState(getInitialStep);
   const [dir, setDir] = useState(1);
   const [form, setForm] = useState(getInitialState);
-  const [planSubmitting, setPlanSubmitting] = useState(false);
-  const [paymentStage, setPaymentStage] = useState("idle");
-  const [activeTab, setActiveTab] = useState("priority");
-  const [dropLeadId, setDropLeadId] = useState(
-    () => safeSessionStorage.getItem("dp_drop_lead_id") || ""
-  );
+  const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const bodyRef = useRef(null);
 
+  // ── Reset on open ──────────────────────────────────────────────────────────
   useEffect(() => {
     if (isOpen) {
       setStepIdx(getInitialStep());
       setForm(getInitialState());
       setDir(1);
-      setPlanSubmitting(false);
-      setPaymentStage("idle");
-      setActiveTab("priority");
+      setSubmitting(false);
       setSubmitError("");
     }
-  }, [isOpen, initialService, initialFormat]);
+  }, [isOpen, initialService]);
 
+  // ── Scroll to top on step change ──────────────────────────────────────────
   useEffect(() => {
     if (bodyRef.current) bodyRef.current.scrollTop = 0;
   }, [stepIdx, form.ServiceType]);
 
+  // ── Service selection ──────────────────────────────────────────────────────
   const selectService = (svc) => {
-    setForm({ ...INIT, ServiceType: svc.id, ServiceLabel: svc.label });
+    // Auto-set default gender (mirrors DemandForm's selectService logic)
+    const defaultGender =
+      svc.id === "Baby Caretaker" || svc.id === "Japa" ? "Female" :
+        svc.id === "Driver" ? "Male" : "";
+
+    setForm({
+      ...INIT,
+      ServiceType: svc.id,
+      ServiceLabel: svc.label,
+      HelperGender: defaultGender,
+    });
     setDir(1);
     setStepIdx(1);
   };
 
-  const steps = (() => {
-    const base = form.ServiceType
-      ? SERVICE_FLOWS[form.ServiceType] || DEFAULT_FLOW
-      : DEFAULT_FLOW;
-    if (ENABLE_PAYMENT) return base;
-    return base.filter((k) => k !== "plan");
-  })();
+  // ── Flow derivation ────────────────────────────────────────────────────────
+  const steps = form.ServiceType
+    ? SERVICE_FLOWS[form.ServiceType] || DEFAULT_FLOW
+    : DEFAULT_FLOW;
 
   const curKey = steps[stepIdx] ?? "service";
   const isDone = curKey === "done";
   const progKeys = steps.filter((k) => k !== "done");
   const progIdx = isDone ? progKeys.length : progKeys.indexOf(curKey);
-  const progPct = progKeys.length <= 1 ? 0 : Math.round((Math.max(0, progIdx) / (progKeys.length - 1)) * 100);
+  const progPct =
+    progKeys.length <= 1
+      ? 0
+      : Math.round((Math.max(0, progIdx) / (progKeys.length - 1)) * 100);
 
+  // ── Field helpers ──────────────────────────────────────────────────────────
   const setF = (k, v) => setForm((f) => ({ ...f, [k]: v }));
-  const toggleArr = (k, v) => setForm((f) => ({
-    ...f,
-    [k]: f[k].includes(v) ? f[k].filter((x) => x !== v) : [...f[k], v],
-  }));
+  const toggleArr = (k, v) =>
+    setForm((f) => ({
+      ...f,
+      [k]: f[k].includes(v) ? f[k].filter((x) => x !== v) : [...f[k], v],
+    }));
 
+  const setCity = (loc) => {
+    setForm((f) => ({
+      ...f,
+      City: loc?.name || "",
+      State: loc?.state || "",
+    }));
+  };
+
+  // ── Navigation ─────────────────────────────────────────────────────────────
   const goNext = () => {
     if (curKey === "contact" && isValid()) {
-      if (!ENABLE_PAYMENT) {
-        handleNopayDirectSubmit();
-        return;
-      }
-      captureDrop();
+      handleSubmit();
+      return;
     }
     setDir(1);
     setStepIdx((i) => Math.min(i + 1, steps.length - 1));
@@ -163,8 +177,9 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
   const goBack = () => { setDir(-1); setStepIdx((i) => Math.max(i - 1, 0)); };
   const after = (ms = 220) => setTimeout(goNext, ms);
 
-  const handleNopayDirectSubmit = async () => {
-    setPlanSubmitting(true);
+  // ── Submit ─────────────────────────────────────────────────────────────────
+  const handleSubmit = async () => {
+    setSubmitting(true);
     setSubmitError("");
     try {
       const zohoFields = buildZohoFields({
@@ -184,221 +199,56 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
           : "We couldn't save your request. Please try again or call us on +91 92112 98139."
       );
     }
-    setPlanSubmitting(false);
+    setSubmitting(false);
   };
 
   const resetWizard = () => {
     setStepIdx(getInitialStep());
     setDir(1);
     setForm(getInitialState());
-    setPlanSubmitting(false);
-    setPaymentStage("idle");
-    setActiveTab("priority");
+    setSubmitting(false);
     setSubmitError("");
-    setDropLeadId("");
-    sessionStorage.removeItem("dp_drop_lead_id");
   };
 
+  // ── Validation ─────────────────────────────────────────────────────────────
+  // cooktype / childagegroup / driverhours all now read/write the single
+  // TaskPreference field (matches DemandForm's ServiceSubOptions behavior).
   const isValid = () => {
     switch (curKey) {
       case "service": return !!form.ServiceType;
-      case "tasks": return form.Tasks.length > 0;
-      case "cooktasks": return form.CookTasks.length > 0;         // ← new
-      case "drivertasks": return form.DriverTasks.length > 0;       // ← new
-      case "housesize": return !!form.HouseSize;
-      case "pets": return !!form.PetsAtHome;
-      case "mealpref": return !!form.MealPref;
-      case "cookmembers": return form.CookMembers > 0;
-      case "cuisine": return form.CuisinePref.length > 0;
+      case "taskpref": return !!form.TaskPreference;
+      case "cooktype": return !!form.TaskPreference;
+      case "childagegroup": return !!form.TaskPreference;
+      case "driverhours": return !!form.TaskPreference;
       case "helpergender": return !!form.HelperGender;
-      case "childage": return !!form.ChildAge.trim();
-      // case "childduties": return form.ChildDuties.length > 0;
-      case "patientage": return !!form.PatientAge.trim();
-      case "patientgender": return !!form.PatientGender;
-      case "careneeded": return form.CareNeeded.length > 0;
-      case "vehicletype": return form.VehicleType.length > 0;
-      case "hometype": return !!form.HomeType;
-      case "urgency": return !!form.Urgency;
       case "budget": return !!form.Budget;
-      case "japaduties": return form.JapaDuties.length > 0;
-      case "japamotherneeds": return form.JapaMotherNeeds.length > 0;
-      case "childduties":
-        return form.ChildAge === "0 - 3 Years"
-          ? form.ChildDutiesInfant.length > 0
-          : form.ChildDutiesOlder.length > 0;
+      case "accommodation": return !!form.Accommodation;
+      case "meals": return !!form.Meals;
       case "contact":
-        return form.FirstName.trim() !== "" &&
-          form.Phone.length === 10 && /^[6-9]/.test(form.Phone) &&
-          form.Street.trim() !== "" && form.City.trim() !== "";
-      case "plan": return !!form.PlanType;
+        return (
+          form.FullName.trim() !== "" &&
+          form.Phone.length === 10 &&
+          /^[6-9]/.test(form.Phone) &&
+          form.Address.trim() !== "" &&
+          !!form.City
+        );
       default: return true;
     }
   };
 
+  // Steps that show a Continue button (instead of auto-advancing)
   const CONT_KEYS = new Set([
-    "tasks", "cooktasks", "drivertasks",                              // ← cooktasks, drivertasks added
-    "cuisine", "childduties", "careneeded", "vehicletype", "contact",
-    "housesize", "mealpref", "cookmembers", "helpergender", "urgency",
-    "budget", "patientage", "childage", "patientgender", "hometype", "plan",
-    "japaduties", "japamotherneeds",
+    "taskpref",
+    "childagegroup",
+    "helpergender",
+    "budget",
+    "accommodation",
+    "meals",
+    "contact",
   ]);
   const showContinue = CONT_KEYS.has(curKey);
 
-  function buildZohoFields(f) {
-    return {
-      Full_Name: `${f.FirstName} ${f.LastName}`.trim(),
-      First_Name: f.FirstName,
-      Last_Name: f.LastName,
-      Mobile_Number: f.Phone,
-      Email: f.Email,
-      Street_Address: f.Street,
-      City: f.City,
-      Service_Type: f.ServiceType,
-      Service_Format: f.ServiceFormat,
-      Tasks_Needed: f.Tasks,
-      Cook_Tasks: f.CookTasks,          // ← new
-      Driver_Tasks: f.DriverTasks,        // ← new
-      House_Size: f.HouseSize,
-      People_At_Home: f.PeopleAtHome,
-      Pets_At_Home: f.PetsAtHome,
-      Meal_Preferences: f.MealPref,
-      Cuisine_Preference: f.CuisinePref,
-      Helper_s_Gender: f.HelperGender,
-      Cook_Members: String(f.CookMembers),
-      Child_Age: f.ChildAge,
-      // Child_Duties: f.ChildDuties,
-      Child_Duties_Infant: f.ChildDutiesInfant,
-      Child_Duties_Older: f.ChildDutiesOlder,
-      Japa_Child_Duties: f.JapaDuties,
-      Japa_Mother_Duties: f.JapaMotherNeeds,
-      Patient_Age: f.PatientAge,
-      Patient_Gender: f.PatientGender,
-      Care_Needed: f.CareNeeded,
-      Vehicle_Type: f.VehicleType,
-      Monthly_Budget: f.Budget,
-      Urgency: f.Urgency,
-      Special_Instructions: f.Instructions,
-      Plan_Type: f.PlanType,
-      Payment_Status: f.PaymentStatus,
-    };
-  }
-
-  const captureDrop = async () => {
-    if (dropLeadId) return;
-    try {
-      const zohoFields = buildZohoFields({
-        ...form,
-        PlanType: "cart_drop",
-        PaymentStatus: "Cart Drop — Dropped at Plan Step",
-      });
-      const res = await fetch(`${API_BASE}/capture-drop`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ zohoFields }),
-      });
-      const data = await res.json();
-      if (data.success && data.leadId) {
-        setDropLeadId(data.leadId);
-        sessionStorage.setItem("dp_drop_lead_id", data.leadId);
-      }
-    } catch (err) {
-      console.warn("[CART-DROP] Capture failed (non-fatal):", err.message);
-    }
-  };
-
-  const upgradeDropLead = async (finalPlanType, paymentStatus, orderId = null) => {
-    const savedDropId = dropLeadId || sessionStorage.getItem("dp_drop_lead_id");
-    if (!savedDropId) return;
-    try {
-      await fetch(`${API_BASE}/update-lead/${savedDropId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          Plan_Type: finalPlanType,
-          Payment_Status: paymentStatus,
-          ...(orderId ? { Order_ID: orderId } : {}),
-        }),
-      });
-      sessionStorage.removeItem("dp_drop_lead_id");
-      setDropLeadId("");
-    } catch (err) {
-      console.warn("[CART-DROP] Upgrade failed (non-fatal):", err.message);
-    }
-  };
-
-  const handlePlanSubmit = async (planType) => {
-    if (!planType || planSubmitting) return;
-    setF("PlanType", planType);
-    setSubmitError("");
-    setPlanSubmitting(true);
-
-    if (planType === "Priority" || planType === "Commitment") {
-      try {
-        setPaymentStage("creating_order");
-        const savedDropId = dropLeadId || sessionStorage.getItem("dp_drop_lead_id");
-        const zohoFields = buildZohoFields({ ...form, PlanType: planType });
-        const order = await createCashfreeOrder({
-          plan: planType,
-          customer: {
-            name: `${form.FirstName} ${form.LastName}`.trim(),
-            email: form.Email || `${form.Phone}@noemail.com`,
-            phone: form.Phone,
-          },
-          zohoFields,
-          dropLeadId: savedDropId,
-        });
-        if (savedDropId) {
-          await upgradeDropLead(planType, "Payment Initiated", order.order_id);
-        }
-        sessionStorage.setItem("dp_order_id", order.order_id);
-        sessionStorage.setItem("dp_plan", planType);
-        sessionStorage.setItem("dp_customer_phone", form.Phone);
-        setPaymentStage("redirecting");
-        const { load } = await import("@cashfreepayments/cashfree-js");
-        const cashfree = await load({ mode: order.cashfreeMode || "production" });
-        await cashfree.checkout({ paymentSessionId: order.payment_session_id, redirectTarget: "_self" });
-      } catch (err) {
-        setPaymentStage("idle");
-        setPlanSubmitting(false);
-        setSubmitError(
-          err.message.includes("VITE_REACT_APP_API")
-            ? "Backend URL not configured. Set VITE_REACT_APP_API in your .env file."
-            : `Payment failed to initialise: ${err.message}. Please try again.`
-        );
-      }
-      return;
-    }
-
-    if (planType === "No Pay") {
-      const savedDropId = dropLeadId || sessionStorage.getItem("dp_drop_lead_id");
-      try {
-        if (savedDropId) {
-          await upgradeDropLead("No Pay", "No Payment — Basic Access");
-        } else {
-          const zohoFields = buildZohoFields({
-            ...form,
-            PlanType: "No Pay",
-            PaymentStatus: "No Payment — Basic Access",
-          });
-          const result = await submitNoPay(zohoFields);
-          onSubmit?.(zohoFields, result);
-        }
-        const currentSteps = form.ServiceType
-          ? (SERVICE_FLOWS[form.ServiceType] || DEFAULT_FLOW)
-          : DEFAULT_FLOW;
-        setStepIdx(currentSteps.indexOf("done"));
-      } catch (err) {
-        setSubmitError(
-          err.message.includes("VITE_REACT_APP_API")
-            ? "Backend URL not configured. Set VITE_REACT_APP_API in your .env file."
-            : "We couldn't save your request. Please try again or call us on +91 92112 98139."
-        );
-      }
-      setPlanSubmitting(false);
-    }
-  };
-
-  // ── UI COMPONENTS ────────────────────────────────────────────────────────────
+  // ── UI COMPONENTS ─────────────────────────────────────────────────────────
 
   const QHead = ({ q, hint }) => (
     <div className="mb-5">
@@ -408,596 +258,402 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
   );
 
   const SvcCard = ({ svc, selected, onClick, className = "" }) => (
-    <button type="button" aria-pressed={selected} onClick={onClick} className={`hw2-svc-card ${className}`}
-      style={{ borderColor: selected ? svc.color : "#E5E2DE", boxShadow: selected ? `0 8px 24px ${svc.color}40` : "0 2px 8px rgba(0,0,0,0.05)" }}>
-      <img src={svc.image} alt={svc.label} loading="lazy" className="hw2-svc-img" />
-      <div className="hw2-svc-overlay" />
-      {selected && <div className="hw2-svc-tint" style={{ background: `${svc.color}33` }} />}
-      <p className="hw2-svc-label">{svc.label}</p>
-      {selected && <div className="hw2-svc-check" style={{ background: svc.color }}><Check size={9} strokeWidth={3} color="#fff" /></div>}
+    <button
+      type="button"
+      aria-pressed={selected}
+      onClick={onClick}
+      className={`hw2-svc-card ${className}`}
+      style={{
+        borderColor: selected ? svc.color : "#E5E2DE",
+        boxShadow: selected ? `0 8px 24px ${svc.color}40` : "0 2px 8px rgba(0,0,0,0.05)",
+        background: svc.image ? undefined : selected ? `${svc.color}26` : `${svc.color}12`,
+      }}
+    >
+      {svc.image ? (
+        <>
+          <img src={svc.image} alt={svc.label} loading="lazy" className="hw2-svc-img" />
+          <div className="hw2-svc-overlay" />
+          {selected && <div className="hw2-svc-tint" style={{ background: `${svc.color}33` }} />}
+        </>
+      ) : (
+        <div className="hw2-svc-emoji-wrap">
+          <span className="hw2-svc-emoji">{svc.emoji}</span>
+        </div>
+      )}
+      <p className={svc.image ? "hw2-svc-label" : "hw2-svc-label hw2-svc-label-flat"}>
+        {svc.label}
+      </p>
+      {selected && (
+        <div className="hw2-svc-check" style={{ background: svc.color }}>
+          <Check size={9} strokeWidth={3} color="#fff" />
+        </div>
+      )}
     </button>
   );
 
-  const ImgChip = ({ label, image, selected, onClick, color = "#EC5F36" }) => (
-    <button type="button" aria-pressed={selected} onClick={onClick} className="hw2-svc-card"
-      style={{ borderColor: selected ? color : "#E5E2DE", boxShadow: selected ? `0 8px 24px ${color}40` : "0 2px 8px rgba(0,0,0,0.05)" }}>
-      <img src={image} alt={label} loading="lazy" className="hw2-svc-img" />
-      <div className="hw2-svc-overlay" />
-      {selected && <div className="hw2-svc-tint" style={{ background: `${color}33` }} />}
-      <p className="hw2-svc-label">{label}</p>
-      {selected && <div className="hw2-svc-check" style={{ background: color }}><Check size={9} strokeWidth={3} color="#fff" /></div>}
+  const TextChip = ({ label, selected, onClick, multi = false }) => (
+    <button
+      type="button"
+      aria-pressed={selected}
+      onClick={onClick}
+      className="hw2-pill"
+      style={{
+        background: selected ? "#EC5F36" : "#fff",
+        borderColor: selected ? "#EC5F36" : "#E5E2DE",
+        boxShadow: selected ? "0 6px 18px rgba(236,95,54,0.33)" : "0 1px 4px rgba(0,0,0,0.04)",
+      }}
+    >
+      <div className="hw2-pill-txt">
+        <span
+          className="hw2-pill-label"
+          style={{ color: selected ? "#fff" : "#1a1a2e" }}
+        >
+          {label}
+        </span>
+      </div>
+      {selected && (
+        <Check size={14} strokeWidth={2.5} color="#fff" className="ml-auto flex-shrink-0" />
+      )}
     </button>
   );
 
   const GenderImgCard = ({ opt, selected, onClick }) => (
-    <button type="button" aria-pressed={selected} onClick={onClick} className="hw2-gender-card"
-      style={{ borderColor: selected ? "#EC5F36" : "#E5E2DE", boxShadow: selected ? "0 8px 24px rgba(236,95,54,0.32)" : "0 2px 8px rgba(0,0,0,0.05)" }}>
-      <img src={opt.image} alt={opt.label} loading="lazy" className="hw2-gender-img" />
-      <div className="hw2-gender-overlay" />
-      {selected && <div className="hw2-gender-tint" />}
-      <p className="hw2-gender-label">{opt.label}</p>
-      {selected && <div className="hw2-gender-check"><Check size={9} strokeWidth={3} color="#fff" /></div>}
+    <button
+      type="button"
+      aria-pressed={selected}
+      onClick={onClick}
+      className="relative overflow-hidden rounded-2xl border-2 transition-all duration-200"
+      style={{
+        borderColor: selected ? "#EC5F36" : "#E5E2DE",
+        boxShadow: selected ? "0 8px 24px rgba(236,95,54,0.25)" : "0 2px 8px rgba(0,0,0,0.05)",
+        aspectRatio: "1 / 1",
+        padding: 0,
+      }}
+    >
+      <img
+        src={opt.image} alt={opt.label} loading="lazy"
+        style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+      />
+      <div style={{ position: "absolute", inset: 0, background: selected ? "rgba(236,95,54,0.22)" : "rgba(0,0,0,0.08)", transition: "background .2s" }} />
+      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "6px 4px", background: selected ? "rgba(236,95,54,0.82)" : "rgba(0,0,0,0.45)", textAlign: "center" }}>
+        <span style={{ fontSize: 12, fontWeight: 800, color: "#fff", letterSpacing: ".01em" }}>{opt.label}</span>
+      </div>
+      {selected && (
+        <div style={{ position: "absolute", top: 7, right: 7, width: 20, height: 20, borderRadius: "50%", background: "#EC5F36", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 6px rgba(0,0,0,0.25)" }}>
+          <Check size={10} strokeWidth={3} color="#fff" />
+        </div>
+      )}
     </button>
   );
 
-  const Pill = ({ icon: Icon, label, desc, selected, onClick }) => (
-    <button type="button" aria-pressed={selected} onClick={onClick} className="hw2-pill"
-      style={{ background: selected ? "#EC5F36" : "#fff", borderColor: selected ? "#EC5F36" : "#E5E2DE", boxShadow: selected ? "0 6px 18px rgba(236,95,54,0.33)" : "0 1px 4px rgba(0,0,0,0.04)" }}>
-      <div className="hw2-pill-ico" style={{ background: selected ? "rgba(255,255,255,0.22)" : "#FFF2EE" }}>
-        <Icon size={16} color={selected ? "#fff" : "#EC5F36"} strokeWidth={1.8} />
-      </div>
-      <div className="hw2-pill-txt">
-        <span className="hw2-pill-label" style={{ color: selected ? "#fff" : "#1a1a2e" }}>{label}</span>
-        {desc && <span className="hw2-pill-desc" style={{ color: selected ? "rgba(255,255,255,0.78)" : "#888" }}>{desc}</span>}
-      </div>
-      {selected && <Check size={14} strokeWidth={2.5} color="#fff" className="ml-auto flex-shrink-0" />}
-    </button>
-  );
-
-  const Stepper = ({ label, value, onDec, onInc, min = 1, max = 20 }) => (
-    <div className="hw2-stepper">
-      <span className="hw2-step-label">{label}</span>
-      <div className="hw2-step-ctrl">
-        <button type="button" onClick={onDec} disabled={value <= min} className="hw2-step-btn"><Minus size={13} strokeWidth={2.5} /></button>
-        <span className="hw2-step-val">{value}</span>
-        <button type="button" onClick={onInc} disabled={value >= max} className="hw2-step-btn"><Plus size={13} strokeWidth={2.5} /></button>
-      </div>
-    </div>
-  );
-
+  // ── RENDER STEP ───────────────────────────────────────────────────────────
   const renderStep = () => {
+
     if (curKey === "service") return (
       <div>
         <QHead q="What type of house help do you need?" hint="Tap to select — we'll guide you from there" />
         <div className="grid grid-cols-3 gap-2.5 sm:gap-3">
           {SERVICES.map((svc, i) => (
-            <SvcCard key={svc.id} svc={svc} selected={form.ServiceType === svc.id}
-              className={SERVICES.length % 3 === 1 && i === SERVICES.length - 1 ? "col-start-2" : ""}
-              onClick={() => selectService(svc)} />
+            <SvcCard
+              key={svc.id}
+              svc={svc}
+              selected={form.ServiceType === svc.id}
+              className={SERVICES.length % 3 === 1 && i === SERVICES.length - 1 ? "col-start-2 h-[6.8rem]" : "h-[6.8rem]"}
+              onClick={() => selectService(svc)}
+            />
           ))}
         </div>
       </div>
     );
 
-    if (curKey === "format") return (
+    // ── Live-In Support task preference — single select, writes TaskPreference
+    if (curKey === "taskpref") return (
       <div>
-        <QHead q="Choose Service Format" hint="How would you like the service provided?" />
-        <div className="flex flex-col gap-2">
-          {SERVICE_FORMATS.map((opt) => {
-            const isCS = !!opt.comingSoon;
-            const sel = form.ServiceFormat === opt.id;
-            return (
-              <button key={opt.id} type="button" disabled={isCS}
-                onClick={() => { if (!isCS) { setF("ServiceFormat", opt.id); after(); } }}
-                className="hw2-pill"
-                style={{
-                  background: isCS ? "#F9F9F9" : sel ? "#EC5F36" : "#fff",
-                  borderColor: isCS ? "#E5E2DE" : sel ? "#EC5F36" : "#E5E2DE",
-                  opacity: isCS ? 0.6 : 1,
-                  cursor: isCS ? "not-allowed" : "pointer",
-                }}>
-                <div className="hw2-pill-ico" style={{ background: isCS ? "#F0F0F0" : sel ? "rgba(255,255,255,0.22)" : "#FFF2EE" }}>
-                  <opt.icon size={16} color={isCS ? "#bbb" : sel ? "#fff" : "#EC5F36"} strokeWidth={1.8} />
-                </div>
-                <div className="hw2-pill-txt">
-                  <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-                    <span className="hw2-pill-label" style={{ color: isCS ? "#aaa" : sel ? "#fff" : "#1a1a2e" }}>{opt.label}</span>
-                    {isCS && (
-                      <span style={{ fontSize: 9, fontWeight: 800, background: "linear-gradient(135deg,#6366f1,#8b5cf6)", color: "#fff", borderRadius: 20, padding: "2px 8px" }}>
-                        Coming Soon
-                      </span>
-                    )}
-                  </div>
-                  <span className="hw2-pill-desc" style={{ color: isCS ? "#bbb" : sel ? "rgba(255,255,255,0.78)" : "#888" }}>{opt.desc}</span>
-                </div>
-                {!isCS && sel && <Check size={14} strokeWidth={2.5} color="#fff" className="ml-auto flex-shrink-0" />}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-    );
-
-    // ── LIVE-IN SUPPORT TASKS ─────────────────────────────────────────────────
-    if (curKey === "tasks") return (
-      <div>
-        <QHead q="Which tasks are needed?" hint="Select all that apply" />
-        <div className="grid grid-cols-3 gap-2.5">
-          {TASKS.map((t) => (
-            <ImgChip key={t.id} label={t.label} image={t.image}
-              selected={form.Tasks.includes(t.id)} onClick={() => toggleArr("Tasks", t.id)} />
-          ))}
-        </div>
-        {form.Tasks.length === 0 && <p className="hw2-warn mt-2">Pick at least one task</p>}
-      </div>
-    );
-
-    // ── COOK TASKS ────────────────────────────────────────────────────────────
-    if (curKey === "cooktasks") return (
-      <div>
-        <QHead q="What cooking tasks are needed?" hint="Select all that apply" />
-        <div className="grid grid-cols-3 gap-2.5">
-          {COOK_TASKS.map((t) => (
-            <ImgChip key={t.id} label={t.label} image={t.image}
-              selected={form.CookTasks.includes(t.id)}
-              onClick={() => toggleArr("CookTasks", t.id)} />
-          ))}
-        </div>
-        {form.CookTasks.length === 0 && <p className="hw2-warn mt-2">Pick at least one task</p>}
-      </div>
-    );
-
-    // ── DRIVER TASKS ──────────────────────────────────────────────────────────
-    if (curKey === "drivertasks") return (
-      <div>
-        <QHead q="Driver's duties and availability?" hint="Select all that apply" />
-        <div className="grid grid-cols-3 gap-2.5">
-          {DRIVER_TASKS.map((t) => (
-            <ImgChip key={t.id} label={t.label} image={t.image}
-              selected={form.DriverTasks.includes(t.id)}
-              onClick={() => toggleArr("DriverTasks", t.id)} />
-          ))}
-        </div>
-        {form.DriverTasks.length === 0 && <p className="hw2-warn mt-2">Select at least one</p>}
-      </div>
-    );
-
-    if (curKey === "housesize") return (
-      <div>
-        <QHead q="What's your home size?" hint="Helps us estimate effort & staff" />
-        <div className="grid grid-cols-3 gap-2.5">
-          {HOUSE_SIZES.map((h) => (
-            <ImgChip key={h.id} label={h.label} image={h.image}
-              selected={form.HouseSize === h.id} onClick={() => setF("HouseSize", h.id)} />
+        <QHead q="Task preference?" hint="Choose the option that fits best" />
+        <div className="grid grid-cols-2 gap-2.5">
+          {TASK_PREF_OPTIONS.map((o) => (
+            <SvcCard
+              key={o.id}
+              svc={o}
+              selected={form.TaskPreference === o.id}
+              onClick={() => { setF("TaskPreference", o.id); after() }}
+              className="h-[10rem]"
+            />
           ))}
         </div>
       </div>
     );
 
-    if (curKey === "pets") return (
+    // ── Cooking Help — cook type, writes TaskPreference (consolidated, matches DemandForm)
+    if (curKey === "cooktype") return (
       <div>
-        <QHead q="Do you have pets at home?" hint="Some helpers prefer no pets" />
-        <div className="grid grid-cols-2 gap-3 mt-1">
-          {PETS_OPTIONS.map((o) => (
-            <ImgChip key={o.id} label={o.label} image={o.image}
-              selected={form.PetsAtHome === o.id}
-              onClick={() => { setF("PetsAtHome", o.id); after(); }} />
+        <QHead q="What type of cook do you need?" />
+        <div className="grid grid-cols-2 gap-2.5">
+          {COOK_TYPE_OPTIONS.map((o) => (
+            <SvcCard
+              key={o.id}
+              svc={o}
+              selected={form.TaskPreference === o.id}
+              onClick={() => { setF("TaskPreference", o.id); after(); }}
+              className="h-[10rem]"
+            />
           ))}
         </div>
       </div>
     );
 
-    if (curKey === "hometype") return (
+    // ── Baby Caretaker — age group writes TaskPreference (single select, consolidated);
+    // TotalChildren stays its own field, same as DemandForm
+    if (curKey === "childagegroup") return (
       <div>
-        <QHead q="What type of home?" />
-        <div className="grid grid-cols-3 gap-2.5">
-          {HOME_TYPES.map((h) => (
-            <ImgChip key={h.id} label={h.label} image={h.image}
-              selected={form.HomeType === h.id}
-              onClick={() => { setF("HomeType", h.id); after(); }} />
+        <QHead q="Child's age group?" hint="Choose the option that fits best" />
+        <div className="flex gap-2 mb-5">
+          {CHILD_AGE_OPTIONS.map((o) => (
+            <TextChip
+              key={o.id}
+              label={o.label}
+              selected={form.TaskPreference === o.id}
+              onClick={() => setF("TaskPreference", o.id)}
+            />
           ))}
         </div>
-      </div>
-    );
 
-    if (curKey === "mealpref") return (
-      <div>
-        <QHead q="Dietary preference?" hint="Helps match the right cook" />
-        <div className="grid grid-cols-3 gap-2.5">
-          {MEAL_PREFS.map((m) => (
-            <ImgChip key={m.id} label={m.label} image={m.image}
-              selected={form.MealPref === m.id}
-              onClick={() => { setF("MealPref", m.id); after(); }} />
-          ))}
-        </div>
-      </div>
-    );
-
-    if (curKey === "cuisine") return (
-      <div>
-        <QHead q="Cuisine preference?" />
-        <div className="grid grid-cols-3 gap-2.5">
-          {CUISINES.map((c) => (
-            <ImgChip key={c.id} label={c.label} image={c.image}
-              selected={form.CuisinePref.includes(c.id)}
-              onClick={() => toggleArr("CuisinePref", c.id)} />
-          ))}
-        </div>
-        {form.CuisinePref.length === 0 && <p className="hw2-warn mt-2">Pick at least one</p>}
-      </div>
-    );
-
-    if (curKey === "helpergender") return (
-      <div>
-        <QHead q="Helper's preferences" />
-        <p className="text-[13px] font-bold text-[#181C2E] mb-3">
-          Preferred {form.ServiceType.toLowerCase()}'s gender
-        </p>
-        <div className="grid grid-cols-3 gap-3">
-          {GENDER_OPTIONS_DATA.map((g) => {
-            const sel = form.HelperGender === g.id;
+        <p className="text-[13px] font-bold text-[#181C2E] mb-3">Total number of children</p>
+        <div className="flex gap-3">
+          {TOTAL_CHILDREN_OPTIONS.map((o) => {
+            const sel = form.TotalChildren === o.id;
             return (
               <button
-                key={g.id}
+                key={o.id}
                 type="button"
-                aria-pressed={sel}
-                onClick={() => { setF("HelperGender", g.id); after(); }}
-                className="relative overflow-hidden rounded-2xl border-2 transition-all duration-200"
-                style={{
-                  borderColor: sel ? "#EC5F36" : "#E5E2DE",
-                  boxShadow: sel ? "0 6px 20px rgba(236,95,54,0.25)" : "0 2px 8px rgba(0,0,0,0.05)",
-                  aspectRatio: "1 / 1",
-                  padding: 0,
-                }}>
-                <img src={g.image} alt={g.label} loading="lazy"
-                  style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
-                <div style={{ position: "absolute", inset: 0, background: sel ? "rgba(236,95,54,0.22)" : "rgba(0,0,0,0.08)", transition: "background .2s" }} />
-                <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "6px 4px", background: sel ? "rgba(236,95,54,0.82)" : "rgba(0,0,0,0.45)", textAlign: "center" }}>
-                  <span style={{ fontSize: 12, fontWeight: 800, color: "#fff", letterSpacing: ".01em" }}>{g.label}</span>
-                </div>
-                {sel && (
-                  <div style={{ position: "absolute", top: 7, right: 7, width: 20, height: 20, borderRadius: "50%", background: "#EC5F36", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 6px rgba(0,0,0,0.25)" }}>
-                    <Check size={10} strokeWidth={3} color="#fff" />
-                  </div>
-                )}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-    );
-
-    if (curKey === "cookmembers") return (
-      <div>
-        <QHead q="How many members to cook for?" />
-        <div className="grid grid-cols-4 gap-3 mt-2">
-          {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => {
-            const sel = form.CookMembers === n;
-            return (
-              <button key={n} type="button"
-                onClick={() => { setF("CookMembers", n); after(220); }}
-                className="rounded-2xl border-2 py-4 text-lg font-extrabold transition-all duration-200"
+                onClick={() => setF("TotalChildren", sel ? "" : o.id)}
+                className="rounded-2xl border-2 py-4 flex-1 text-lg font-extrabold transition-all duration-200"
                 style={{
                   borderColor: sel ? "#EC5F36" : "#E5E2DE",
                   background: sel ? "linear-gradient(135deg,#EC5F36,#D84E28)" : "#fff",
                   color: sel ? "#fff" : "#1a1a2e",
                   boxShadow: sel ? "0 6px 18px rgba(236,95,54,0.30)" : "0 1px 4px rgba(0,0,0,0.04)",
-                }}>
-                {n}
+                }}
+              >
+                {o.label}
               </button>
             );
           })}
         </div>
-        <div className="mt-4">
-          <QHead q="More than 8?" hint="" />
-          <Stepper
-            label="Custom count"
-            value={form.CookMembers > 8 ? form.CookMembers : 9}
-            onDec={() => setF("CookMembers", Math.max(9, form.CookMembers - 1))}
-            onInc={() => setF("CookMembers", Math.min(20, form.CookMembers + 1))}
-          />
+      </div>
+    );
+
+    // ── Driver — hours, writes TaskPreference (consolidated, matches DemandForm)
+    if (curKey === "driverhours") return (
+      <div>
+        <QHead q="Availability required?" hint="How many hours per day?" />
+        <div className="grid grid-cols-2 gap-2.5">
+          {DRIVER_HOURS_OPTIONS.map((o) => (
+            <SvcCard
+              key={o.id}
+              svc={o}
+              selected={form.TaskPreference === o.id}
+              onClick={() => { setF("TaskPreference", o.id); after(); }}
+              className="h-[6.8rem]"
+            />
+          ))}
         </div>
       </div>
     );
 
-    // ── BABY CARETAKER — AGE SELECTION ────────────────────────────────────────
-    if (curKey === "childage") return (
+    if (curKey === "helpergender") return (
       <div>
-        <QHead q="How old is the child?" hint="Tasks are matched to the age group" />
-        <div className="grid grid-cols-1 gap-3">
-          {CHILD_AGE_RANGES.map((r) => (
-            <button key={r.id} type="button"
-              onClick={() => {
-                // Clear previously selected duties when age group changes
-                // so stale IDs from the other task set don't persist.
-                setForm(f => ({ ...f, ChildAge: r.id, ChildDutiesInfant: [], ChildDutiesOlder: [] }));
-                after();
-              }}
+        <QHead q="Helper's gender preference" />
+        <div className="grid grid-cols-3 gap-3">
+          {GENDER_OPTIONS_DATA.map((g) => (
+            <GenderImgCard
+              key={g.id}
+              opt={g}
+              selected={form.HelperGender === g.id}
+              onClick={() => { setF("HelperGender", g.id); after(); }}
+            />
+          ))}
+        </div>
+      </div>
+    );
+
+    if (curKey === "budget") return (
+      <div>
+        <QHead q="Salary range (per month)?" hint="We'll match staff within your budget" />
+        <div className="flex flex-col gap-2">
+          {BUDGETS.map((b) => (
+            <button
+              key={b.id}
+              type="button"
+              onClick={() => { setF("Budget", b.id); after(); }}
               className="hw2-budget-row"
               style={{
-                background: form.ChildAge === r.id ? "#EC5F36" : "#fff",
-                borderColor: form.ChildAge === r.id ? "#EC5F36" : "#E5E2DE",
-              }}>
-              <span className="hw2-budget-label" style={{ color: form.ChildAge === r.id ? "#fff" : "#1a1a2e" }}>{r.label}</span>
-              {form.ChildAge === r.id && <Check size={16} strokeWidth={2.5} color="#fff" className="ml-auto flex-shrink-0" />}
+                background: form.Budget === b.id ? "#EC5F36" : "#fff",
+                borderColor: form.Budget === b.id ? "#EC5F36" : "#E5E2DE",
+              }}
+            >
+              <span
+                className="hw2-budget-label"
+                style={{ color: form.Budget === b.id ? "#fff" : "#1a1a2e" }}
+              >
+                {b.label}
+              </span>
+              {form.Budget === b.id && (
+                <Check size={16} strokeWidth={2.5} color="#fff" className="ml-auto flex-shrink-0" />
+              )}
             </button>
           ))}
         </div>
       </div>
     );
 
-    // ── BABY CARETAKER — AGE-CONDITIONAL DUTIES ───────────────────────────────
-    if (curKey === "childduties") {
-      const isInfant = form.ChildAge === "0 - 3 Years";
-      const dutySet = isInfant ? CHILD_DUTIES_INFANT : CHILD_DUTIES_OLDER;
-      const field = isInfant ? "ChildDutiesInfant" : "ChildDutiesOlder";
-      const qText = isInfant
-        ? "What infant care duties are needed?"
-        : "What childcare duties are needed?";
-
-      return (
-        <div>
-          <QHead q={qText} hint="Select all that apply" />
-          <div className="grid grid-cols-3 gap-2.5">
-            {dutySet.map((d) => (
-              <ImgChip key={d.id} label={d.label} image={d.image}
-                selected={form[field].includes(d.id)}
-                onClick={() => toggleArr(field, d.id)} />
-            ))}
-          </div>
-          {form[field].length === 0 && <p className="hw2-warn mt-2">Select at least one</p>}
-        </div>
-      );
-    }
-
-    if (curKey === "japaduties") return (
+    if (curKey === "accommodation") return (
       <div>
-        <QHead q="What newborn duties are needed?" hint="Select all that apply" />
-        <div className="grid grid-cols-3 gap-2.5">
-          {JAPA_DUTIES.map((d) => (
-            <ImgChip key={d.id} label={d.label} image={d.image}
-              selected={form.JapaDuties.includes(d.id)}
-              onClick={() => toggleArr("JapaDuties", d.id)} />
+        <QHead q="Accommodation for the helper?" />
+        <div className="grid grid-cols-3 gap-2.5 sm:gap-3">
+          {ACCOMMODATION_OPTIONS.map((o) => (
+            <SvcCard
+              key={o.id}
+              svc={o}
+              selected={form.Accommodation === o.id}
+              onClick={() => { setF("Accommodation", o.id); after(); }}
+              className="h-[6.8rem]"
+            />
           ))}
         </div>
-        {form.JapaDuties.length === 0 && <p className="hw2-warn mt-2">Select at least one</p>}
       </div>
     );
 
-    if (curKey === "japamotherneeds") return (
+    if (curKey === "meals") return (
       <div>
-        <QHead q="What does the mother need?" hint="Select all that apply" />
-        <div className="grid grid-cols-3 gap-2.5">
-          {JAPA_MOTHER_NEEDS.map((d) => (
-            <ImgChip key={d.id} label={d.label} image={d.image}
-              selected={form.JapaMotherNeeds.includes(d.id)}
-              onClick={() => toggleArr("JapaMotherNeeds", d.id)} />
-          ))}
-        </div>
-        {form.JapaMotherNeeds.length === 0 && <p className="hw2-warn mt-2">Select at least one</p>}
-      </div>
-    );
-
-    if (curKey === "patientage") return (
-      <div>
-        <QHead q="How old is the patient?" />
-        <div className="hw2-age-input-wrap">
-          <input className="hw2-finput hw2-age-input" type="number" min={1} placeholder="e.g. 68 years…"
-            value={form.PatientAge} autoFocus onChange={(e) => setF("PatientAge", e.target.value)} />
-        </div>
-      </div>
-    );
-
-    if (curKey === "patientgender") return (
-      <div>
-        <QHead q="Patient's gender?" />
+        <QHead q="Meals for the helper?" />
         <div className="grid grid-cols-2 gap-3">
-          {GENDER_OPTIONS_DATA.map((g) => (
-            <GenderImgCard key={g.id} opt={g} selected={form.PatientGender === g.id}
-              onClick={() => { setF("PatientGender", g.id); after(); }} />
+          {MEAL_OPTIONS.map((o) => (
+            <SvcCard
+              key={o.id}
+              svc={o}
+              selected={form.Meals === o.id}
+              onClick={() => { setF("Meals", o.id); after(); }}
+              className="h-[6.8rem]"
+            />
           ))}
         </div>
       </div>
     );
-
-    if (curKey === "careneeded") return (
-      <div>
-        <QHead q="What care is required?" hint="Select all that apply" />
-        <div className="grid grid-cols-3 gap-2.5">
-          {CARE_NEEDED.map((c) => (
-            <ImgChip key={c.id} label={c.label} image={c.image}
-              selected={form.CareNeeded.includes(c.id)}
-              onClick={() => toggleArr("CareNeeded", c.id)} />
-          ))}
-        </div>
-        {form.CareNeeded.length === 0 && <p className="hw2-warn mt-2">Select at least one</p>}
-      </div>
-    );
-
-    if (curKey === "vehicletype") return (
-      <div>
-        <QHead q="What vehicle(s) will the driver operate?" hint="Select all that apply" />
-        <div className="grid grid-cols-2 gap-2.5">
-          {VEHICLE_TYPES.map((v) => (
-            <ImgChip key={v.id} label={v.label} image={v.image}
-              selected={form.VehicleType.includes(v.id)}
-              onClick={() => toggleArr("VehicleType", v.id)} />
-          ))}
-        </div>
-        {form.VehicleType.length === 0 && <p className="hw2-warn mt-2">Select at least one</p>}
-      </div>
-    );
-
-    if (curKey === "urgency") return (
-      <div>
-        <QHead q="How soon do you need placement?" />
-        <div className="flex flex-col gap-2">
-          {URGENCY_OPTIONS.map((o) => (
-            <Pill key={o.id} icon={o.icon} label={o.label} desc={o.desc}
-              selected={form.Urgency === o.id}
-              onClick={() => { setF("Urgency", o.id); after(); }} />
-          ))}
-        </div>
-      </div>
-    );
-
-    if (curKey === "budget") {
-      if (form.ServiceFormat === "Substitute") return (
-        <div>
-          <QHead q="Substitute Service Pricing" hint="Here's how our substitute service works" />
-          <div className="flex flex-col gap-3 mb-4">
-            <div className="rounded-2xl border border-[#F1E3DE] bg-[#FFF7F4] p-4">
-              <p className="text-xs font-bold text-[#EC5F36] uppercase tracking-wider mb-3">How It Works</p>
-              <div className="flex flex-col gap-3">
-                <div className="flex items-start gap-3">
-                  <div className="w-7 h-7 rounded-full bg-[#EC5F36] flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <span className="text-white text-xs font-bold">1</span>
-                  </div>
-                  <div>
-                    <p className="text-sm font-bold text-[#181C2E]">Domestic Pro Placement Fee</p>
-                    <p className="text-xs text-[#5B6475] leading-relaxed mt-0.5">
-                      We charge a one-time fee of <span className="font-bold text-[#181C2E]">₹5,000</span> for sourcing, verifying, and deploying a suitable substitute helper at your home.
-                    </p>
-                  </div>
-                </div>
-                <div className="w-full h-px bg-[#F1E3DE]" />
-                <div className="flex items-start gap-3">
-                  <div className="w-7 h-7 rounded-full bg-[#EC5F36] flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <span className="text-white text-xs font-bold">2</span>
-                  </div>
-                  <div>
-                    <p className="text-sm font-bold text-[#181C2E]">Helper's Salary — Separate</p>
-                    <p className="text-xs text-[#5B6475] leading-relaxed mt-0.5">
-                      The helper's salary is <span className="font-bold text-[#181C2E]">not included</span> in our fee. It is agreed directly between you and the helper.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="flex items-center justify-between rounded-2xl border border-[#F1E3DE] bg-white px-5 py-4">
-              <div>
-                <p className="text-xs text-[#5B6475] font-semibold">Domestic Pro Fee</p>
-                <p className="text-xl font-extrabold text-[#EC5F36] mt-0.5">₹5,000</p>
-              </div>
-              <div className="text-right">
-                <p className="text-xs text-[#5B6475] font-semibold">Helper Salary</p>
-                <p className="text-sm font-bold text-[#181C2E] mt-0.5">As mutually agreed</p>
-              </div>
-            </div>
-          </div>
-          <button type="button"
-            onClick={() => { setForm((f) => ({ ...f, Budget: "sub-5k" })); setTimeout(goNext, 220); }}
-            className="w-full rounded-2xl py-3.5 text-sm font-bold transition-all duration-200"
-            style={{
-              background: form.Budget === "sub-5k" ? "linear-gradient(135deg,#EC5F36,#D84E28)" : "#fff",
-              border: `2px solid ${form.Budget === "sub-5k" ? "#EC5F36" : "#F1E3DE"}`,
-              color: form.Budget === "sub-5k" ? "#fff" : "#EC5F36",
-            }}>
-            {form.Budget === "sub-5k" ? "✓ Understood — Continue" : "I Understand — Proceed"}
-          </button>
-        </div>
-      );
-
-      return (
-        <div>
-          <QHead q="What's your monthly budget?" hint="We'll match staff within your budget" />
-          <div className="flex flex-col gap-2">
-            {BUDGETS.map((b) => (
-              <button key={b.id} type="button"
-                onClick={() => { setF("Budget", b.id); after(); }}
-                className="hw2-budget-row"
-                style={{ background: form.Budget === b.id ? "#EC5F36" : "#fff", borderColor: form.Budget === b.id ? "#EC5F36" : "#E5E2DE" }}>
-                <span className="hw2-budget-label" style={{ color: form.Budget === b.id ? "#fff" : "#1a1a2e" }}>{b.label}</span>
-                <span className="hw2-budget-desc" style={{ color: form.Budget === b.id ? "rgba(255,255,255,0.8)" : "#888" }}>{b.desc}</span>
-                {form.Budget === b.id && <Check size={16} strokeWidth={2.5} color="#fff" className="ml-auto flex-shrink-0" />}
-              </button>
-            ))}
-          </div>
-        </div>
-      );
-    }
 
     if (curKey === "contact") {
       const phoneOk = form.Phone.length === 10 && /^[6-9]/.test(form.Phone);
       return (
         <div>
           <QHead q="Almost there! 🎉" hint="Share your details — our team will call you within 2 hours" />
-          <div className="grid grid-cols-2 gap-2.5 mb-3">
-            <div>
-              <label className="hw2-flabel">First Name *</label>
-              <input className="hw2-finput" type="text" placeholder="Rahul"
-                value={form.FirstName} onChange={(e) => setF("FirstName", e.target.value)} />
-            </div>
-            <div>
-              <label className="hw2-flabel">Last Name</label>
-              <input className="hw2-finput" type="text" placeholder="Sharma"
-                value={form.LastName} onChange={(e) => setF("LastName", e.target.value)} />
-            </div>
-          </div>
+
           <div className="mb-3">
-            <label className="hw2-flabel">Phone * <span className="text-xs font-normal text-gray-400">(we'll call on this)</span></label>
-            <div className="hw2-phone-wrap" style={{ borderColor: phoneOk ? "#16a34a" : undefined }}>
+            <label className="hw2-flabel">Full name <span className="text-[#EC5F36]">*</span></label>
+            <input
+              className="hw2-finput"
+              type="text"
+              placeholder="Rahul Sharma"
+              value={form.FullName}
+              autoFocus
+              onChange={(e) => setF("FullName", e.target.value)}
+            />
+          </div>
+
+          <div className="mb-3">
+            <label className="hw2-flabel">
+              Contact number <span className="text-[#EC5F36]">*</span>{" "}
+              <span className="text-xs font-normal text-gray-400">(we'll call on this)</span>
+            </label>
+            <div
+              className="hw2-phone-wrap"
+              style={{ borderColor: phoneOk ? "#16a34a" : undefined }}
+            >
               <div className="hw2-phone-pre">+91</div>
-              <input type="tel" inputMode="numeric" maxLength={10} className="hw2-phone-inp"
-                placeholder="10-digit mobile" value={form.Phone} autoFocus
-                onChange={(e) => setF("Phone", e.target.value.replace(/\D/g, "").slice(0, 10))} />
-              {phoneOk && <CheckCircle2 size={18} color="#16a34a" strokeWidth={2} className="mr-3 flex-shrink-0" />}
+              <input
+                type="tel"
+                inputMode="numeric"
+                maxLength={10}
+                className="hw2-phone-inp"
+                placeholder="98765 43210"
+                value={form.Phone}
+                onChange={(e) => setF("Phone", e.target.value.replace(/\D/g, "").slice(0, 10))}
+              />
+              {phoneOk && (
+                <CheckCircle2 size={18} color="#16a34a" strokeWidth={2} className="mr-3 flex-shrink-0" />
+              )}
             </div>
             {form.Phone.length > 0 && form.Phone.length < 10 && (
               <p className="hw2-warn">{10 - form.Phone.length} more digit{10 - form.Phone.length !== 1 ? "s" : ""} needed</p>
             )}
           </div>
+
           <div className="mb-3">
-            <label className="hw2-flabel">Email <span className="text-xs font-normal text-gray-400">(optional)</span></label>
-            <input className="hw2-finput" type="email" placeholder="rahul@example.com"
-              value={form.Email} onChange={(e) => setF("Email", e.target.value)} />
+            <label className="hw2-flabel">
+              Email <span className="text-xs font-normal text-gray-400">(optional)</span>
+            </label>
+            <input
+              className="hw2-finput"
+              type="email"
+              placeholder="rahul@example.com"
+              value={form.Email}
+              onChange={(e) => setF("Email", e.target.value)}
+            />
           </div>
+
           <div className="mb-3">
-            <label className="hw2-flabel">Your Area / City *</label>
-            <div className="grid grid-cols-2 gap-2">
-              <input className="hw2-finput" type="text" placeholder="Street / Area"
-                value={form.Street} onChange={(e) => setF("Street", e.target.value)} />
-              <CitySelect value={form.City} onChange={(city) => setF("City", city)} placeholder="Select city" />
-            </div>
+            <label className="hw2-flabel">
+              Address <span className="text-[#EC5F36]">*</span>
+            </label>
+            <input
+              className="hw2-finput"
+              type="text"
+              placeholder="Sector, colony, city"
+              value={form.Address}
+              onChange={(e) => setF("Address", e.target.value)}
+            />
           </div>
+
+          <div className="mb-3">
+            <label className="hw2-flabel">
+              City <span className="text-[#EC5F36]">*</span>
+            </label>
+            <CitySelect
+              value={form.City ? { name: form.City, state: form.State } : null}
+              onChange={setCity}
+              placeholder="Select city"
+            />
+            {form.State && (
+              <p className="text-xs font-medium text-gray-400 mt-1.5 ml-0.5">
+                State: <span className="text-gray-600 font-semibold">{form.State}</span>
+              </p>
+            )}
+          </div>
+
           <div className="mb-4">
-            <label className="hw2-flabel">Anything else? <span className="text-xs font-normal text-gray-400">(optional)</span></label>
-            <textarea rows={2} maxLength={500} placeholder="Specific timing, languages, requirements…"
-              value={form.Instructions} onChange={(e) => setF("Instructions", e.target.value)}
-              className="hw2-textarea" />
+            <label className="hw2-flabel">
+              Special instructions <span className="text-xs font-normal text-gray-400">(optional)</span>
+            </label>
+            <textarea
+              rows={2}
+              maxLength={500}
+              placeholder="Specific timing, languages, requirements…"
+              value={form.Instructions}
+              onChange={(e) => setF("Instructions", e.target.value)}
+              className="hw2-textarea"
+            />
           </div>
+
           <div className="hw2-summary">
             <p className="hw2-sum-head">📋 Your Request Summary</p>
             {[
-              { k: "Service", v: form.ServiceLabel },
-              form.ServiceFormat && { k: "Format", v: SERVICE_FORMATS.find((f) => f.id === form.ServiceFormat)?.label },
-              form.HouseSize && { k: "Home", v: form.HouseSize.toUpperCase() },
-              form.HouseSize && { k: "Household", v: `${form.PeopleAtHome} people` },
-              form.Tasks.length > 0 && { k: "Tasks", v: form.Tasks.join(", ") },
-              form.CookTasks.length > 0 && { k: "Cook Tasks", v: form.CookTasks.join(", ") },  // ← new
-              form.DriverTasks.length > 0 && { k: "Driver Tasks", v: form.DriverTasks.join(", ") },  // ← new
-              form.MealPref && { k: "Diet", v: form.MealPref },
-              form.CuisinePref.length > 0 && { k: "Cuisine", v: form.CuisinePref.join(", ") },
-              form.CookMembers && { k: "Family Members", v: form.CookMembers },
-              form.HelperGender && { k: "Helper's Gender", v: form.HelperGender },
-              form.ChildAge && { k: "Child Age", v: form.ChildAge },
-              // form.ChildDuties.length > 0 && { k: "Child Duties", v: form.ChildDuties.join(", ") },
-              form.ChildDutiesInfant.length > 0 && { k: "Child Duties (Infant)", v: form.ChildDutiesInfant.join(", ") },
-              form.ChildDutiesOlder.length > 0 && { k: "Child Duties (3+)", v: form.ChildDutiesOlder.join(", ") },
-              form.JapaDuties?.length > 0 && { k: "Japa Duties", v: form.JapaDuties.join(", ") },
-              form.JapaMotherNeeds?.length > 0 && { k: "Mother Needs", v: form.JapaMotherNeeds.join(", ") },
-              form.PatientAge && { k: "Patient Age", v: form.PatientAge },
-              form.PatientGender && { k: "Patient", v: form.PatientGender },
-              form.CareNeeded.length > 0 && { k: "Care Needed", v: form.CareNeeded.join(", ") },
-              form.HomeType && { k: "Home Type", v: form.HomeType },
-              form.VehicleType.length > 0 && { k: "Vehicle", v: form.VehicleType.join(", ") },
-              form.Budget && {
-                k: form.ServiceFormat === "Substitute" ? "Service Fee" : "Budget",
-                v: form.ServiceFormat === "Substitute"
-                  ? "₹5,000 placement fee · salary separate"
-                  : BUDGETS.find((b) => b.id === form.Budget)?.label || form.Budget,
-              },
-              form.Urgency && { k: "Urgency", v: URGENCY_OPTIONS.find((o) => o.id === form.Urgency)?.label },
+              form.ServiceType && { k: "Service", v: form.ServiceLabel },
+              form.TaskPreference && { k: "Preference", v: form.TaskPreference },
+              form.TotalChildren && { k: "No. of Children", v: form.TotalChildren },
+              form.HelperGender && { k: "Helper Gender", v: form.HelperGender },
+              form.Budget && { k: "Budget", v: form.Budget },
+              form.Accommodation && { k: "Accommodation", v: form.Accommodation },
+              form.Meals && { k: "Meals", v: form.Meals },
+              form.City && { k: "City", v: form.State ? `${form.City}, ${form.State}` : form.City },
             ].filter(Boolean).map(({ k, v }) => (
               <div key={k} className="hw2-sum-row">
                 <span className="hw2-sum-key">{k}</span>
@@ -1005,143 +661,9 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
               </div>
             ))}
           </div>
-        </div>
-      );
-    }
-
-    if (curKey === "plan") {
-      const planList = Object.values(PLANS);
-      const activePlan = planList.find((p) => p.id === activeTab) || planList[0];
-
-      return (
-        <div>
-          <QHead q="How do you want to proceed?" hint="Browse plans and select the one that works for you" />
-
-          {/* Tab Navbar */}
-          <div style={{ display: "flex", gap: 6, marginBottom: 14, background: "#F5F0ED", borderRadius: 12, padding: 4 }}>
-            {planList.map((plan) => {
-              const isActive = activePlan.id === plan.id;
-              return (
-                <button key={plan.id} type="button" onClick={() => setActiveTab(plan.id)}
-                  style={{
-                    flex: 1, padding: "7px 4px", borderRadius: 9, border: "none",
-                    cursor: "pointer", transition: "all .2s",
-                    background: isActive ? "#fff" : "transparent",
-                    boxShadow: isActive ? "0 1px 6px rgba(0,0,0,0.10)" : "none",
-                    fontFamily: "'Plus Jakarta Sans', sans-serif",
-                  }}>
-                  <div style={{ fontSize: 11, fontWeight: 800, color: isActive ? plan.color : "#9ca3af", lineHeight: 1.2 }}>
-                    {plan.name.split(" ")[0]}
-                  </div>
-                  {plan.amount > 0
-                    ? <div style={{ fontSize: 10, fontWeight: 600, color: isActive ? plan.color : "#bbb", marginTop: 1 }}>₹{plan.amount.toLocaleString()}</div>
-                    : <div style={{ fontSize: 10, fontWeight: 600, color: isActive ? "#9ca3af" : "#bbb", marginTop: 1 }}>Free</div>
-                  }
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Active Plan Detail Card */}
-          {(() => {
-            const plan = activePlan;
-            const total = plan.amount + plan.gst;
-            const isSelected = form.PlanType === plan.id;
-            return (
-              <div style={{ border: `2px solid ${isSelected ? plan.color : "#EBEBEB"}`, borderRadius: 16, padding: "14px 15px", background: isSelected ? plan.accentLight : "#fff", transition: "all .22s" }}>
-                <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 10, marginBottom: 4 }}>
-                  <div>
-                    <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap" }}>
-                      <div style={{ width: 8, height: 8, borderRadius: "50%", background: plan.badgeBg, flexShrink: 0 }} />
-                      <span style={{ fontSize: 15, fontWeight: 800, color: plan.color, fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{plan.name}</span>
-                      {plan.recommended && (
-                        <span style={{ fontSize: 9, fontWeight: 800, color: "#fff", borderRadius: 20, padding: "2px 8px", background: plan.badgeBg, letterSpacing: ".04em", textTransform: "uppercase" }}>
-                          Recommended
-                        </span>
-                      )}
-                    </div>
-                    <div style={{ fontSize: 11, color: "#9ca3af", fontWeight: 500, marginTop: 3, paddingLeft: 15 }}>
-                      {plan.tag} · {plan.subtitle}
-                    </div>
-                  </div>
-                  <div style={{ textAlign: "right", flexShrink: 0 }}>
-                    <span style={{ display: "block", fontSize: 22, fontWeight: 800, color: plan.color, fontFamily: "'Fraunces', serif", lineHeight: 1 }}>
-                      {plan.amount === 0 ? "Free" : `₹${plan.amount.toLocaleString()}`}
-                    </span>
-                    {plan.amount > 0 && <span style={{ fontSize: 10, color: "#9ca3af", fontWeight: 500 }}>+ ₹{plan.gst} GST</span>}
-                  </div>
-                </div>
-
-                {plan.amount > 0 && (
-                  <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 10 }}>
-                    <span style={{ fontSize: 10.5, fontWeight: 800, border: `1.5px solid ${plan.borderColor}`, borderRadius: 8, padding: "2px 9px", color: plan.color, background: "rgba(255,255,255,0.7)" }}>
-                      ₹{total.toLocaleString()} total
-                    </span>
-                  </div>
-                )}
-
-                <div style={{ height: 1, background: isSelected ? plan.borderColor : "#F0F0F0", marginBottom: 12 }} />
-
-                <ul style={{ listStyle: "none", padding: 0, margin: "0 0 12px", display: "flex", flexDirection: "column", gap: 9 }}>
-                  {plan.inclusions.map((item, i) => {
-                    const IncIcon = ICON_MAP[item.icon] || Check;
-                    return (
-                      <li key={i} style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
-                        <span style={{ width: 27, height: 27, borderRadius: 8, background: isSelected ? "rgba(255,255,255,0.65)" : plan.accentLight, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 1 }}>
-                          <IncIcon size={11} color={plan.color} />
-                        </span>
-                        <div style={{ display: "flex", flexDirection: "column", gap: 1, flex: 1, minWidth: 0 }}>
-                          <span style={{ fontSize: 12.5, fontWeight: 700, color: "#1a1a2e", lineHeight: 1.3, fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{item.label}</span>
-                          <span style={{ fontSize: 11, color: "#6b7280", fontWeight: 500, lineHeight: 1.4 }}>{item.desc}</span>
-                        </div>
-                      </li>
-                    );
-                  })}
-                </ul>
-
-                {plan.bonus && (
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, border: `1.5px solid ${plan.borderColor}`, borderRadius: 10, padding: "7px 12px", fontSize: 12, fontWeight: 700, color: plan.color, background: isSelected ? "rgba(255,255,255,0.55)" : plan.accentLight, marginBottom: 12, fontFamily: "'Plus Jakarta Sans', sans-serif", lineHeight: 1.4 }}>
-                    <Gift size={11} color={plan.color} style={{ flexShrink: 0 }} />
-                    <span>{plan.bonus}</span>
-                  </div>
-                )}
-
-                <button type="button" onClick={() => setF("PlanType", plan.id)}
-                  style={{ width: "100%", padding: "10px", borderRadius: 11, border: `2px solid ${isSelected ? plan.color : "#E5E2DE"}`, background: isSelected ? plan.badgeBg : "#fff", color: isSelected ? "#fff" : plan.color, fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 13, fontWeight: 800, cursor: "pointer", transition: "all .2s", display: "flex", alignItems: "center", justifyContent: "center", gap: 7 }}>
-                  {isSelected
-                    ? <><Check size={12} /> Selected — tap Continue below</>
-                    : <>Select {plan.name}</>
-                  }
-                </button>
-              </div>
-            );
-          })()}
-
-          {form.PlanType === "Priority" && (
-            <div className="hw2-pbt-note mt-3 anim-fade-up" style={{ background: "#FFF7F4", borderColor: "#F5D8CF", color: "#7C2D12" }}>
-              <p><Zap size={12} style={{ marginRight: 6, display: "inline" }} />
-                <strong>You'll be redirected to a secure Cashfree payment page.</strong> Profiles shared within <strong>24 hours</strong>.
-              </p>
-            </div>
-          )}
-          {form.PlanType === "Commitment" && (
-            <div className="hw2-pbt-note mt-3 anim-fade-up">
-              <p><CircleCheck size={12} style={{ marginRight: 6, display: "inline" }} />
-                <strong>Pay ₹{(PLANS.commitment.amount + PLANS.commitment.gst).toLocaleString()}</strong> now. Profiles within <strong>3 working days</strong>.
-              </p>
-              <p style={{ marginTop: 5 }}>
-                <Phone size={12} style={{ marginRight: 6, display: "inline" }} />You'll be redirected to a secure Cashfree payment page.
-              </p>
-            </div>
-          )}
-          {form.PlanType === "No Pay" && (
-            <div className="hw2-pbt-note mt-3 anim-fade-up" style={{ background: "#F9FAFB", borderColor: "#E5E7EB", color: "#6B7280" }}>
-              <p>⚠️ Without payment there is <strong>no priority, no guaranteed timeline, and no replacement support</strong>.</p>
-            </div>
-          )}
 
           {submitError && (
-            <div className="anim-fade-up" style={{ marginTop: 12, padding: "10px 14px", background: "#FEF2F2", border: "1.5px solid #FECACA", borderRadius: 10, color: "#991B1B", fontSize: 12, fontWeight: 600, lineHeight: 1.5 }}>
+            <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700 font-semibold">
               ⚠ {submitError}
             </div>
           )}
@@ -1149,42 +671,38 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
       );
     }
 
-    if (curKey === "done") {
-      const isNoPay = form.PlanType === "No Pay";
-      const bg = isNoPay ? "linear-gradient(135deg,#9CA3AF,#6B7280)" : "linear-gradient(135deg,#EC5F36,#D84E28)";
-      return (
-        <div className="flex flex-col items-center justify-center py-8 text-center">
-          <div className="anim-spring-pop w-20 h-20 rounded-full flex items-center justify-center mb-5"
-            style={{ background: bg, boxShadow: "0 10px 36px rgba(0,0,0,.20)" }}>
-            <Check size={36} color="#fff" strokeWidth={3} />
-          </div>
-          <div className="anim-fade-up" style={{ animationDelay: "0.25s" }}>
-            <h3 className="hw2-display text-xl font-bold text-gray-900 mb-2">
-              Profiles Sent Successfully ✅
-            </h3>
-            <p className="text-sm text-gray-500 max-w-[280px] mx-auto leading-relaxed mb-1">
-              We've shared matching helper profiles on your phone
-            </p>
-            <p className="font-bold text-gray-900 text-base mb-1">+91 {form.Phone}</p>
-            {form.Email && <p className="text-xs text-gray-400 mb-3">{form.Email}</p>}
-            <p className="text-xs text-gray-500 mb-3">Please check your WhatsApp for details</p>
-            <div className="hw2-done-plan-badge" style={{ background: isNoPay ? "#F9FAFB" : "#FFF2EE", color: isNoPay ? "#6B7280" : "#EC5F36", borderColor: isNoPay ? "#E5E7EB" : "#F5D8CF" }}>
-              {isNoPay
-                ? <>Basic Access — Profiles Shared</>
-                : <><Zap size={12} style={{ marginRight: 5, display: "inline" }} />Priority Profiles Delivered</>
-              }
-            </div>
-            <p className="text-[11px] text-gray-400 mt-3">
-              Didn't receive it? Our team may reach out shortly.
-            </p>
+    if (curKey === "done") return (
+      <div className="flex flex-col items-center justify-center py-8 text-center">
+        <div
+          className="anim-spring-pop w-20 h-20 rounded-full flex items-center justify-center mb-5"
+          style={{ background: "linear-gradient(135deg,#EC5F36,#D84E28)", boxShadow: "0 10px 36px rgba(0,0,0,.20)" }}
+        >
+          <Check size={36} color="#fff" strokeWidth={3} />
+        </div>
+        <div className="anim-fade-up" style={{ animationDelay: "0.25s" }}>
+          <h3 className="hw2-display text-xl font-bold text-gray-900 mb-2">
+            Request Submitted ✅
+          </h3>
+          <p className="text-sm text-gray-500 max-w-[280px] mx-auto leading-relaxed mb-1">
+            We've received your requirement and will reach out shortly.
+          </p>
+          <p className="font-bold text-gray-900 text-base mb-1">+91 {form.Phone}</p>
+          {form.Email && <p className="text-xs text-gray-400 mb-3">{form.Email}</p>}
+          <p className="text-xs text-gray-500 mb-3">Please check your WhatsApp for updates</p>
+          <div
+            className="hw2-done-plan-badge"
+            style={{ background: "#FFF2EE", color: "#EC5F36", borderColor: "#F5D8CF" }}
+          >
+            Priority Profiles Delivered
           </div>
         </div>
-      );
-    }
+      </div>
+    );
 
     return null;
   };
 
+  // ── PROGRESS BAR ──────────────────────────────────────────────────────────
   const renderProgress = () => {
     if (isDone) return null;
     const hideLabels = progKeys.length > 6;
@@ -1198,8 +716,15 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
         </div>
 
         <div className="relative">
-          <div className="absolute h-[2px] bg-gray-100 rounded-full"
-            style={{ top: hideLabels ? 12 : 13, left: `calc(${100 / (2 * progKeys.length)}%)`, right: `calc(${100 / (2 * progKeys.length)}%)`, zIndex: 0 }}>
+          <div
+            className="absolute h-[2px] bg-gray-100 rounded-full"
+            style={{
+              top: hideLabels ? 12 : 13,
+              left: `calc(${100 / (2 * progKeys.length)}%)`,
+              right: `calc(${100 / (2 * progKeys.length)}%)`,
+              zIndex: 0,
+            }}
+          >
             <div
               className="h-full origin-left rounded-full transition-all duration-500 ease-in-out"
               style={{ width: `${progPct}%`, background: "linear-gradient(90deg,#EC5F36,#D84E28)" }}
@@ -1223,15 +748,18 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
                       borderColor: done || active ? "#EC5F36" : "#E5E2DE",
                       boxShadow: active ? "0 0 0 4px rgba(236,95,54,0.15)" : "none",
                       transform: active ? "scale(1.18)" : "scale(1)",
-                    }}>
+                    }}
+                  >
                     {done
                       ? <Check size={10} color="#fff" strokeWidth={3} />
                       : <Icon size={hideLabels ? 10 : 12} color={active ? "#EC5F36" : "#ccc"} strokeWidth={1.8} />
                     }
                   </div>
                   {!hideLabels && (
-                    <span className="text-[8px] font-semibold truncate max-w-[36px] text-center leading-none"
-                      style={{ color: active ? "#EC5F36" : done ? "#EC5F36" : "#ccc" }}>
+                    <span
+                      className="text-[8px] font-semibold truncate max-w-[36px] text-center leading-none"
+                      style={{ color: active ? "#EC5F36" : done ? "#EC5F36" : "#ccc" }}
+                    >
                       {meta.label}
                     </span>
                   )}
@@ -1244,63 +772,65 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
     );
   };
 
+  // ── FOOTER ────────────────────────────────────────────────────────────────
   const renderFooter = () => {
     if (isDone) return null;
     const showBack = stepIdx > 0;
-    const isPlan = curKey === "plan";
     if (!showBack && !showContinue) return null;
 
     const valid = isValid();
-
-    const planBtnLabel = () => {
-      if (!form.PlanType) return "Select a Plan to Continue";
-      if (paymentStage === "creating_order") return <><Loader2 size={13} className="animate-spin mr-1.5 inline" />Creating order…</>;
-      if (paymentStage === "redirecting") return <><Loader2 size={13} className="animate-spin mr-1.5 inline" />Redirecting to payment…</>;
-      if (form.PlanType === "Priority") return <><Zap size={13} className="inline mr-1.5" />Pay ₹{(PLANS.priority.amount + PLANS.priority.gst).toLocaleString()} — Continue</>;
-      if (form.PlanType === "Commitment") return <><Zap size={13} className="inline mr-1.5" />Pay ₹{(PLANS.commitment.amount + PLANS.commitment.gst).toLocaleString()} — Continue</>;
-      if (form.PlanType === "No Pay") return <>Continue Without Paying →</>;
-      return "Select a Plan to Continue";
-    };
+    const isContact = curKey === "contact";
 
     return (
-      <div className="pt-3 mt-3 flex items-center justify-between gap-3 flex-shrink-0"
-        style={{ borderTop: "1.5px solid #F0EBE8" }}>
+      <div
+        className="pt-3 mt-3 flex items-center justify-between gap-3 flex-shrink-0"
+        style={{ borderTop: "1.5px solid #F0EBE8" }}
+      >
         {showBack ? (
-          <button type="button" disabled={planSubmitting} onClick={goBack}
+          <button
+            type="button"
+            disabled={submitting}
+            onClick={goBack}
             className="flex items-center gap-1.5 text-xs font-bold transition-all duration-150 px-3 py-2.5 rounded-xl flex-shrink-0"
-            style={{ color: planSubmitting ? "#ccc" : "#5B6475", background: planSubmitting ? "transparent" : "#F5F0ED", border: "1.5px solid #EDE8E4", cursor: planSubmitting ? "not-allowed" : "pointer" }}>
+            style={{
+              color: submitting ? "#ccc" : "#5B6475",
+              background: submitting ? "transparent" : "#F5F0ED",
+              border: "1.5px solid #EDE8E4",
+              cursor: submitting ? "not-allowed" : "pointer",
+            }}
+          >
             <ArrowLeft size={13} strokeWidth={2.5} /> Back
           </button>
         ) : <div />}
 
         {showContinue && (
-          <button type="button"
-            disabled={!valid || planSubmitting}
-            onClick={isPlan ? () => handlePlanSubmit(form.PlanType) : goNext}
+          <button
+            type="button"
+            disabled={!valid || submitting}
+            onClick={goNext}
             className="flex items-center justify-center gap-2 text-sm font-bold transition-all duration-200 rounded-xl"
             style={{
               flex: 1,
               maxWidth: showBack ? "68%" : "100%",
               padding: "11px 20px",
-              background: !valid || planSubmitting ? "#F0EDE9" : "linear-gradient(135deg,#EC5F36,#D84E28)",
-              color: !valid || planSubmitting ? "#C4B8B2" : "#fff",
-              cursor: !valid || planSubmitting ? "not-allowed" : "pointer",
-              boxShadow: valid && !planSubmitting ? "0 4px 14px rgba(236,95,54,0.35)" : "none",
+              background: !valid || submitting ? "#F0EDE9" : "linear-gradient(135deg,#EC5F36,#D84E28)",
+              color: !valid || submitting ? "#C4B8B2" : "#fff",
+              cursor: !valid || submitting ? "not-allowed" : "pointer",
+              boxShadow: valid && !submitting ? "0 4px 14px rgba(236,95,54,0.35)" : "none",
               border: "none",
-            }}>
-            {isPlan ? planBtnLabel() : (
-              curKey === "contact" && !ENABLE_PAYMENT ? (
-                planSubmitting
-                  ? <><Loader2 size={13} className="animate-spin mr-1.5 inline" />Submitting…</>
-                  : <>Submit</>
-              ) : (
-                <>
-                  Continue
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M5 12h14M12 5l7 7-7 7" />
-                  </svg>
-                </>
-              )
+            }}
+          >
+            {isContact ? (
+              submitting
+                ? <><Loader2 size={13} className="animate-spin mr-1.5 inline" />Submitting…</>
+                : <>Submit requirement →</>
+            ) : (
+              <>
+                Continue
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M5 12h14M12 5l7 7-7 7" />
+                </svg>
+              </>
             )}
           </button>
         )}
@@ -1308,13 +838,18 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
     );
   };
 
+  // ── SHELL ─────────────────────────────────────────────────────────────────
   const Shell = (
-    <div className="hw2-root flex flex-col bg-white rounded-3xl p-5 sm:p-6 w-full max-w-[35rem]" style={{ height: "30rem" }}>
+    <div
+      className="hw2-root flex flex-col bg-white rounded-3xl p-5 sm:p-6 w-full max-w-[35rem]"
+      style={{ height: "30rem" }}
+    >
       {renderProgress()}
       <div ref={bodyRef} className="hw2-body overflow-y-auto overflow-x-hidden" style={{ flex: 1 }}>
         <div
           key={`${form.ServiceType || "svc"}-${stepIdx}`}
-          className={dir > 0 ? curKey == "contact" ? "" : "step-enter-right" : "step-enter-left"}>
+          className={dir > 0 ? curKey === "contact" ? "" : "step-enter-right" : "step-enter-left"}
+        >
           {renderStep()}
         </div>
       </div>
@@ -1322,17 +857,22 @@ export default function HeroWizard({ asModal = false, isOpen = true, onClose, on
     </div>
   );
 
+  // ── Modal wrapper ──────────────────────────────────────────────────────────
   if (asModal) {
     if (!isOpen) return null;
     return (
       <div
         className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
-        onClick={(e) => { if (e.target === e.currentTarget) { resetWizard(); onClose?.(); } }}>
+        onClick={(e) => { if (e.target === e.currentTarget) { resetWizard(); onClose?.(); } }}
+      >
         <div className="relative w-full max-w-[35rem] anim-status-enter">
           {onClose && (
-            <button type="button" aria-label="Close"
+            <button
+              type="button"
+              aria-label="Close"
               onClick={() => { resetWizard(); onClose?.(); }}
-              className="absolute top-3 right-3 w-9 h-9 flex items-center justify-center hover:bg-gray-50">
+              className="absolute top-3 right-3 w-9 h-9 flex items-center justify-center hover:bg-gray-50"
+            >
               <X size={17} strokeWidth={2.5} />
             </button>
           )}

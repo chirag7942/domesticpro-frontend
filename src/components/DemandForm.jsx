@@ -2,8 +2,13 @@ import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import SEO from "./SEO";
+import { useEffect } from "react";
+import CitySelect from "./CitySelect";
 
 const API_BASE = import.meta.env.VITE_REACT_APP_API || "";
+
+// City/state pairs now come from the `country-state-city` package via CitySelect —
+// see cityState.js. No manual map needed here anymore.
 
 // ─── Zoho field builder ───────────────────────────────────────────────────────
 function buildZohoFields(f) {
@@ -12,27 +17,32 @@ function buildZohoFields(f) {
     Mobile_Number: f.Phone,
     Email: f.Email,
     Street_Address: f.Address,
+    City1: f.City,
+    State: f.State,
     Service_Type: f.ServiceType,
     Helper_s_Gender: f.HelperGender,
     Task_Preference: f.TaskPreference,
     Cook_Type: f.CookType,
-    Child_Age_Group: f.ChildAgeGroup,
-    Driver_Hours: f.DriverHours,
+    Cook_Members: f.CookPeopleCount,
+    Child_Age: f.ChildAgeGroup,
+    Total_Number_of_Children: f.TotalChildren,
+    Status: "Active",
+    Driver_Tasks: f.DriverHours,
     Monthly_Budget: f.Budget,
     Accommodation: f.Accommodation,
     Meals: f.Meals,
     Special_Instructions: f.Instructions,
-    Plan_Type: f.PlanType,
-    Payment_Status: f.PaymentStatus,
+    Plan_Type: 'Priority',
+    Payment_Status: 'Paid',
+    Pipeline_Stage: "Lead Registered"
   };
 }
-
 // ─── Constants ────────────────────────────────────────────────────────────────
 const SERVICE_OPTIONS = [
-  { value: "Nanny", label: "Nanny", desc: "Childcare support" },
+  { value: "Baby Caretaker", label: "Nanny", desc: "Childcare support" },
   { value: "Japa", label: "Japa maid", desc: "Post-delivery care" },
-  { value: "House Help", label: "House help", desc: "Household tasks" },
-  { value: "Cook", label: "Cook", desc: "Cooking support" },
+  { value: "Live-In Support", label: "House help", desc: "Household tasks" },
+  { value: "Cooking Help", label: "Cook", desc: "Cooking support" },
   { value: "Patient Care", label: "Patient care", desc: "Medical assistance" },
   { value: "Elderly Care", label: "Elderly care", desc: "Senior support" },
   { value: "Driver", label: "Driver", desc: "Personal driving" },
@@ -49,23 +59,24 @@ const COOK_TYPE_OPTIONS = [
   "Expert cook",
   "Intermediate + top work",
 ];
-
-const CHILD_AGE_OPTIONS = ["0–1 year", "1–3 years", "3+ years"];
+const COOK_PEOPLE_OPTIONS = ["1 - 3 people", "4 - 6 people", "7+ people"];
+const CHILD_AGE_OPTIONS = ["0 - 1 Years", "1 - 3 Years", "3+ Years"];
 
 const DRIVER_HOURS_OPTIONS = ["10 hours/day", "12 hours/day", "24 hours/day"];
 
 const BUDGET_OPTIONS = [
-  "₹17,000–19,000",
-  "₹20,000–22,000",
-  "₹23,000–25,000",
-  "₹25,000–27,000",
-  "₹27,000–30,000",
-  "₹30,000+",
+  "₹17,000 – ₹19,000",
+  "₹20,000 – ₹22,000",
+  "₹23,000 – ₹25,000",
+  "₹25,000 – ₹27,000",
+  "₹27,000 – ₹30,000",
+  "₹30,000 +",
 ];
 
 const ACCOMMODATION_OPTIONS = ["Separate room", "Shared room", "Open space"];
 
 const MEAL_OPTIONS = ["Same as family", "Separate"];
+const TOTAL_CHILDREN_OPTIONS = ["1", "2", "3"];
 
 // ─── Init state ───────────────────────────────────────────────────────────────
 const INIT = {
@@ -73,11 +84,15 @@ const INIT = {
   Phone: "",
   Email: "",
   Address: "",
+  City: "",
+  State: "",
   ServiceType: "",
   HelperGender: "",
-  TaskPreference: [],
+  TotalChildren: "",
+  TaskPreference: "",
   CookType: "",
-  ChildAgeGroup: [],
+  CookPeopleCount: "",
+  ChildAgeGroup: "",  // was []
   DriverHours: "",
   Budget: "",
   Accommodation: "",
@@ -113,7 +128,7 @@ const t = {
   },
   // Header
   header: {
-    padding: "28px 28px 24px",
+    padding: "20px 16px 18px",
     borderBottom: `1px solid ${gray200}`,
     display: "flex",
     alignItems: "flex-start",
@@ -134,7 +149,7 @@ const t = {
   headerTitle: { fontSize: "17px", fontWeight: 700, color: gray900, lineHeight: 1.3, margin: 0 },
   headerSub: { fontSize: "13px", color: gray600, marginTop: "4px", lineHeight: 1.5 },
   // Body
-  body: { padding: "24px 28px 28px" },
+  body: { padding: "20px 16px 28px" },
   // Section label
   sectionLabel: {
     fontSize: "11px",
@@ -162,7 +177,38 @@ const t = {
     fontFamily: "inherit",
     transition: "border-color 0.15s",
   },
-  inputFocus: { borderColor: brand, boxShadow: `0 0 0 3px ${brandLight}` },
+  inputFocus: { border: `1px solid ${brand}`, boxShadow: `0 0 0 3px ${brandLight}` },
+  selectInput: {
+    width: "100%",
+    border: `1px solid ${gray200}`,
+    borderRadius: "10px",
+    padding: "10px 13px",
+    fontSize: "14px",
+    color: gray900,
+    background: "#fff",
+    outline: "none",
+    boxSizing: "border-box",
+    fontFamily: "inherit",
+    appearance: "none",
+    WebkitAppearance: "none",
+    backgroundImage:
+      "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236B6B6B' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'></polyline></svg>\")",
+    backgroundRepeat: "no-repeat",
+    backgroundPosition: "right 13px center",
+    paddingRight: "34px",
+    cursor: "pointer",
+  },
+  stateReadout: {
+    width: "100%",
+    border: `1px solid ${gray200}`,
+    borderRadius: "10px",
+    padding: "10px 13px",
+    fontSize: "14px",
+    color: gray600,
+    background: gray50,
+    boxSizing: "border-box",
+    fontFamily: "inherit",
+  },
   phoneWrap: { display: "flex", borderRadius: "10px", overflow: "hidden", border: `1px solid ${gray200}` },
   phonePrefix: {
     background: gray50,
@@ -197,6 +243,8 @@ const t = {
     background: active ? brandLight : "#fff",
     transition: "all 0.15s",
     userSelect: "none",
+    minWidth: 0,         // ← prevents grid blowout
+    wordBreak: "break-word",
   }),
   serviceCardTitle: (active) => ({
     fontSize: "13px",
@@ -239,6 +287,8 @@ const t = {
     cursor: "pointer",
     transition: "all 0.15s",
     userSelect: "none",
+    flexShrink: 0,   // already fine since they wrap
+    whiteSpace: "nowrap",  // ← prevents "₹17,000 –" line-breaking mid-chip
   }),
   // Gender buttons
   genderRow: { display: "flex", gap: "8px", marginTop: "8px" },
@@ -332,28 +382,38 @@ function SubSection({ children }) {
 }
 
 // ─── Service sub-options ──────────────────────────────────────────────────────
-function ServiceSubOptions({ svc, form, setF, toggleMulti }) {
-  if (svc === "Nanny") return (
+function ServiceSubOptions({ svc, form, setF, toggleMulti, errors }) {
+  if (svc === "Baby Caretaker") return (
     <SubSection>
       <div style={t.subLabel}>Child's age group</div>
       <div style={t.chipRow}>
         {CHILD_AGE_OPTIONS.map((o) => (
-          <div key={o} style={t.chip(form.ChildAgeGroup.includes(o))}
-            onClick={() => toggleMulti("ChildAgeGroup", o)}>{o}</div>
+          <div key={o} style={t.chip(form.TaskPreference === o)}
+            onClick={() => setF("TaskPreference", o)}>{o}</div>
         ))}
       </div>
+      <Err msg={errors.TaskPreference} />
+      <div style={{ ...t.subLabel, marginTop: "14px" }}>Total number of children</div>
+      <div style={t.chipRow}>
+        {TOTAL_CHILDREN_OPTIONS.map((o) => (
+          <div key={o} style={t.chip(form.TotalChildren === o)}
+            onClick={() => setF("TotalChildren", form.TotalChildren === o ? "" : o)}>{o}</div>
+        ))}
+      </div>
+      <Err msg={errors.TotalChildren} />
     </SubSection>
   );
 
-  if (svc === "House Help") return (
+  if (svc === "Live-In Support") return (
     <SubSection>
       <div style={t.subLabel}>Task preference</div>
       <div style={t.chipRow}>
         {TASK_PREF_OPTIONS.map((o) => (
-          <div key={o} style={t.chip(form.TaskPreference.includes(o))}
-            onClick={() => toggleMulti("TaskPreference", o)}>{o}</div>
+          <div key={o} style={t.chip(form.TaskPreference === o)}
+            onClick={() => setF("TaskPreference", o)}>{o}</div>
         ))}
       </div>
+      <Err msg={errors.TaskPreference} />
       <div style={{ ...t.subLabel, marginTop: "14px" }}>Helper's gender preference</div>
       <div style={t.genderRow}>
         {GENDER_OPTIONS.map((o) => (
@@ -361,18 +421,33 @@ function ServiceSubOptions({ svc, form, setF, toggleMulti }) {
             onClick={() => setF("HelperGender", o)}>{o}</div>
         ))}
       </div>
+      <Err msg={errors.HelperGender} />
     </SubSection>
   );
 
-  if (svc === "Cook") return (
+  if (svc === "Cooking Help") return (
     <SubSection>
       <div style={t.subLabel}>Cook type</div>
       <div style={t.chipRow}>
         {COOK_TYPE_OPTIONS.map((o) => (
-          <div key={o} style={t.chip(form.CookType === o)}
-            onClick={() => setF("CookType", form.CookType === o ? "" : o)}>{o}</div>
+          <div key={o} style={t.chip(form.TaskPreference === o)}
+            onClick={() => setF("TaskPreference", o)}>{o}</div>
         ))}
       </div>
+      <Err msg={errors.TaskPreference} />
+
+      <div style={{ ...t.subLabel, marginTop: "14px" }}>Number of people to cook for</div>
+      <FocusInput
+        type="number"
+        min="1"
+        inputMode="numeric"
+        value={form.CookPeopleCount}
+        onChange={(e) => setF("CookPeopleCount", e.target.value.replace(/\D/g, ""))}
+        placeholder="e.g. 4"
+        style={t.input}
+      />
+      <Err msg={errors.CookPeopleCount} />
+
       <div style={{ ...t.subLabel, marginTop: "14px" }}>Helper's gender preference</div>
       <div style={t.genderRow}>
         {GENDER_OPTIONS.map((o) => (
@@ -380,6 +455,7 @@ function ServiceSubOptions({ svc, form, setF, toggleMulti }) {
             onClick={() => setF("HelperGender", o)}>{o}</div>
         ))}
       </div>
+      <Err msg={errors.HelperGender} />
     </SubSection>
   );
 
@@ -392,18 +468,21 @@ function ServiceSubOptions({ svc, form, setF, toggleMulti }) {
             onClick={() => setF("HelperGender", o)}>{o}</div>
         ))}
       </div>
+      <Err msg={errors.HelperGender} />
     </SubSection>
   );
 
   if (svc === "Driver") return (
     <SubSection>
       <div style={t.subLabel}>Availability required</div>
+      // Driver block
       <div style={t.chipRow}>
         {DRIVER_HOURS_OPTIONS.map((o) => (
-          <div key={o} style={t.chip(form.DriverHours === o)}
-            onClick={() => setF("DriverHours", form.DriverHours === o ? "" : o)}>{o}</div>
+          <div key={o} style={t.chip(form.TaskPreference === o)}
+            onClick={() => setF("TaskPreference", o)}>{o}</div>
         ))}
       </div>
+      <Err msg={errors.TaskPreference} />
     </SubSection>
   );
 
@@ -412,6 +491,13 @@ function ServiceSubOptions({ svc, form, setF, toggleMulti }) {
 
 // ─── Main component ───────────────────────────────────────────────────────────
 export default function DemandForm() {
+  // Add this hook near the top of DemandForm component
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 480);
+  useEffect(() => {
+    const handler = () => setIsMobile(window.innerWidth < 480);
+    window.addEventListener("resize", handler);
+    return () => window.removeEventListener("resize", handler);
+  }, []);
   const [form, setForm] = useState({ ...INIT });
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
@@ -424,6 +510,21 @@ export default function DemandForm() {
     if (errors[key]) setErrors((e) => { const c = { ...e }; delete c[key]; return c; });
   };
 
+  // City select handler — receives { name, state } (or null on clear) from
+  // CitySelect, which sources data from the country-state-city package.
+  const setCity = (loc) => {
+    setForm((f) => ({
+      ...f,
+      City: loc?.name || "",
+      State: loc?.state || "",
+    }));
+    setErrors((e) => {
+      const c = { ...e };
+      delete c.City;
+      return c;
+    });
+  };
+
   const toggleMulti = (key, val) => {
     setForm((f) => ({
       ...f,
@@ -433,29 +534,59 @@ export default function DemandForm() {
   };
 
   const selectService = (svc) => {
+    const defaultGender =
+      svc === "Baby Caretaker" || svc === "Japa" ? "Female" :
+        svc === "Driver" ? "Male" : "";
+
     setForm((f) => ({
       ...f,
       ServiceType: svc,
-      HelperGender: "",
+      HelperGender: defaultGender,
       TaskPreference: "",
       CookType: "",
-      ChildAgeGroup: [],
+      ChildAgeGroup: "",  // was []
       DriverHours: "",
+      TotalChildren: "",
+      CookPeopleCount: ""
     }));
     if (errors.ServiceType) setErrors((e) => { const c = { ...e }; delete c.ServiceType; return c; });
+    setErrors({});
   };
 
   const validate = () => {
     const e = {};
+
+    // Always required
     if (!form.FullName.trim()) e.FullName = "Name is required";
     if (!form.Address.trim()) e.Address = "Address is required";
-
-    if (!form.Accommodation.trim()) e.Accommodation = "This field is required";
-    if (!form.Meals.trim()) e.Meals = "This field is required";
+    if (!form.City) e.City = "Please select a city";
     if (!form.Phone || form.Phone.length !== 10 || !/^[6-9]/.test(form.Phone))
       e.Phone = "Enter a valid 10-digit Indian mobile number";
     if (!form.ServiceType) e.ServiceType = "Please select a service type";
     if (!form.Budget) e.Budget = "Please select a budget range";
+    if (!form.Accommodation.trim()) e.Accommodation = "This field is required";
+    if (!form.Meals.trim()) e.Meals = "This field is required";
+    // Conditional — only validate sub-fields for the selected service
+    if (svc === "Baby Caretaker") {
+      if (!form.TaskPreference) e.TaskPreference = "Please select an age group";
+      if (!form.TotalChildren) e.TotalChildren = "Please select number of children";
+    }
+    if (svc === "Live-In Support") {
+      if (!form.TaskPreference) e.TaskPreference = "Please select a task preference";
+      if (!form.HelperGender) e.HelperGender = "Please select a gender preference";
+    }
+    if (svc === "Cooking Help") {
+      if (!form.TaskPreference) e.TaskPreference = "Please select a cook type";
+      if (!form.CookPeopleCount || Number(form.CookPeopleCount) < 1)
+        e.CookPeopleCount = "Please enter number of people";
+      if (!form.HelperGender) e.HelperGender = "Please select a gender preference";
+    }
+    if (svc === "Patient Care" || svc === "Elderly Care") {
+      if (!form.HelperGender) e.HelperGender = "Please select a gender preference";
+    }
+    if (svc === "Driver") {
+      if (!form.TaskPreference) e.TaskPreference = "Please select availability";
+    }
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -513,7 +644,7 @@ export default function DemandForm() {
             {/* ── Personal details ── */}
             <div style={t.sectionLabel}>Your details</div>
 
-            <div style={t.row2}>
+            <div style={isMobile ? { display: "flex", flexDirection: "column", gap: "0px" } : t.row2}>
               <div style={t.field}>
                 <label style={t.label}>Full name <span style={t.req}>*</span></label>
                 <FocusInput
@@ -557,6 +688,25 @@ export default function DemandForm() {
               <Err msg={errors.Address} />
             </div>
 
+            <div style={isMobile ? { display: "flex", flexDirection: "column", gap: "0px" } : t.row2}>
+              <div style={t.field}>
+                <label style={t.label}>City <span style={t.req}>*</span></label>
+                <CitySelect
+                  value={form.City ? { name: form.City, state: form.State } : null}
+                  onChange={setCity}
+                  placeholder="Select city"
+                />
+                <Err msg={errors.City} />
+              </div>
+
+              <div style={t.field}>
+                <label style={t.label}>State</label>
+                <div style={t.stateReadout}>
+                  {form.State || "—"}
+                </div>
+              </div>
+            </div>
+
             <hr style={t.divider} />
 
             {/* ── Service selection ── */}
@@ -580,14 +730,13 @@ export default function DemandForm() {
             <Err msg={errors.ServiceType} />
 
             {/* ── Service sub-options ── */}
-            {svc && (
-              <ServiceSubOptions
-                svc={svc}
-                form={form}
-                setF={setF}
-                toggleMulti={toggleMulti}
-              />
-            )}
+            <ServiceSubOptions
+              svc={svc}
+              form={form}
+              setF={setF}
+              toggleMulti={toggleMulti}
+              errors={errors}   // add this
+            />
 
             <hr style={t.divider} />
 
