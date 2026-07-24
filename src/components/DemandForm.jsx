@@ -7,6 +7,20 @@ import CitySelect from "./CitySelect";
 
 const API_BASE = import.meta.env.VITE_REACT_APP_API || "";
 
+// Zoho Creator's `date` field type in this system expects DD-MMM-YYYY
+// (e.g. "16-Jul-2026") — confirmed by the working date format used
+// elsewhere in the backend (see pushReplyToZoho in index.js). The native
+// <input type="date"> gives us yyyy-MM-dd, so convert it here.
+const ZOHO_MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+function toZohoDate(isoDate) {
+  if (!isoDate) return "";
+  const [y, m, d] = isoDate.split("-");
+  if (!y || !m || !d) return "";
+  const monthIdx = parseInt(m, 10) - 1;
+  if (monthIdx < 0 || monthIdx > 11) return "";
+  return `${d}-${ZOHO_MONTHS[monthIdx]}-${y}`;
+}
+
 // City/state pairs now come from the `country-state-city` package via CitySelect —
 // see cityState.js. No manual map needed here anymore.
 
@@ -32,6 +46,7 @@ function buildZohoFields(f) {
     Accommodation: f.Accommodation,
     Meals: f.Meals,
     Special_Instructions: f.Instructions,
+    Japa_Start_Date: toZohoDate(f.JapaStartDate),
     Plan_Type: 'Priority',
     Payment_Status: 'Paid',
     Pipeline_Stage: "Lead Registered"
@@ -64,6 +79,8 @@ const CHILD_AGE_OPTIONS = ["0 - 1 Years", "1 - 3 Years", "3+ Years"];
 
 const DRIVER_HOURS_OPTIONS = ["10 hours/day", "12 hours/day", "24 hours/day"];
 
+const JAPA_DURATION_OPTIONS = ["40 days", "60 days", "More than 60 days"];
+
 const BUDGET_OPTIONS = [
   "₹17,000 – ₹19,000",
   "₹20,000 – ₹22,000",
@@ -94,7 +111,8 @@ const INIT = {
   CookPeopleCount: "",
   ChildAgeGroup: "",  // was []
   DriverHours: "",
-  Budget: "",
+  JapaStartDate: "",
+  Budget: [],
   Accommodation: "",
   Meals: "",
   Instructions: "",
@@ -404,6 +422,28 @@ function ServiceSubOptions({ svc, form, setF, toggleMulti, errors }) {
     </SubSection>
   );
 
+  if (svc === "Japa") return (
+    <SubSection>
+      <div style={t.subLabel}>From which date is the Japa maid required?</div>
+      <FocusInput
+        type="date"
+        value={form.JapaStartDate}
+        onChange={(e) => setF("JapaStartDate", e.target.value)}
+        style={t.input}
+      />
+      <Err msg={errors.JapaStartDate} />
+
+      <div style={{ ...t.subLabel, marginTop: "14px" }}>Duration required</div>
+      <div style={t.chipRow}>
+        {JAPA_DURATION_OPTIONS.map((o) => (
+          <div key={o} style={t.chip(form.TaskPreference === o)}
+            onClick={() => setF("TaskPreference", o)}>{o}</div>
+        ))}
+      </div>
+      <Err msg={errors.TaskPreference} />
+    </SubSection>
+  );
+
   if (svc === "Live-In Support") return (
     <SubSection>
       <div style={t.subLabel}>Task preference</div>
@@ -475,11 +515,21 @@ function ServiceSubOptions({ svc, form, setF, toggleMulti, errors }) {
   if (svc === "Driver") return (
     <SubSection>
       <div style={t.subLabel}>Availability required</div>
-      // Driver block
       <div style={t.chipRow}>
         {DRIVER_HOURS_OPTIONS.map((o) => (
-          <div key={o} style={t.chip(form.TaskPreference === o)}
-            onClick={() => setF("TaskPreference", o)}>{o}</div>
+          <div
+            key={o}
+            style={t.chip(form.TaskPreference === o)}
+            onClick={() => {
+              setF("TaskPreference", o);
+              if (o === "10 hours/day" || o === "12 hours/day") {
+                setF("Accommodation", "");
+                setF("Meals", "");
+              }
+            }}
+          >
+            {o}
+          </div>
         ))}
       </div>
       <Err msg={errors.TaskPreference} />
@@ -546,6 +596,7 @@ export default function DemandForm() {
       CookType: "",
       ChildAgeGroup: "",  // was []
       DriverHours: "",
+      JapaStartDate: "",
       TotalChildren: "",
       CookPeopleCount: ""
     }));
@@ -563,13 +614,24 @@ export default function DemandForm() {
     if (!form.Phone || form.Phone.length !== 10 || !/^[6-9]/.test(form.Phone))
       e.Phone = "Enter a valid 10-digit Indian mobile number";
     if (!form.ServiceType) e.ServiceType = "Please select a service type";
-    if (!form.Budget) e.Budget = "Please select a budget range";
-    if (!form.Accommodation.trim()) e.Accommodation = "This field is required";
-    if (!form.Meals.trim()) e.Meals = "This field is required";
+    if (!form.Budget.length) e.Budget = "Please select at least one budget range";
+
+    const isShortHourDriver =
+      svc === "Driver" &&
+      (form.TaskPreference === "10 hours/day" || form.TaskPreference === "12 hours/day");
+
+    if (!isShortHourDriver) {
+      if (!form.Accommodation.trim()) e.Accommodation = "This field is required";
+      if (!form.Meals.trim()) e.Meals = "This field is required";
+    }
     // Conditional — only validate sub-fields for the selected service
     if (svc === "Baby Caretaker") {
       if (!form.TaskPreference) e.TaskPreference = "Please select an age group";
       if (!form.TotalChildren) e.TotalChildren = "Please select number of children";
+    }
+    if (svc === "Japa") {
+      if (!form.JapaStartDate) e.JapaStartDate = "Please select a start date";
+      if (!form.TaskPreference) e.TaskPreference = "Please select a duration";
     }
     if (svc === "Live-In Support") {
       if (!form.TaskPreference) e.TaskPreference = "Please select a task preference";
@@ -615,6 +677,9 @@ export default function DemandForm() {
   };
 
   const svc = form.ServiceType;
+  const isShortHourDriver =
+    svc === "Driver" &&
+    (form.TaskPreference === "10 hours/day" || form.TaskPreference === "12 hours/day");
 
   return (
     <>
@@ -749,8 +814,8 @@ export default function DemandForm() {
                 {BUDGET_OPTIONS.map((o) => (
                   <div
                     key={o}
-                    style={t.bigChip(form.Budget === o)}
-                    onClick={() => setF("Budget", o)}
+                    style={t.bigChip(form.Budget.includes(o))}
+                    onClick={() => toggleMulti("Budget", o)}
                   >
                     {o}
                   </div>
@@ -759,37 +824,33 @@ export default function DemandForm() {
               <Err msg={errors.Budget} />
             </div>
 
-            <div style={t.field}>
-              <label style={t.label}>Accommodation</label>
-              <div style={t.bigChipRow}>
-                {ACCOMMODATION_OPTIONS.map((o) => (
-                  <div
-                    key={o}
-                    style={t.bigChip(form.Accommodation === o)}
-                    onClick={() => setF("Accommodation", o)}
-                  >
-                    {o}
-                  </div>
-                ))}
+            {!isShortHourDriver && (
+              <div style={t.field}>
+                <label style={t.label}>Accommodation</label>
+                <div style={t.bigChipRow}>
+                  {ACCOMMODATION_OPTIONS.map((o) => (
+                    <div key={o} style={t.bigChip(form.Accommodation === o)} onClick={() => setF("Accommodation", o)}>
+                      {o}
+                    </div>
+                  ))}
+                </div>
+                <Err msg={errors.Accommodation} />
               </div>
-              <Err msg={errors.Accommodation} />
-            </div>
+            )}
 
-            <div style={t.field}>
-              <label style={t.label}>Meals</label>
-              <div style={t.bigChipRow}>
-                {MEAL_OPTIONS.map((o) => (
-                  <div
-                    key={o}
-                    style={t.bigChip(form.Meals === o)}
-                    onClick={() => setF("Meals", o)}
-                  >
-                    {o}
-                  </div>
-                ))}
+            {!isShortHourDriver && (
+              <div style={t.field}>
+                <label style={t.label}>Meals</label>
+                <div style={t.bigChipRow}>
+                  {MEAL_OPTIONS.map((o) => (
+                    <div key={o} style={t.bigChip(form.Meals === o)} onClick={() => setF("Meals", o)}>
+                      {o}
+                    </div>
+                  ))}
+                </div>
+                <Err msg={errors.Meals} />
               </div>
-              <Err msg={errors.Meals} />
-            </div>
+            )}
 
             <div style={t.field}>
               <label style={t.label}>Special instructions</label>

@@ -269,6 +269,7 @@ export const SERVICE_FLOWS = {
   "Cooking Help": [
     "service",
     "cooktype", // Expert cook / Intermediate + top work
+    "cookpeoplecount", // Number of people to cook for
     "helpergender",
     "budget",
     "accommodation",
@@ -288,6 +289,8 @@ export const SERVICE_FLOWS = {
   ],
   Japa: [
     "service",
+    "japastartdate", // From which date is the Japa maid required?
+    "japaduration", // 40 days / 60 days / More than 60 days
     // "helpergender",
     "budget",
     "accommodation",
@@ -327,6 +330,15 @@ export const DEFAULT_FLOW = [
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
+// JAPA — Duration  (from DemandForm: JAPA_DURATION_OPTIONS, writes TaskPreference)
+// ─────────────────────────────────────────────────────────────────────────────
+export const JAPA_DURATION_OPTIONS = [
+  { id: "40 days", label: "40 days", color: "#F472B6" },
+  { id: "60 days", label: "60 days", color: "#F472B6" },
+  { id: "More than 60 days", label: "More than 60 days", color: "#F472B6" },
+];
+
+// ─────────────────────────────────────────────────────────────────────────────
 // PROG_META  — labels & icons for the progress bar
 // Only steps that appear in SERVICE_FLOWS above are kept active.
 // ─────────────────────────────────────────────────────────────────────────────
@@ -334,8 +346,11 @@ export const PROG_META = {
   service: { label: "Service", icon: Briefcase },
   taskpref: { label: "Tasks", icon: Layers }, // ← new
   cooktype: { label: "Type", icon: ChefHat }, // ← new
+  cookpeoplecount: { label: "People", icon: Users }, // ← new
   childagegroup: { label: "Child", icon: Baby }, // ← new
   driverhours: { label: "Hours", icon: Car }, // ← new
+  japastartdate: { label: "Date", icon: CalendarClock }, // ← new
+  japaduration: { label: "Duration", icon: Clock }, // ← new
   helpergender: { label: "Helper", icon: UserCheck },
   budget: { label: "Budget", icon: DollarSign },
   accommodation: { label: "Stay", icon: Home }, // ← new
@@ -366,11 +381,12 @@ export const INIT = {
   ServiceType: "",
   ServiceLabel: "", // wizard internal — not sent to Zoho
 
-  // Live-In Support
-  TaskPreference: "", // multi-select chips
+  // Live-In Support / Cook / Baby / Driver / Japa duration — all consolidated here
+  TaskPreference: "", // single-select chips
 
   // Cook
   CookType: "",
+  CookPeopleCount: "", // Number of people to cook for
 
   // Baby Caretaker
   ChildAgeGroup: "", // multi-select (DemandForm: ChildAgeGroup)
@@ -378,6 +394,9 @@ export const INIT = {
 
   // Driver
   DriverHours: "", // single select "10 hours/day" etc.
+
+  // Japa
+  JapaStartDate: "", // yyyy-MM-dd from <input type="date">, converted at submit
 
   // Shared preferences
   HelperGender: "",

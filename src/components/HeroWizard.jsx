@@ -11,6 +11,7 @@ import {
   CHILD_AGE_OPTIONS,
   TOTAL_CHILDREN_OPTIONS,
   DRIVER_HOURS_OPTIONS,
+  JAPA_DURATION_OPTIONS,
   BUDGETS,
   ACCOMMODATION_OPTIONS,
   MEAL_OPTIONS,
@@ -23,7 +24,18 @@ import {
 import { safeSessionStorage } from "../utils/browserOnly";
 
 const API_BASE = import.meta.env.VITE_REACT_APP_API || "";
-const INTERNAL_SECRET = import.meta.env.VITE_INTERNAL_SECRET || "";
+
+// Zoho Creator's `date` field type in this system expects DD-MMM-YYYY
+// (e.g. "16-Jul-2026") — matches DemandForm's toZohoDate.
+const ZOHO_MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+function toZohoDate(isoDate) {
+  if (!isoDate) return "";
+  const [y, m, d] = isoDate.split("-");
+  if (!y || !m || !d) return "";
+  const monthIdx = parseInt(m, 10) - 1;
+  if (monthIdx < 0 || monthIdx > 11) return "";
+  return `${d}-${ZOHO_MONTHS[monthIdx]}-${y}`;
+}
 
 // ── Zoho field builder — matches DemandForm's buildZohoFields exactly ─────────
 // NOTE: Cook type, child age group, and driver hours are all stored in the
@@ -41,8 +53,10 @@ function buildZohoFields(f) {
     State: f.State,
     Service_Type: f.ServiceType,
     Helper_s_Gender: f.HelperGender,
-    Task_Preference: f.TaskPreference,   // cook type / age group / driver hours / live-in task all land here
+    Task_Preference: f.TaskPreference,   // cook type / age group / driver hours / live-in task / japa duration all land here
+    Cook_Members: f.CookPeopleCount,
     Total_Number_of_Children: f.TotalChildren,
+    Japa_Start_Date: toZohoDate(f.JapaStartDate),
     Monthly_Budget: f.Budget,
     Accommodation: f.Accommodation,
     Meals: f.Meals,
@@ -60,7 +74,6 @@ const submitNoPay = async (zohoFields) => {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "x-internal-secret": INTERNAL_SECRET,
     },
     body: JSON.stringify({ zohoFields }),
   });
@@ -211,17 +224,20 @@ export default function HeroWizard({
   };
 
   // ── Validation ─────────────────────────────────────────────────────────────
-  // cooktype / childagegroup / driverhours all now read/write the single
-  // TaskPreference field (matches DemandForm's ServiceSubOptions behavior).
+  // cooktype / childagegroup / driverhours / japaduration all now read/write the
+  // single TaskPreference field (matches DemandForm's ServiceSubOptions behavior).
   const isValid = () => {
     switch (curKey) {
       case "service": return !!form.ServiceType;
       case "taskpref": return !!form.TaskPreference;
       case "cooktype": return !!form.TaskPreference;
+      case "cookpeoplecount": return !!form.CookPeopleCount && Number(form.CookPeopleCount) >= 1;
       case "childagegroup": return !!form.TaskPreference;
       case "driverhours": return !!form.TaskPreference;
+      case "japastartdate": return !!form.JapaStartDate;
+      case "japaduration": return !!form.TaskPreference;
       case "helpergender": return !!form.HelperGender;
-      case "budget": return !!form.Budget;
+      case "budget": return Array.isArray(form.Budget) && form.Budget.length > 0;
       case "accommodation": return !!form.Accommodation;
       case "meals": return !!form.Meals;
       case "contact":
@@ -239,7 +255,9 @@ export default function HeroWizard({
   // Steps that show a Continue button (instead of auto-advancing)
   const CONT_KEYS = new Set([
     "taskpref",
+    "cookpeoplecount",
     "childagegroup",
+    "japastartdate",
     "helpergender",
     "budget",
     "accommodation",
@@ -402,6 +420,23 @@ export default function HeroWizard({
       </div>
     );
 
+    // ── Cooking Help — number of people to cook for
+    if (curKey === "cookpeoplecount") return (
+      <div>
+        <QHead q="How many people to cook for?" hint="Enter the number of people" />
+        <input
+          type="number"
+          min="1"
+          inputMode="numeric"
+          placeholder="e.g. 4"
+          className="hw2-finput"
+          value={form.CookPeopleCount}
+          autoFocus
+          onChange={(e) => setF("CookPeopleCount", e.target.value.replace(/\D/g, ""))}
+        />
+      </div>
+    );
+
     // ── Baby Caretaker — age group writes TaskPreference (single select, consolidated);
     // TotalChildren stays its own field, same as DemandForm
     if (curKey === "childagegroup") return (
@@ -461,6 +496,37 @@ export default function HeroWizard({
       </div>
     );
 
+    // ── Japa — start date
+    if (curKey === "japastartdate") return (
+      <div>
+        <QHead q="From which date is the Japa maid required?" />
+        <input
+          type="date"
+          className="hw2-finput"
+          value={form.JapaStartDate}
+          onChange={(e) => setF("JapaStartDate", e.target.value)}
+        />
+      </div>
+    );
+
+    // ── Japa — duration, writes TaskPreference (consolidated, matches DemandForm)
+    if (curKey === "japaduration") return (
+      <div>
+        <QHead q="Duration required?" />
+        <div className="grid grid-cols-2 gap-2.5">
+          {JAPA_DURATION_OPTIONS.map((o) => (
+            <SvcCard
+              key={o.id}
+              svc={o}
+              selected={form.TaskPreference === o.id}
+              onClick={() => { setF("TaskPreference", o.id); after(); }}
+              className="h-[6.8rem]"
+            />
+          ))}
+        </div>
+      </div>
+    );
+
     if (curKey === "helpergender") return (
       <div>
         <QHead q="Helper's gender preference" />
@@ -479,30 +545,34 @@ export default function HeroWizard({
 
     if (curKey === "budget") return (
       <div>
-        <QHead q="Salary range (per month)?" hint="We'll match staff within your budget" />
+        <QHead q="Salary range (per month)?" hint="Select one or more ranges you're open to — we'll match staff within your budget" />
         <div className="flex flex-col gap-2">
-          {BUDGETS.map((b) => (
-            <button
-              key={b.id}
-              type="button"
-              onClick={() => { setF("Budget", b.id); after(); }}
-              className="hw2-budget-row"
-              style={{
-                background: form.Budget === b.id ? "#EC5F36" : "#fff",
-                borderColor: form.Budget === b.id ? "#EC5F36" : "#E5E2DE",
-              }}
-            >
-              <span
-                className="hw2-budget-label"
-                style={{ color: form.Budget === b.id ? "#fff" : "#1a1a2e" }}
+          {BUDGETS.map((b) => {
+            const selected = form.Budget.includes(b.id);
+            return (
+              <button
+                key={b.id}
+                type="button"
+                aria-pressed={selected}
+                onClick={() => toggleArr("Budget", b.id)}
+                className="hw2-budget-row"
+                style={{
+                  background: selected ? "#EC5F36" : "#fff",
+                  borderColor: selected ? "#EC5F36" : "#E5E2DE",
+                }}
               >
-                {b.label}
-              </span>
-              {form.Budget === b.id && (
-                <Check size={16} strokeWidth={2.5} color="#fff" className="ml-auto flex-shrink-0" />
-              )}
-            </button>
-          ))}
+                <span
+                  className="hw2-budget-label"
+                  style={{ color: selected ? "#fff" : "#1a1a2e" }}
+                >
+                  {b.label}
+                </span>
+                {selected && (
+                  <Check size={16} strokeWidth={2.5} color="#fff" className="ml-auto flex-shrink-0" />
+                )}
+              </button>
+            );
+          })}
         </div>
       </div>
     );
@@ -648,7 +718,9 @@ export default function HeroWizard({
             {[
               form.ServiceType && { k: "Service", v: form.ServiceLabel },
               form.TaskPreference && { k: "Preference", v: form.TaskPreference },
+              form.CookPeopleCount && { k: "People to cook for", v: form.CookPeopleCount },
               form.TotalChildren && { k: "No. of Children", v: form.TotalChildren },
+              form.JapaStartDate && { k: "Start Date", v: form.JapaStartDate },
               form.HelperGender && { k: "Helper Gender", v: form.HelperGender },
               form.Budget && { k: "Budget", v: form.Budget },
               form.Accommodation && { k: "Accommodation", v: form.Accommodation },
