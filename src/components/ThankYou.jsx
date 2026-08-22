@@ -1,5 +1,6 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import HelperProfilesGrid from "../components/HelperProfilesGrid";
 
 // ─── CONFIG ───────────────────────────────────────────────────────────────────
 const CONFIG = {
@@ -7,10 +8,15 @@ const CONFIG = {
     formType: "Demand Request",
     title: "Request submitted successfully.",
     desc: [
-      "Your request has been received. We are already finding the best-matched helper profiles for you.",
-      "You will receive verified helper profiles directly on your WhatsApp within 10 min — keep an eye on your messages.",
-    ]
+      "Your request has been received. Take a look below — we've already matched verified helper profiles to your requirement.",
+      "Tap \"Interested\" on any profile you'd like us to follow up on.",
+    ],
+    duplicateDesc: [
+      "We already have your requirement on file and our team is working on it.",
+      "No need to submit it again — we'll reach out with matching helper profiles shortly.",
+    ],
   },
+  // supply, agent unchanged
   supply: {
     formType: "Helper Registration",
     title: "Profile submitted successfully.",
@@ -33,23 +39,21 @@ const CONFIG = {
   },
 };
 
+const STORAGE_KEY = "dp_thankyou_context";
+const SESSION_DURATION_MS = 60 * 60 * 1000; // 60 minutes
+
 // ─── Success SVG — rounded-square checkmark (form-native, no circles) ─────────
 const SuccessMark = () => (
-  <svg
-    width="52" height="52"
-    viewBox="0 0 52 52"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    aria-hidden="true"
-  >
+  <svg width="52" height="52" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
     <rect width="52" height="52" rx="12" fill="#EC5F36" />
-    <path
-      d="M15 26.5L22.5 34L37 19"
-      stroke="#ffffff"
-      strokeWidth="3"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
+    <path d="M15 26.5L22.5 34L37 19" stroke="#ffffff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
+// ─── Small checkmark for the green banner ──────────────────────────────────────
+const BannerCheck = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <path d="M20 6L9 17L4 12" stroke="#16A34A" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
   </svg>
 );
 
@@ -71,17 +75,182 @@ const PhoneSVG = () => (
 export default function ThankYou() {
   const location = useLocation();
   const navigate = useNavigate();
-  const formType = location.state?.fromForm;
 
-  useEffect(() => {
-    if (!formType || !CONFIG[formType]) {
-      navigate("/demand-form", { replace: true });
+  // sessionStorage — deliberately NOT localStorage. sessionStorage is
+  // cleared automatically when the tab is closed, which is exactly the
+  // "don't work if they close the tab and come back" behavior requested.
+  // It DOES survive a plain refresh (F5), which is what lets the elapsed
+  // time keep counting instead of resetting.
+  const [context] = useState(() => {
+    const navState = location.state;
+
+    if (navState?.fromForm && CONFIG[navState.fromForm]) {
+      const ctx = {
+        fromForm: navState.fromForm,
+        serviceType: navState.serviceType || null,
+        serviceLabel: navState.serviceLabel || null,
+        duplicate: !!navState.duplicate,
+        city: navState.city || null,
+        budget: Array.isArray(navState.budget) ? navState.budget : [],
+        gender: navState.gender || null,
+        mobile: navState.mobile || null,
+        leadId: navState.leadId || null,
+        submittedAt: Date.now(),
+      };
+      try {
+        sessionStorage.setItem(STORAGE_KEY, JSON.stringify(ctx));
+      } catch (e) {
+        // sessionStorage unavailable (private mode) — non-fatal, just
+        // means expiry/refresh persistence won't work for this visitor.
+      }
+      return { ...ctx, isFreshSubmission: true };
     }
-  }, [formType, navigate]);
 
-  if (!formType || !CONFIG[formType]) return null;
+    try {
+      const stored = sessionStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        const isValidShape = parsed?.fromForm && CONFIG[parsed.fromForm] && parsed?.submittedAt;
+        const isExpired = isValidShape && (Date.now() - parsed.submittedAt > SESSION_DURATION_MS);
+
+        if (isValidShape && !isExpired) {
+          return { ...parsed, isFreshSubmission: false };
+        }
+        sessionStorage.removeItem(STORAGE_KEY);
+      }
+    } catch (e) {
+      // ignore malformed/inaccessible storage
+    }
+    return null;
+  });
+
+  const formType = context?.fromForm;
+  const isDemand = formType === "demand";
+  const showProfilesSection = isDemand && !context?.duplicate;
+
+  // Mount-time validation / redirect for missing or already-expired context.
+  useEffect(() => {
+    if (!context) {
+      navigate("/demand-form", { replace: true });
+      return;
+    }
+
+    if (!context.isFreshSubmission && !isDemand) {
+      navigate("/demand-form", { replace: true });
+      return;
+    }
+
+    if (context.isFreshSubmission) {
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Live expiry check — fires WHILE the page is open, not just on
+  // load/refresh. Necessary at 5-minute granularity: without this, someone
+  // could leave the tab open past the limit and never get redirected until
+  // they happened to refresh.
+  useEffect(() => {
+    if (!context?.submittedAt) return;
+
+    const checkExpiry = () => {
+      const elapsed = Date.now() - context.submittedAt;
+      if (elapsed > SESSION_DURATION_MS) {
+        try {
+          sessionStorage.removeItem(STORAGE_KEY);
+        } catch (e) {
+          // ignore
+        }
+        navigate("/demand-form", { replace: true });
+      }
+    };
+
+    const intervalId = setInterval(checkExpiry, 5000); // check every 5s
+    return () => clearInterval(intervalId);
+  }, [context, navigate]);
+
+  if (!context) return null;
+  if (!context.isFreshSubmission && !isDemand) return null;
 
   const cfg = CONFIG[formType];
+
+  // Card used for supply / agent, and for a duplicate demand submission
+  // (i.e. any time we're NOT showing the profiles grid).
+  const cardMarkup = (
+    <div className="ty-card">
+      {/* ── Header ── */}
+      <div className="ty-header">
+        <div className="ty-header-left">
+          <img src="./logoOnly.webp" alt="DomesticPro" className="ty-logo" />
+          <div>
+            <div className="ty-brand">DomesticPro</div>
+            <div className="ty-brand-tagline">24×7 Live-In Helper Service</div>
+          </div>
+        </div>
+        <span className="ty-form-tag">{cfg.formType}</span>
+      </div>
+
+      {/* ── Body ── */}
+      <div className="ty-body">
+        <div className="ty-success-row">
+          <SuccessMark />
+          <div className="ty-success-text-group">
+            <span className="ty-submitted-label">Submission confirmed</span>
+            <span className="ty-submitted-time">
+              {new Date().toLocaleDateString("en-IN", {
+                day: "numeric", month: "long", year: "numeric",
+              })}
+            </span>
+          </div>
+        </div>
+
+        <h1 className="ty-title">{cfg.title}</h1>
+
+        <div className="ty-desc">
+          {(isDemand && context.duplicate ? cfg.duplicateDesc : cfg.desc).map((para, i) => (
+            <p key={i}>{para}</p>
+          ))}
+        </div>
+
+        <div className="ty-rule" />
+
+        {cfg.primaryLabel && (
+          <div className="ty-actions">
+            <button className="ty-btn-p" onClick={() => navigate(cfg.primaryPath)}>
+              {cfg.primaryLabel} <ArrowRight />
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* ── Footer ── */}
+      <div className="ty-footer">
+        <div className="ty-footer-support">
+          <PhoneSVG />
+          <span>Need help?&nbsp;</span>
+          <a href="tel:+919211298139">+91 92112 98139</a>
+        </div>
+        <span className="ty-footer-brand">domesticpro.in</span>
+      </div>
+    </div>
+  );
+
+  // Green banner shown in place of the card for the profiles flow —
+  // same wording as the card (cfg.title + cfg.desc), just above the
+  // "Recommended Profiles For You" heading rendered by HelperProfilesGrid.
+  const successBanner = (
+    <div className="ty-success-strip">
+      <div className="ty-success-strip-icon">
+        <BannerCheck />
+      </div>
+      <div className="ty-success-strip-text">
+        <p className="ty-success-strip-title">{cfg.title}</p>
+        {cfg.desc.map((para, i) => (
+          <p key={i} className="ty-success-strip-desc">{para}</p>
+        ))}
+      </div>
+    </div>
+  );
 
   return (
     <>
@@ -109,7 +278,7 @@ export default function ThankYou() {
 
         body { background: var(--page-bg); }
 
-        /* ── PAGE ── */
+        /* ── PAGE (supply / agent — unchanged, centered) ── */
         .ty-page {
           min-height: 100vh;
           background: var(--page-bg);
@@ -122,8 +291,73 @@ export default function ThankYou() {
           -webkit-font-smoothing: antialiased;
         }
 
-        /* ── CARD ── */
+        /* ── PAGE (demand — profiles in flow) ── */
+        .ty-page-demand {
+          min-height: 100vh;
+          background: var(--page-bg);
+          font-family: 'Plus Jakarta Sans', sans-serif;
+          -webkit-font-smoothing: antialiased;
+        }
+        .ty-profiles-wrap {
+          max-width: 1120px;
+          margin: 0 auto;
+          padding: 40px 20px 64px;
+        }
+        .ty-profiles-heading {
+          font-size: 24px;
+          font-weight: 700;
+          color: var(--ink);
+          letter-spacing: -0.02em;
+          margin-bottom: 6px;
+        }
+        .ty-profiles-subheading {
+          font-size: 13.5px;
+          color: var(--ink-light);
+          margin-bottom: 28px;
+        }
+
+        /* ── GREEN SUCCESS STRIP (replaces the modal on the profiles page) ── */
+        .ty-success-strip {
+          display: flex;
+          align-items: flex-start;
+          gap: 12px;
+          background: #F0FDF4;
+          border: 1px solid #BBF7D0;
+          border-left: 4px solid #16A34A;
+          border-radius: 10px;
+          padding: 14px 18px;
+          margin-bottom: 24px;
+          opacity: 0;
+          transform: translateY(6px);
+          animation: reveal .32s ease forwards;
+        }
+        .ty-success-strip-icon {
+          flex-shrink: 0;
+          width: 26px;
+          height: 26px;
+          border-radius: 999px;
+          background: #DCFCE7;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin-top: 1px;
+        }
+        .ty-success-strip-title {
+          font-size: 15px;
+          font-weight: 700;
+          color: #14532D;
+          margin-bottom: 4px;
+        }
+        .ty-success-strip-desc {
+          font-size: 13px;
+          line-height: 1.65;
+          color: #166534;
+        }
+        .ty-success-strip-desc + .ty-success-strip-desc { margin-top: 4px; }
+
+        /* ── CARD (supply / agent / duplicate demand) ── */
         .ty-card {
+          position: relative;
           width: 100%;
           max-width: 492px;
           background: var(--surface);
@@ -345,70 +579,27 @@ export default function ThankYou() {
         }
       `}</style>
 
-      <div className="ty-page">
-        <div className="ty-card">
-
-          {/* ── Header ── */}
-          <div className="ty-header">
-            <div className="ty-header-left">
-              <img src="./logoOnly.webp" alt="DomesticPro" className="ty-logo" />
-              <div>
-                <div className="ty-brand">DomesticPro</div>
-                <div className="ty-brand-tagline">24×7 Live-In Helper Service</div>
-              </div>
-            </div>
-            <span className="ty-form-tag">{cfg.formType}</span>
-          </div>
-
-          {/* ── Body ── */}
-          <div className="ty-body">
-
-            {/* Success mark + label */}
-            <div className="ty-success-row">
-              <SuccessMark />
-              <div className="ty-success-text-group">
-                <span className="ty-submitted-label">Submission confirmed</span>
-                <span className="ty-submitted-time">
-                  {new Date().toLocaleDateString("en-IN", {
-                    day: "numeric", month: "long", year: "numeric",
-                  })}
-                </span>
-              </div>
-            </div>
-
-            {/* Title */}
-            <h1 className="ty-title">{cfg.title}</h1>
-
-            {/* Description */}
-            <div className="ty-desc">
-              {cfg.desc.map((para, i) => (
-                <p key={i}>{para}</p>
-              ))}
-            </div>
-
-            <div className="ty-rule" />
-
-            {/* Actions */}
-            <div className="ty-actions">
-              <button className="ty-btn-p" onClick={() => navigate(cfg.primaryPath)}>
-                {cfg.primaryLabel} <ArrowRight />
-              </button>
-            </div>
-
-          </div>
-
-          {/* ── Footer ── */}
-          <div className="ty-footer">
-            <div className="ty-footer-support">
-              <PhoneSVG />
-              <span>Need help?&nbsp;</span>
-              <a href="tel:+919211298139">+91 92112 98139</a>
-            </div>
-            <span className="ty-footer-brand">domesticpro.in</span>
-          </div>
-
+{showProfilesSection ? (
+  <div className="ty-page-demand">
+    <div className="ty-profiles-wrap">
+      <HelperProfilesGrid
+        serviceType={context.serviceType}
+        clientCity={context.city}
+        clientBudgets={context.budget}
+        clientGender={context.gender}
+        mobile={context.mobile}
+        leadId={context.leadId}
+        submissionKey={context.mobile ? `${context.mobile}_${context.submittedAt}` : null}
+        bannerTitle={cfg.title}
+        bannerDesc={cfg.desc}
+      />
+    </div>
+  </div>
+) : (
+        <div className="ty-page">
+          {cardMarkup}
         </div>
-      </div>
+      )}
     </>
   );
 }

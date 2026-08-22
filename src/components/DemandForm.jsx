@@ -663,9 +663,24 @@ export default function DemandForm() {
         PlanType: "Priority",
         PaymentStatus: "Paid",
       });
-      await axios.post(`${API_BASE}/submit-nopay`, { zohoFields });
+            const res = await axios.post(`${API_BASE}/submit-nopay`, { zohoFields });
+      const isDuplicate = !!res?.data?.duplicate;
+      const leadId = res?.data?.leadId || null;
       setForm({ ...INIT });
-      navigate("/thank-you", { state: { fromForm: "demand" } });
+      const serviceLabel = SERVICE_OPTIONS.find((s) => s.value === form.ServiceType)?.label || form.ServiceType;
+      navigate("/thank-you", {
+        state: {
+          fromForm: "demand",
+          serviceType: form.ServiceType,
+          serviceLabel,
+          duplicate: isDuplicate,
+          city: form.City,       // used to rank recommended profiles by city match
+          budget: form.Budget, 
+          gender: form.HelperGender,  // used to rank recommended profiles by budget match
+          mobile: form.Phone,
+          leadId,                // avoids re-searching Zoho by mobile later
+        },
+      });
     } catch (err) {
       setStatus("error");
       setStatusMsg(
