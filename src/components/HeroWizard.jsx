@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Check, ArrowLeft, X, CheckCircle2, Briefcase, Loader2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 import CitySelect from "./CitySelect";
 
@@ -90,6 +91,9 @@ export default function HeroWizard({
   onSubmit,
   initialService,
 }) {
+
+  const navigate = useNavigate();
+
   // ── Initial state ──────────────────────────────────────────────────────────
   const getInitialState = () => {
     if (initialService) {
@@ -202,17 +206,35 @@ export default function HeroWizard({
       });
       const result = await submitNoPay(zohoFields);
       onSubmit?.(zohoFields, result);
-      const doneIdx = steps.indexOf("done");
-      setDir(1);
-      setStepIdx(doneIdx);
+
+      // Route to the same /thank-you flow DemandForm uses — recommended
+      // profiles, gender/city/budget ranking, the green success banner —
+      // instead of the wizard's own inline "done" step, so both entry
+      // points land on the identical experience.
+      if (asModal) onClose?.(); // tidy up if the modal is controlled externally
+      navigate("/thank-you", {
+        state: {
+          fromForm: "demand",
+          serviceType: form.ServiceType,
+          serviceLabel: form.ServiceLabel || form.ServiceType,
+          duplicate: !!result?.duplicate,
+          city: form.City,
+          budget: form.Budget,
+          gender: form.HelperGender,
+          mobile: form.Phone,
+          leadId: result?.leadId || null,
+        },
+      });
+      // Not resetting `submitting` here — we're navigating away, so the
+      // wizard is about to unmount and there's nothing left to update.
     } catch (err) {
       setSubmitError(
         err.message.includes("VITE_REACT_APP_API")
           ? "Backend URL not configured. Set VITE_REACT_APP_API in your .env file."
           : "We couldn't save your request. Please try again or call us on +91 92112 98139."
       );
+      setSubmitting(false);
     }
-    setSubmitting(false);
   };
 
   const resetWizard = () => {
