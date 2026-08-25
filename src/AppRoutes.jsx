@@ -41,6 +41,8 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 const FeedbackForm = lazy(() => import("./pages/FeedbackForm"));
 const WhatsAppInbox = lazy(() => import("./pages/WhatsAppInbox"));
 const TrialFeedbackForm = lazy(() => import("./pages/TrialFeedbackForm"));
+const OpsLogin = lazy(() => import("./pages/ops/OpsLogin"));
+const OpsTrials = lazy(() => import("./pages/ops/OpsTrials"));
 
 
 export const routes = [
@@ -60,7 +62,7 @@ export const routes = [
   { path: "/refund-policy", element: <RefundPolicy /> },
   { path: "/privacy-policy", element: <PrivacyPolicy /> },
   { path: "/whatsapp-inbox", element: <WhatsAppInbox /> },
-  
+
 ];
 
 const HIDE_LAYOUT_PATHS = new Set([
@@ -109,10 +111,11 @@ export default function AppRoutes() {
   }, [location.pathname]);
 
   const matchedPublicRoute = matchRoutes(routes, location);
-  const isHideLayout = HIDE_LAYOUT_PATHS.has(location.pathname);
+  const isHideLayout =
+    HIDE_LAYOUT_PATHS.has(location.pathname) ||
+    location.pathname.startsWith("/ops/");
   const is404 = !matchedPublicRoute && !isHideLayout;
   const showLayout = !isHideLayout && !is404;
-  console.log(is404, showLayout);
 
   return (
     <>
@@ -136,6 +139,8 @@ export default function AppRoutes() {
           <Route path="/generate-payment-link" element={<GeneratePaymentLink />} />
           <Route path="/pay" element={<Pay />} />
           <Route path="/feedback" element={<FeedbackForm />} />
+          <Route path="/ops/login" element={<OpsLogin />} />
+          <Route path="/ops/trials" element={<OpsTrials />} />
           <Route path="/404" element={<NotFound />} />
           <Route path="*" element={<NotFound />} />
           <Route path="/trial-feedback" element={<TrialFeedbackForm />} />

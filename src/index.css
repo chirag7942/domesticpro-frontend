@@ -122,7 +122,7 @@ html{
     .hw2-age-hint  { font-size: 11.5px; color: #9ca3af; font-weight: 500; padding-left: 2px; }
 
     /* SERVICE CARD */
-    .hw2-svc-card { position: relative; overflow: hidden; display: flex; flex-direction: column; padding: 0; border-radius: 14px; border: 2px solid; cursor: pointer; height: 6.8rem; background: #f3ede9; transition: border-color .22s, box-shadow .22s, transform .18s; }
+    .hw2-svc-card { position: relative; overflow: hidden; display: flex; flex-direction: column; padding: 0; border-radius: 14px; border: 2px solid; cursor: pointer; background: #f3ede9; transition: border-color .22s, box-shadow .22s, transform .18s; }
     .hw2-svc-card:hover { transform: translateY(-2px); }
     .hw2-svc-img  { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .45s; }
     .hw2-svc-card:hover .hw2-svc-img { transform: scale(1.07); }
@@ -130,6 +130,9 @@ html{
     .hw2-svc-tint    { position: absolute; inset: 0; pointer-events: none; transition: background .2s; }
     .hw2-svc-label   { position: absolute; bottom: 8px; left: 0; right: 0; text-align: center; color: #fff; font-size: 11px; font-weight: 800; line-height: 1.25; text-shadow: 0 1px 5px rgba(0,0,0,.7); padding: 0 5px; pointer-events: none; }
     .hw2-svc-check   { position: absolute; top: 7px; right: 7px; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 7px rgba(0,0,0,0.30); }
+    .hw2-svc-emoji-wrap { flex: 1; display: flex; align-items: center; justify-content: center; padding-top: 6px; }
+    .hw2-svc-emoji { font-size: 26px; line-height: 1; }
+    .hw2-svc-label-flat { position: static !important; color: #1a1a2e !important; text-shadow: none !important; padding: 0 6px 10px !important; }
 
     /* GENDER CARD */
     .hw2-gender-card { position: relative; overflow: hidden; display: flex; padding: 0; border-radius: 14px; border: 2px solid; cursor: pointer; height: 7.5rem; background: #f3ede9; transition: border-color .22s, box-shadow .22s, transform .18s; }
@@ -142,9 +145,10 @@ html{
     .hw2-gender-check { position: absolute; top: 7px; right: 7px; width: 20px; height: 20px; border-radius: 50%; background: #EC5F36; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(236,95,54,.50); }
 
     /* PILL */
-    .hw2-pill { width: 100%; height:5rem; display: flex; align-items: center; gap: 11px; padding: 11px 13px; border-radius: 12px; border: 2px solid; cursor: pointer; text-align: left; font-family: 'Plus Jakarta Sans', sans-serif; transition: all .2s; }
+    .hw2-pill { width: 33.33%; height:4rem; display: flex; align-items: center; gap: 11px; padding: 11px 13px; border-radius: 12px; border: 2px solid; cursor: pointer; text-align: left; font-family: 'Plus Jakarta Sans', sans-serif; transition: all .2s; }
+    .hw2-pill-pref { height:4rem; display: flex; align-items: center; gap: 11px; padding: 11px 13px; border-radius: 12px; border: 2px solid; cursor: pointer; text-align: left; font-family: 'Plus Jakarta Sans', sans-serif; transition: all .2s; }
     .hw2-pill-ico   { width: 34px; height: 34px; border-radius: 9px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background .2s; }
-    .hw2-pill-txt   { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+    .hw2-pill-txt   { display: flex; flex-direction: column; flex: 1; min-width: 0; text-align: center;}
     .hw2-pill-label { font-size: 13px; font-weight: 700; line-height: 1.2; }
     .hw2-pill-desc  { font-size: 11px; font-weight: 500; margin-top: 1px; }
 
