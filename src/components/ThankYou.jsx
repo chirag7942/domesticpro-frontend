@@ -15,6 +15,10 @@ const CONFIG = {
       "We already have your requirement on file and our team is working on it.",
       "No need to submit it again — we'll reach out with matching helper profiles shortly.",
     ],
+    unavailableDesc: [
+      "Your request has been received and our team will review it shortly.",
+      "We don't have matched profiles ready in your area for this service just yet, but we'll personally reach out with options soon.",
+    ],
   },
   // supply, agent unchanged
   supply: {
@@ -126,7 +130,18 @@ export default function ThankYou() {
 
   const formType = context?.fromForm;
   const isDemand = formType === "demand";
-  const showProfilesSection = isDemand && !context?.duplicate;
+
+  const NCR_CITIES = ["delhincr", "faridabad", "gurgaon", "noida", "greaternoida", "ghaziabad", "delhi"];
+
+  function normalizeCityForMatching(city) {
+    return String(city || "").toLowerCase().replace(/[^a-z]/g, "");
+  }
+
+  const isJapaService = String(context?.serviceType || "").toLowerCase().trim() === "japa";
+  const isNcrCity = NCR_CITIES.includes(normalizeCityForMatching(context?.city));
+  const canShowProfiles = isJapaService || isNcrCity;
+
+  const showProfilesSection = isDemand && !context?.duplicate && canShowProfiles;
 
   // Mount-time validation / redirect for missing or already-expired context.
   useEffect(() => {
@@ -207,7 +222,12 @@ export default function ThankYou() {
         <h1 className="ty-title">{cfg.title}</h1>
 
         <div className="ty-desc">
-          {(isDemand && context.duplicate ? cfg.duplicateDesc : cfg.desc).map((para, i) => (
+          {(isDemand && context.duplicate
+            ? cfg.duplicateDesc
+            : isDemand && !canShowProfiles
+              ? cfg.unavailableDesc
+              : cfg.desc
+          ).map((para, i) => (
             <p key={i}>{para}</p>
           ))}
         </div>
@@ -579,27 +599,27 @@ export default function ThankYou() {
         }
       `}</style>
 
-{showProfilesSection ? (
-  <div className="ty-page-demand">
-    <div className="ty-profiles-wrap">
-      <HelperProfilesGrid
-        serviceType={context.serviceType}
-        clientCity={context.city}
-        clientBudgets={context.budget}
-        clientGender={context.gender}
-        mobile={context.mobile}
-        leadId={context.leadId}
-        submissionKey={context.mobile ? `${context.mobile}_${context.submittedAt}` : null}
-        bannerTitle={cfg.title}
-        bannerDesc={cfg.desc}
-      />
-    </div>
-  </div>
-) : (
+      {showProfilesSection ? (
+        <div className="ty-page-demand">
+          <div className="ty-profiles-wrap">
+            <HelperProfilesGrid
+              serviceType={context.serviceType}
+              clientCity={context.city}
+              clientBudgets={context.budget}
+              clientGender={context.gender}
+              mobile={context.mobile}
+              leadId={context.leadId}
+              submissionKey={context.mobile ? `${context.mobile}_${context.submittedAt}` : null}
+              bannerTitle={cfg.title}
+              bannerDesc={cfg.desc}
+            />
+          </div>
+        </div>
+      ) : (
         <div className="ty-page">
           {cardMarkup}
         </div>
       )}
     </>
-  );
+  );//hello
 }
